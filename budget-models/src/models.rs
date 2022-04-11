@@ -10,15 +10,16 @@
 // LAST EDITED:     04/10/2022
 ////
 
+use serde::{Serialize, Deserialize};
 use super::schema::accounts;
 
-#[derive(Queryable)]
+#[derive(Serialize, Deserialize, Queryable)]
 pub struct Account {
     pub id: i32,
     pub name: String,
 }
 
-#[derive(Insertable)]
+#[derive(Serialize, Deserialize, Insertable)]
 #[table_name="accounts"]
 pub struct NewAccount<'a> {
     pub name: &'a str,

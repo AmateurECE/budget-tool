@@ -1,0 +1,11 @@
+[package]
+name = "budget-service"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.5.1"
+budget-models = { path = "../budget-models" }
+tokio = { version = "1.17", features = ["full"] }
+clap = { version = "3.1.8", features = ["derive"] }
+dotenv = "0.15.0"

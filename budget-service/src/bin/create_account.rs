@@ -10,12 +10,10 @@
 // LAST EDITED:     04/10/2022
 ////
 
-extern crate budget_models;
-extern crate diesel;
-
+use std::env;
+use budget_models::{Database, account};
 use clap::Parser;
-
-use self::budget_models::*;
+use dotenv::dotenv;
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -25,8 +23,11 @@ struct Args {
 
 fn main() {
     let args = Args::parse();
-    let connection = establish_connection();
-    let account = create_account(&connection, &args.name);
+    dotenv().ok();
+    let database_url = env::var("DATABASE_URL")
+        .expect("DATABASE_URL must be set");
+    let db = Database::connect(database_url);
+    let account = account::create(&db, &args.name);
     println!("Created account with name={}, id={}", account.name, account.id);
 }
 

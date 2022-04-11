@@ -12,36 +12,44 @@
 
 #[macro_use]
 extern crate diesel;
-extern crate dotenv;
-extern crate clap;
 
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
-use dotenv::dotenv;
-use std::env;
 
 pub mod schema;
 pub mod models;
 
-use self::models::{Account, NewAccount};
+pub struct Database(PgConnection);
+impl Database {
+    pub fn connect(url: String) -> Self {
+        Database(
+            PgConnection::establish(&url)
+                .expect(&format!("Error connecting to {}", url))
+        )
+    }
 
-pub fn establish_connection() -> PgConnection {
-    dotenv().ok();
-
-    let database_url = env::var("DATABASE_URL")
-        .expect("DATABASE_URL must be set");
-    PgConnection::establish(&database_url)
-        .expect(&format!("Error connecting to {}", database_url))
+    pub fn get(&self) -> &PgConnection { &self.0 }
 }
 
-pub fn create_account<'a>(conn: &PgConnection, name: &'a str) -> Account {
-    use schema::accounts;
+pub mod account {
+    use diesel::prelude::*;
 
-    let new_account = NewAccount { name };
-    diesel::insert_into(accounts::table)
-        .values(&new_account)
-        .get_result(conn)
-        .expect("Error saving new account!")
+    use crate::Database;
+    use crate::models::{Account, NewAccount};
+    use crate::schema::accounts;
+
+    pub fn create<'a>(db: &Database, name: &'a str) -> Account {
+        let new_account = NewAccount { name };
+        diesel::insert_into(accounts::table)
+            .values(&new_account)
+            .get_result(db.get())
+            .expect("Error saving new account!")
+    }
+
+    pub fn list(db: &Database) -> Vec<Account> {
+        accounts::dsl::accounts.load::<Account>(db.get())
+            .expect("Error loading accounts from database!")
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
