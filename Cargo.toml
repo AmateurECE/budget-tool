@@ -3,3 +3,7 @@ members = [
     "budget-models",
     "budget-service",
 ]
+
+exclude = [
+    "budget-frontend",
+]

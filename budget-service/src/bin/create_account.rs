@@ -7,11 +7,11 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/10/2022
+// LAST EDITED:     04/11/2022
 ////
 
 use std::env;
-use budget_models::{Database, account};
+use budget_models::{Database, account, models::AccountType};
 use clap::Parser;
 use dotenv::dotenv;
 
@@ -19,6 +19,9 @@ use dotenv::dotenv;
 struct Args {
     /// Name of the account
     name: String,
+
+    /// Account type
+    account_type: String,
 }
 
 fn main() {
@@ -27,7 +30,9 @@ fn main() {
     let database_url = env::var("DATABASE_URL")
         .expect("DATABASE_URL must be set");
     let db = Database::connect(database_url);
-    let account = account::create(&db, &args.name);
+
+    let account_type: AccountType = args.account_type.try_into().unwrap();
+    let account = account::create(&db, &args.name, account_type);
     println!("Created account with name={}, id={}", account.name, account.id);
 }
 

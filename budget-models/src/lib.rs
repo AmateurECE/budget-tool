@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/10/2022
+// LAST EDITED:     04/11/2022
 ////
 
 #[macro_use]
@@ -16,7 +16,6 @@ extern crate diesel;
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
 
-pub mod schema;
 pub mod models;
 
 pub struct Database(PgConnection);
@@ -35,11 +34,13 @@ pub mod account {
     use diesel::prelude::*;
 
     use crate::Database;
-    use crate::models::{Account, NewAccount};
-    use crate::schema::accounts;
+    use crate::models::{accounts, Account, NewAccount, AccountType};
 
-    pub fn create<'a>(db: &Database, name: &'a str) -> Account {
-        let new_account = NewAccount { name };
+    pub fn create<'a>(
+        db: &Database, name: &'a str, account_type: AccountType
+    ) -> Account
+    {
+        let new_account = NewAccount { name, account_type };
         diesel::insert_into(accounts::table)
             .values(&new_account)
             .get_result(db.get())
