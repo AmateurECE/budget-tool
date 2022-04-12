@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/11/2022
+// LAST EDITED:     04/12/2022
 ////
 
 use std::env;
@@ -22,7 +22,8 @@ fn main() {
     let results = account::list(&db);
     println!("Displaying {} accounts", results.len());
     for account in results {
-        println!("{}, {:?}", account.name, account.account_type);
+        println!("{}, {:?}, {}", account.name, account.account_type,
+                 account.apr);
     }
 }
 

@@ -7,8 +7,9 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/11/2022
+// LAST EDITED:     04/12/2022
 ////
+
 use std::convert::TryFrom;
 
 use diesel_derive_enum::DbEnum;
@@ -43,16 +44,18 @@ pub struct Account {
     pub id: i32,
     pub name: String,
     pub account_type: AccountType,
+    pub apr: f64,
 }
 
 table! {
-    use diesel::sql_types::{Int4, Varchar};
+    use diesel::sql_types::{Double, Int4, Varchar};
     use super::AccountTypeMapping;
 
     accounts (id) {
         id -> Int4,
         name -> Varchar,
         account_type -> AccountTypeMapping,
+        apr -> Double,
     }
 }
 
@@ -61,6 +64,7 @@ table! {
 pub struct NewAccount<'a> {
     pub name: &'a str,
     pub account_type: AccountType,
+    pub apr: f64,
 }
 
 ///////////////////////////////////////////////////////////////////////////////

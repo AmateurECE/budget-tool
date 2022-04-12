@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/11/2022
+// LAST EDITED:     04/12/2022
 ////
 
 #[macro_use]
@@ -40,7 +40,7 @@ pub mod account {
         db: &Database, name: &'a str, account_type: AccountType
     ) -> Account
     {
-        let new_account = NewAccount { name, account_type };
+        let new_account = NewAccount { name, account_type, apr: 0.0 };
         diesel::insert_into(accounts::table)
             .values(&new_account)
             .get_result(db.get())
