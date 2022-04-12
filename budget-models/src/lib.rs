@@ -31,6 +31,7 @@ impl Database {
 }
 
 pub mod account {
+    use chrono::offset::Local;
     use diesel::prelude::*;
 
     use crate::Database;
@@ -40,7 +41,10 @@ pub mod account {
         db: &Database, name: &'a str, account_type: AccountType
     ) -> Account
     {
-        let new_account = NewAccount { name, account_type, apr: 0.0 };
+        let new_account = NewAccount {
+            name, account_type, apr: 0.0,
+            accruing_start_date: Local::now().naive_local()
+        };
         diesel::insert_into(accounts::table)
             .values(&new_account)
             .get_result(db.get())

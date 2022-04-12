@@ -22,8 +22,8 @@ fn main() {
     let results = account::list(&db);
     println!("Displaying {} accounts", results.len());
     for account in results {
-        println!("{}, {:?}, {}", account.name, account.account_type,
-                 account.apr);
+        println!("{}, {:?}, {}, {}", account.name, account.account_type,
+                 account.apr, account.accruing_start_date);
     }
 }
 

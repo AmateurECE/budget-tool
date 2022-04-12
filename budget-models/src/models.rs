@@ -12,6 +12,7 @@
 
 use std::convert::TryFrom;
 
+use chrono::naive::{NaiveDateTime, serde::ts_milliseconds};
 use diesel_derive_enum::DbEnum;
 use serde::{Serialize, Deserialize};
 
@@ -45,10 +46,13 @@ pub struct Account {
     pub name: String,
     pub account_type: AccountType,
     pub apr: f64,
+
+    #[serde(with = "ts_milliseconds")]
+    pub accruing_start_date: NaiveDateTime,
 }
 
 table! {
-    use diesel::sql_types::{Double, Int4, Varchar};
+    use diesel::sql_types::{Double, Int4, Varchar, Timestamp};
     use super::AccountTypeMapping;
 
     accounts (id) {
@@ -56,6 +60,7 @@ table! {
         name -> Varchar,
         account_type -> AccountTypeMapping,
         apr -> Double,
+        accruing_start_date -> Timestamp,
     }
 }
 
@@ -65,6 +70,9 @@ pub struct NewAccount<'a> {
     pub name: &'a str,
     pub account_type: AccountType,
     pub apr: f64,
+
+    #[serde(with = "ts_milliseconds")]
+    pub accruing_start_date: NaiveDateTime,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
