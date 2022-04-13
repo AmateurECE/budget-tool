@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/12/2022
+// LAST EDITED:     04/13/2022
 ////
 
 use std::convert::TryFrom;
@@ -15,6 +15,10 @@ use std::convert::TryFrom;
 use chrono::naive::{NaiveDateTime, serde::ts_milliseconds};
 use diesel_derive_enum::DbEnum;
 use serde::{Serialize, Deserialize};
+
+///////////////////////////////////////////////////////////////////////////////
+// AccountType
+////
 
 #[derive(Serialize, Deserialize, DbEnum, Debug, PartialEq)]
 pub enum AccountType {
@@ -39,6 +43,10 @@ impl TryFrom<String> for AccountType {
         }
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// Account
+////
 
 #[derive(Serialize, Deserialize, Queryable)]
 pub struct Account {
@@ -73,6 +81,29 @@ pub struct NewAccount<'a> {
 
     #[serde(with = "ts_milliseconds")]
     pub accruing_start_date: NaiveDateTime,
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Periodic Budget
+////
+
+#[derive(Serialize, Deserialize, Queryable)]
+pub struct PeriodicBudget {
+    pub id: i32,
+    #[serde(with = "ts_milliseconds")]
+    pub start_date: NaiveDateTime,
+    #[serde(with = "ts_milliseconds")]
+    pub end_date: NaiveDateTime,
+}
+
+table! {
+    use diesel::sql_types::{Int4, Timestamp};
+
+    periodic_budgets (id) {
+        id -> Int4,
+        start_date -> Timestamp,
+        end_date -> Timestamp,
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
