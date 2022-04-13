@@ -107,3 +107,22 @@ table! {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// One-Time Budgets
+////
+
+#[derive(Serialize, Deserialize, Queryable)]
+pub struct OneTimeBudget {
+    pub id: i32,
+    pub description: String,
+}
+
+table! {
+    use diesel::sql_types::{Int4, Text};
+
+    one_time_budgets (id) {
+        id -> Int4,
+        description -> Text,
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////

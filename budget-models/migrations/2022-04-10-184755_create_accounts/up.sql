@@ -12,3 +12,8 @@ CREATE TABLE periodic_budgets (
        start_date TIMESTAMP,
        end_date TIMESTAMP
 );
+
+CREATE TABLE one_time_budgets (
+       id SERIAL PRIMARY KEY,
+       description TEXT NOT NULL
+);
