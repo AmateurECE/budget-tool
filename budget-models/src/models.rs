@@ -60,12 +60,12 @@ pub struct Account {
 }
 
 table! {
-    use diesel::sql_types::{Double, Int4, Varchar, Timestamp};
+    use diesel::sql_types::{Double, Int4, Text, Timestamp};
     use super::AccountTypeMapping;
 
     accounts (id) {
         id -> Int4,
-        name -> Varchar,
+        name -> Text,
         account_type -> AccountTypeMapping,
         apr -> Double,
         accruing_start_date -> Timestamp,
