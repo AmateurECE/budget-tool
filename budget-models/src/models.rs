@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/13/2022
+// LAST EDITED:     04/14/2022
 ////
 
 use std::convert::TryFrom;
@@ -122,6 +122,52 @@ table! {
     one_time_budgets (id) {
         id -> Int4,
         description -> Text,
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Categories
+////
+
+#[derive(Serialize, Deserialize, Queryable)]
+pub struct Category {
+    pub name: String,
+}
+
+table! {
+    use diesel::sql_types::Text;
+
+    categories (name) {
+        name -> Text,
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Budget Items
+////
+
+#[derive(Serialize, Deserialize, Queryable)]
+pub struct BudgetItem {
+    pub id: i32,
+    pub description: String,
+    pub category: String,
+    pub budgeted: f32,
+    pub account: i32,
+    pub periodic_budget: i32,
+    pub one_time_budget: i32,
+}
+
+table! {
+    use diesel::sql_types::{Int4, Money, Text};
+
+    budget_items (id) {
+        id -> Int4,
+        description -> Text,
+        category -> Text,
+        budgeted -> Money,
+        account -> Int4,
+        periodic_budget -> Int4,
+        one_time_budget -> Int4,
     }
 }
 
