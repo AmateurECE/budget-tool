@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "models",
+    "service",
 ]
 
 exclude = [

@@ -7,20 +7,23 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/14/2022
+// LAST EDITED:     04/15/2022
 ////
 
 use std::convert::TryFrom;
 
 use chrono::naive::{NaiveDateTime, serde::ts_milliseconds};
-use diesel_derive_enum::DbEnum;
 use serde::{Serialize, Deserialize};
+
+#[cfg(not(target_family = "wasm"))]
+use diesel_derive_enum::DbEnum;
 
 ///////////////////////////////////////////////////////////////////////////////
 // AccountType
 ////
 
-#[derive(Serialize, Deserialize, DbEnum, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[cfg_attr(not(target_family = "wasm"), derive(DbEnum))]
 pub enum AccountType {
     Checking,
     Saving,
@@ -48,7 +51,8 @@ impl TryFrom<String> for AccountType {
 // Account
 ////
 
-#[derive(Serialize, Deserialize, Queryable)]
+#[derive(Serialize, Deserialize)]
+#[cfg_attr(not(target_family = "wasm"), derive(Queryable))]
 pub struct Account {
     pub id: i32,
     pub name: String,
@@ -59,6 +63,7 @@ pub struct Account {
     pub accruing_start_date: NaiveDateTime,
 }
 
+#[cfg(not(target_family = "wasm"))]
 table! {
     use diesel::sql_types::{Double, Int4, Text, Timestamp};
     use super::AccountTypeMapping;
@@ -72,8 +77,9 @@ table! {
     }
 }
 
-#[derive(Serialize, Deserialize, Insertable)]
-#[table_name="accounts"]
+#[derive(Serialize, Deserialize)]
+#[cfg_attr(not(target_family = "wasm"), derive(Insertable))]
+#[cfg_attr(not(target_family = "wasm"), table_name="accounts")]
 pub struct NewAccount<'a> {
     pub name: &'a str,
     pub account_type: AccountType,
@@ -87,7 +93,8 @@ pub struct NewAccount<'a> {
 // Periodic Budget
 ////
 
-#[derive(Serialize, Deserialize, Queryable)]
+#[derive(Serialize, Deserialize)]
+#[cfg_attr(not(target_family = "wasm"), derive(Queryable))]
 pub struct PeriodicBudget {
     pub id: i32,
     #[serde(with = "ts_milliseconds")]
@@ -96,6 +103,7 @@ pub struct PeriodicBudget {
     pub end_date: NaiveDateTime,
 }
 
+#[cfg(not(target_family = "wasm"))]
 table! {
     use diesel::sql_types::{Int4, Timestamp};
 
@@ -110,12 +118,14 @@ table! {
 // One-Time Budgets
 ////
 
-#[derive(Serialize, Deserialize, Queryable)]
+#[derive(Serialize, Deserialize)]
+#[cfg_attr(not(target_family = "wasm"), derive(Queryable))]
 pub struct OneTimeBudget {
     pub id: i32,
     pub description: String,
 }
 
+#[cfg(not(target_family = "wasm"))]
 table! {
     use diesel::sql_types::{Int4, Text};
 
@@ -129,11 +139,13 @@ table! {
 // Categories
 ////
 
-#[derive(Serialize, Deserialize, Queryable)]
+#[derive(Serialize, Deserialize)]
+#[cfg_attr(not(target_family = "wasm"), derive(Queryable))]
 pub struct Category {
     pub name: String,
 }
 
+#[cfg(not(target_family = "wasm"))]
 table! {
     use diesel::sql_types::Text;
 
@@ -146,7 +158,8 @@ table! {
 // Budget Items
 ////
 
-#[derive(Serialize, Deserialize, Queryable)]
+#[derive(Serialize, Deserialize)]
+#[cfg_attr(not(target_family = "wasm"), derive(Queryable))]
 pub struct BudgetItem {
     pub id: i32,
     pub description: String,
@@ -157,6 +170,7 @@ pub struct BudgetItem {
     pub one_time_budget: i32,
 }
 
+#[cfg(not(target_family = "wasm"))]
 table! {
     use diesel::sql_types::{Int4, Money, Text};
 
@@ -175,7 +189,8 @@ table! {
 // TransactionType
 ////
 
-#[derive(Serialize, Deserialize, DbEnum, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[cfg_attr(not(target_family = "wasm"), derive(DbEnum))]
 pub enum TransactionType {
     Expense,
     Income,
@@ -203,7 +218,8 @@ impl TryFrom<String> for TransactionType {
 // Transaction
 ////
 
-#[derive(Serialize, Deserialize, Queryable)]
+#[derive(Serialize, Deserialize)]
+#[cfg_attr(not(target_family = "wasm"), derive(Queryable))]
 pub struct Transaction {
     pub id: i32,
     pub category: i32,
@@ -226,6 +242,7 @@ pub struct Transaction {
     pub periodic_budget: i32,
 }
 
+#[cfg(not(target_family = "wasm"))]
 table! {
     use diesel::sql_types::{Array, Int4, Money, Timestamp, Text};
     use super::TransactionTypeMapping;

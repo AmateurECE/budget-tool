@@ -7,9 +7,10 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/14/2022
+// LAST EDITED:     04/15/2022
 ////
 
+#[cfg(not(target_family = "wasm"))]
 #[macro_use]
 extern crate diesel;
 
