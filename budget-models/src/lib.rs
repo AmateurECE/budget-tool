@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/12/2022
+// LAST EDITED:     04/14/2022
 ////
 
 #[macro_use]
@@ -17,6 +17,7 @@ use diesel::prelude::*;
 use diesel::pg::PgConnection;
 
 pub mod models;
+pub mod entities;
 
 pub struct Database(PgConnection);
 impl Database {
