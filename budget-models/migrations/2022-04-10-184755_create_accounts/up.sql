@@ -27,5 +27,29 @@ CREATE TABLE budget_items (
        budgeted MONEY,
        account SERIAL,
        periodic_budget SERIAL,
-       one_time_budget SERIAL,
+       one_time_budget SERIAL
+);
+
+CREATE TYPE TransactionType AS ENUM (
+       'Expense',
+       'Income',
+       'Transfer',
+       'Correction'
+);
+
+CREATE TABLE transactions (
+       id SERIAL PRIMARY KEY,
+       category SERIAL NOT NULL,
+       line_item SERIAL NOT NULL,
+       transaction_type TransactionType,
+       sending_account SERIAL,
+       receiving_account SERIAL,
+       transfer_fees MONEY,
+       receiving_entity TEXT,
+       amount MONEY,
+       tags TEXT[],
+       send_date TIMESTAMP,
+       receive_date TIMESTAMP,
+       corrects SERIAL,
+       periodic_budget SERIAL
 );

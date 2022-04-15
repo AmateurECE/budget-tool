@@ -172,3 +172,80 @@ table! {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// TransactionType
+////
+
+#[derive(Serialize, Deserialize, DbEnum, Debug, PartialEq)]
+pub enum TransactionType {
+    Expense,
+    Income,
+    Transfer,
+    Correction,
+}
+
+#[derive(Debug)]
+pub struct ParseTransactionTypeError;
+
+impl TryFrom<String> for TransactionType {
+    type Error = ParseTransactionTypeError;
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        match value.as_str() {
+            "Expense" => Ok(TransactionType::Expense),
+            "Income" => Ok(TransactionType::Income),
+            "Transfer" => Ok(TransactionType::Transfer),
+            "Correction" => Ok(TransactionType::Correction),
+            _ => Err(ParseTransactionTypeError),
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Transaction
+////
+
+#[derive(Serialize, Deserialize, Queryable)]
+pub struct Transaction {
+    pub id: i32,
+    pub category: i32,
+    pub line_item: i32,
+    pub transaction_type: TransactionType,
+    pub sending_account: i32,
+    pub receiving_account: i32,
+    pub transfer_fees: f32,
+    pub receiving_entity: String,
+    pub amount: f32,
+    pub tags: Vec<String>,
+
+    #[serde(with = "ts_milliseconds")]
+    pub send_date: NaiveDateTime,
+
+    #[serde(with = "ts_milliseconds")]
+    pub receive_date: NaiveDateTime,
+
+    pub corrects: i32,
+    pub periodic_budget: i32,
+}
+
+table! {
+    use diesel::sql_types::{Array, Int4, Money, Timestamp, Text};
+    use super::TransactionTypeMapping;
+
+    transactions (id) {
+        id -> Int4,
+        category -> Int4,
+        line_item -> Int4,
+        transaction_type -> TransactionTypeMapping,
+        sending_account -> Int4,
+        receiving_account -> Int4,
+        transfer_fees -> Money,
+        receiving_entity -> Text,
+        amount -> Money,
+        tags -> Array<Text>,
+        send_date -> Timestamp,
+        receive_date -> Timestamp,
+        corrects -> Int4,
+        periodic_budget -> Int4,
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////

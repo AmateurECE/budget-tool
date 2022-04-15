@@ -1,3 +1,5 @@
+DROP TABLE transactions;
+DROP TYPE TransactionType;
 DROP TABLE budget_items;
 DROP TABLE categories;
 DROP TABLE one_time_budgets;
