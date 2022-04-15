@@ -7,14 +7,15 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/10/2022
+// LAST EDITED:     04/14/2022
 ////
 
 use std::env;
 
 use axum::{routing::get, Router, Json};
-use budget_models::{Database, account};
-use budget_models::models::{NewAccount, Account};
+use budget_models::Database;
+use budget_models::models::{Account, accounts};
+use diesel::prelude::*;
 use dotenv::dotenv;
 
 pub fn default_db() -> Database {
@@ -26,7 +27,8 @@ pub fn default_db() -> Database {
 
 async fn list_accounts() -> Json<Vec<Account>> {
     let db = default_db();
-    Json(account::list(&db))
+    Json(accounts::dsl::accounts.load::<Account>(db.get())
+         .expect("Error loading accounts from database!"))
 }
 
 #[tokio::main]

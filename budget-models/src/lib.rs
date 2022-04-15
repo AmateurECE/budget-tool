@@ -32,30 +32,6 @@ impl Database {
 }
 
 pub mod account {
-    use chrono::offset::Local;
-    use diesel::prelude::*;
-
-    use crate::Database;
-    use crate::models::{accounts, Account, NewAccount, AccountType};
-
-    pub fn create<'a>(
-        db: &Database, name: &'a str, account_type: AccountType
-    ) -> Account
-    {
-        let new_account = NewAccount {
-            name, account_type, apr: 0.0,
-            accruing_start_date: Local::now().naive_local()
-        };
-        diesel::insert_into(accounts::table)
-            .values(&new_account)
-            .get_result(db.get())
-            .expect("Error saving new account!")
-    }
-
-    pub fn list(db: &Database) -> Vec<Account> {
-        accounts::dsl::accounts.load::<Account>(db.get())
-            .expect("Error loading accounts from database!")
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

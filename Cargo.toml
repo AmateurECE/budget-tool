@@ -1,7 +1,6 @@
 [workspace]
 members = [
     "budget-models",
-    "budget-service",
 ]
 
 exclude = [
