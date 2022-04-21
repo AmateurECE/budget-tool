@@ -7,95 +7,106 @@
 //
 // CREATED:         04/14/2022
 //
-// LAST EDITED:     04/19/2022
+// LAST EDITED:     04/21/2022
 ////
 
 use budget_models::models::{PeriodicBudget};
 use yew::prelude::*;
-use yew::{
-    format::{Json, Nothing},
-    services::fetch::{FetchService, FetchTask, Request, Response},
-};
+use yew_router::prelude::*;
+
+mod pages;
+
+use pages::{PeriodicBudgetView, NotFoundView};
 
 const PERIODIC_BUDGETS: &'static str = "/api/periodic_budgets";
 
-pub enum Msg {
-    GetBudgets,
-    ReceiveResponse(Result<Vec<PeriodicBudget>, anyhow::Error>),
+// The Different routes we support
+#[derive(Routable, PartialEq, Clone, Debug)]
+pub enum Route {
+    #[at("/periodic_budgets/:id")]
+    PeriodicBudget{ id: u64 },
+    #[not_found]
+    #[at("/404")]
+    NotFound,
 }
 
-pub struct BudgetService {
-    fetch_task: Option<FetchTask>,
-    budgets: Option<Vec<PeriodicBudget>>,
-    link: ComponentLink<Self>,
-    error: Option<String>,
+///////////////////////////////////////////////////////////////////////////////
+// BudgetApp
+////
+
+pub struct BudgetApp {
+    selected_budget: u64,
 }
 
-impl Component for BudgetService {
-    type Message = Msg;
+impl Component for BudgetApp {
+    type Message = ();
     type Properties = ();
 
-    fn create(_props: Self::Properties, link: ComponentLink<Self>) -> Self {
+    fn create(_context: &Context<Self>) -> Self {
         Self {
-            fetch_task: None,
-            budgets: None,
-            link,
-            error: None,
+            selected_budget: 0,
         }
     }
 
-    fn change(&mut self, _props: Self::Properties) -> bool { false }
+    fn update(&mut self, _context: &Context<Self>, _props: Self::Properties) ->
+        bool
+    { false }
 
-    fn update(&mut self, message: Self::Message) -> bool {
-        match message {
-            Msg::GetBudgets => {
-                let request = Request::get(PERIODIC_BUDGETS)
-                    .body(Nothing)
-                    .expect("Couldn't build request!");
-
-                let callback = self.link
-                    .callback(
-                        |response: Response<Json<Result<Vec<PeriodicBudget>,
-                                                        anyhow::Error>>>| {
-                            let Json(data) = response.into_body();
-                            Msg::ReceiveResponse(data)
-                        });
-
-                let task = FetchService::fetch(request, callback)
-                    .expect("Failed to start request!");
-                self.fetch_task = Some(task);
-                true
-            },
-
-            Msg::ReceiveResponse(response) => {
-                self.budgets = Some(response.unwrap());
-                self.fetch_task = None;
-                true
-            }
-        }
-    }
-
-    fn view(&self) -> Html {
+    fn view(&self, _context: &Context<Self>) -> Html {
         // This gives us a component's "`Scope`" which allows us to send
         // messages, etc to the component.
         html! {
-            <div>
-                <button onclick={self.link.callback(|_| Msg::GetBudgets)}>
-                    { "Get Budgets" }
-                </button>
-                <p>{
-                    match &self.budgets {
-                        Some(budgets) => budgets.len().to_string(),
-                        None => String::new(),
-                    }
-                }</p>
-            </div>
+            <BrowserRouter>
+                { self.view_nav() }
+
+                <main>
+                    <Switch<Route>
+                        render={Switch::render(BudgetApp::switch)} />
+                </main>
+            </BrowserRouter>
         }
     }
 }
 
+impl BudgetApp {
+    fn view_nav(&self) -> Html {
+        html! {
+            <ul>
+                <li>
+                    <Link<Route>
+                        to={Route::PeriodicBudget{id: self.selected_budget}}>
+                        { "Budget" }
+                    </Link<Route>>
+                </li>
+                <li>
+                    <Link<Route> to={Route::NotFound}>
+                        { "Not Found" }
+                    </Link<Route>>
+                </li>
+            </ul>
+        }
+    }
+
+    fn switch(routes: &Route) -> Html {
+        match routes.clone() {
+            Route::PeriodicBudget{id} => {
+                html! { <PeriodicBudgetView {id} /> }
+            },
+
+            _ => {
+                html! { <NotFoundView /> }
+            },
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Main
+////
+
 fn main() {
-    yew::start_app::<BudgetService>();
+    wasm_logger::init(wasm_logger::Config::new(log::Level::Trace));
+    yew::Renderer::<BudgetApp>::new().render();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
