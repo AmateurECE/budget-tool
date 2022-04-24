@@ -44,7 +44,7 @@ pub enum AppMessage {
 #[derive(Default)]
 pub struct BudgetApp {
     selected_budget: u64,
-    budgets: usize,
+    budgets: Option<Vec<PeriodicBudget>>,
 }
 
 impl Component for BudgetApp {
@@ -69,21 +69,27 @@ impl Component for BudgetApp {
         bool
     {
         use AppMessage::*;
-        match &message {
+        match message {
             Received(budgets) => {
-                self.budgets = budgets.len();
+                self.budgets = Some(budgets);
                 true
             },
         }
     }
 
-    fn view(&self, _context: &Context<Self>) -> Html {
-        // This gives us a component's "`Scope`" which allows us to send
-        // messages, etc to the component.
+    fn view(&self, context: &Context<Self>) -> Html {
+        match &self.budgets {
+            Some(_) => self.render(context),
+            None => html!{ "Loading..." },
+        }
+    }
+}
+
+impl BudgetApp {
+    fn render(&self, _context: &Context<Self>) -> Html {
         html! {
             <BrowserRouter>
                 { self.view_nav() }
-
                 <main>
                     <Switch<Route>
                         render={Switch::render(BudgetApp::switch)} />
@@ -91,13 +97,10 @@ impl Component for BudgetApp {
             </BrowserRouter>
         }
     }
-}
 
-impl BudgetApp {
     fn view_nav(&self) -> Html {
         html! {
             <ul>
-                <li>{ self.budgets }</li>
                 <li>
                     <Link<Route>
                         to={Route::PeriodicBudget{id: self.selected_budget}}>
