@@ -26,6 +26,8 @@ const PERIODIC_BUDGETS: &'static str = "/api/periodic_budgets";
 // The Different routes we support
 #[derive(Routable, PartialEq, Clone, Debug)]
 pub enum Route {
+    #[at("/")]
+    Home,
     #[at("/periodic_budgets/:id")]
     PeriodicBudget{ id: u64 },
     #[not_found]
@@ -118,6 +120,10 @@ impl BudgetApp {
 
     fn switch(routes: &Route) -> Html {
         match routes.clone() {
+            Route::Home => {
+                html! { "" }
+            },
+
             Route::PeriodicBudget{id} => {
                 html! { <PeriodicBudgetView {id} /> }
             },
