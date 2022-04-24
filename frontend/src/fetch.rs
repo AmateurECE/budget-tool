@@ -7,15 +7,12 @@
 //
 // CREATED:         04/22/2022
 //
-// LAST EDITED:     04/23/2022
+// LAST EDITED:     04/24/2022
 ////
 
-use js_sys::Promise;
-use web_sys::console;
-use wasm_bindgen::{JsCast, JsValue, closure::Closure};
+use web_sys::RequestInit;
+use wasm_bindgen::JsCast;
 use wasm_bindgen_futures::JsFuture;
-
-use serde::Deserialize;
 
 ///////////////////////////////////////////////////////////////////////////////
 // http/web-sys Request conversion
@@ -87,25 +84,34 @@ impl<B> Into<web_sys::Response> for ResponseWrapper<B> {
 // Fetch
 ////
 
-pub async fn fetch<T, B, C>(request: http::Request<B>) ->
-    Result<http::Response<C>, http::Error>
+pub async fn fetch<T, B>(_request: http::Request<B>) ->
+    Result<http::Response<T>, http::Error>
 where for<'b> T: serde::Deserialize<'b>,
 {
+    // Generate the response
+    let mut opts = RequestInit::new();
+    opts.method("GET");
+    let request = web_sys::Request::new_with_str_and_init(
+        "/api/periodic_budgets", &opts).unwrap();
+    request
+        .headers()
+        .set("Accept", "application/vnd.github.v3+json").unwrap();
+
     // Get a reference to the window global
     let window = web_sys::window().unwrap();
 
-//     // This closure converts the JSON to a Rust object.
-//     let body_closure = Closure::once(Box::new(move |json: JsValue| {
-//         let result: T = json.into_serde().unwrap();
-//         callback(result);
-//     }) as Box<dyn FnOnce(JsValue)>);
+    // Submit the request
+    let value = JsFuture::from(window.fetch_with_request(&request))
+        .await.unwrap();
 
-//     let response = JsFuture::from(window.fetch_with_request(&request)).await;
-//     // This closure converts the response body to JSON.
-//     assert!(value.is_instance_of::<Response>());
-//     let response: Response = value.dyn_into().unwrap();
-//     let json = JsFuture::from(response.json().unwrap()).await;
-    todo!()
+    // Convert the response body to JSON.
+    assert!(value.is_instance_of::<web_sys::Response>());
+    let response: web_sys::Response = value.dyn_into().unwrap();
+    let json = JsFuture::from(response.json().unwrap()).await.unwrap();
+
+    // Get the result
+    let result: T = json.into_serde().unwrap();
+    Ok(http::Response::new(result))
 }
 
 ///////////////////////////////////////////////////////////////////////////////

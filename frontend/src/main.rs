@@ -7,15 +7,18 @@
 //
 // CREATED:         04/14/2022
 //
-// LAST EDITED:     04/21/2022
+// LAST EDITED:     04/24/2022
 ////
 
 use budget_models::models::{PeriodicBudget};
+use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
+mod fetch;
 mod pages;
 
+use fetch::fetch;
 use pages::{PeriodicBudgetView, NotFoundView};
 
 const PERIODIC_BUDGETS: &'static str = "/api/periodic_budgets";
@@ -34,23 +37,49 @@ pub enum Route {
 // BudgetApp
 ////
 
+pub enum AppMessage {
+    Received(Vec<PeriodicBudget>),
+}
+
+#[derive(Default)]
 pub struct BudgetApp {
     selected_budget: u64,
+    budgets: usize,
 }
 
 impl Component for BudgetApp {
-    type Message = ();
+    type Message = AppMessage;
     type Properties = ();
 
-    fn create(_context: &Context<Self>) -> Self {
-        Self {
-            selected_budget: 0,
-        }
+    fn create(context: &Context<Self>) -> Self {
+        let link = context.link().callback(
+            |budgets: Vec<PeriodicBudget>| AppMessage::Received(budgets)
+        );
+        spawn_local(async move {
+            let request = http::Request::builder()
+                .uri(PERIODIC_BUDGETS)
+                .header("Accept", "application/json")
+                .body(())
+                .unwrap();
+            let response: http::Response<Vec<PeriodicBudget>> = fetch(request)
+                .await.unwrap();
+            link.emit(response.into_body());
+        });
+
+        Self::default()
     }
 
-    fn update(&mut self, _context: &Context<Self>, _props: Self::Properties) ->
+    fn update(&mut self, _context: &Context<Self>, message: Self::Message) ->
         bool
-    { false }
+    {
+        use AppMessage::*;
+        match &message {
+            Received(budgets) => {
+                self.budgets = budgets.len();
+                true
+            },
+        }
+    }
 
     fn view(&self, _context: &Context<Self>) -> Html {
         // This gives us a component's "`Scope`" which allows us to send
@@ -72,6 +101,7 @@ impl BudgetApp {
     fn view_nav(&self) -> Html {
         html! {
             <ul>
+                <li>{ self.budgets }</li>
                 <li>
                     <Link<Route>
                         to={Route::PeriodicBudget{id: self.selected_budget}}>
