@@ -15,10 +15,10 @@ use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
-mod fetch;
+mod network;
 mod pages;
 
-use fetch::fetch;
+use network::fetch;
 use pages::{PeriodicBudgetView, NotFoundView};
 
 const PERIODIC_BUDGETS: &'static str = "/api/periodic_budgets";
@@ -56,14 +56,10 @@ impl Component for BudgetApp {
             |budgets: Vec<PeriodicBudget>| AppMessage::Received(budgets)
         );
         spawn_local(async move {
-            let request = http::Request::builder()
-                .uri(PERIODIC_BUDGETS)
-                .header("Accept", "application/json")
-                .body(())
+            let request = web_sys::Request::new_with_str(PERIODIC_BUDGETS)
                 .unwrap();
-            let response: http::Response<Vec<PeriodicBudget>> = fetch(request)
-                .await.unwrap();
-            link.emit(response.into_body());
+            let response: Vec<PeriodicBudget> = fetch(request).await.unwrap();
+            link.emit(response);
         });
 
         Self::default()
@@ -135,6 +131,7 @@ impl BudgetApp {
 ////
 
 fn main() {
+    console_error_panic_hook::set_once();
     wasm_logger::init(wasm_logger::Config::new(log::Level::Trace));
     yew::Renderer::<BudgetApp>::new().render();
 }
