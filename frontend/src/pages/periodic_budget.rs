@@ -7,14 +7,14 @@
 //
 // CREATED:         04/20/2022
 //
-// LAST EDITED:     04/21/2022
+// LAST EDITED:     04/25/2022
 ////
 
 use yew::{Component, Context, Html, Properties, html};
 
 #[derive(Properties, PartialEq)]
 pub struct PeriodicBudgetViewProperties {
-    pub id: u64,
+    pub id: i32,
 }
 
 pub struct PeriodicBudgetView;

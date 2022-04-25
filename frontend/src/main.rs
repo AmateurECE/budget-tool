@@ -32,7 +32,7 @@ pub enum Route {
     #[at("/")]
     Home,
     #[at("/periodic_budgets/:id")]
-    PeriodicBudget{ id: u64 },
+    PeriodicBudget{ id: i32 },
     #[not_found]
     #[at("/404")]
     NotFound,
@@ -44,12 +44,12 @@ pub enum Route {
 
 pub enum AppMessage {
     Received(Vec<PeriodicBudget>),
-    Selected(u64),
+    Selected(i32),
 }
 
 #[derive(Default)]
 pub struct BudgetApp {
-    selected_budget: u64,
+    selected_budget: i32,
     budgets: Option<Vec<PeriodicBudget>>,
 }
 
@@ -77,6 +77,7 @@ impl Component for BudgetApp {
         use AppMessage::*;
         match message {
             Received(budgets) => {
+                self.selected_budget = budgets[budgets.len() - 1].id;
                 self.budgets = Some(budgets);
                 true
             },
@@ -125,7 +126,7 @@ impl BudgetApp {
                         if let Some(select) = e.target_dyn_into::<
                                 HtmlSelectElement>() {
                             Some(AppMessage::Selected(
-                                u64::from_str(&select.value()).unwrap()))
+                                i32::from_str(&select.value()).unwrap()))
                         } else {
                             None
                         }
