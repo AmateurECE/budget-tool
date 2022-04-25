@@ -31,10 +31,10 @@ CREATE TABLE budget_items (
 );
 
 CREATE TYPE TransactionType AS ENUM (
-       'Expense',
-       'Income',
-       'Transfer',
-       'Correction'
+       'expense',
+       'income',
+       'transfer',
+       'payment'
 );
 
 CREATE TABLE transactions (

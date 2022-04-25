@@ -7,7 +7,7 @@
 //
 // CREATED:         04/14/2022
 //
-// LAST EDITED:     04/14/2022
+// LAST EDITED:     04/25/2022
 ////
 
 use crate::models::{Account, Transaction};
@@ -47,8 +47,8 @@ impl Into<Transaction> for Transfer {
     fn into(self) -> Transaction { unimplemented!() }
 }
 
-pub struct Correction;
-impl Into<Transaction> for Correction {
+pub struct Payment;
+impl Into<Transaction> for Payment {
     fn into(self) -> Transaction { unimplemented!() }
 }
 

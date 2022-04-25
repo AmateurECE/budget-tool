@@ -195,7 +195,7 @@ pub enum TransactionType {
     Expense,
     Income,
     Transfer,
-    Correction,
+    Payment,
 }
 
 #[derive(Debug)]
@@ -208,7 +208,7 @@ impl TryFrom<String> for TransactionType {
             "Expense" => Ok(TransactionType::Expense),
             "Income" => Ok(TransactionType::Income),
             "Transfer" => Ok(TransactionType::Transfer),
-            "Correction" => Ok(TransactionType::Correction),
+            "Payment" => Ok(TransactionType::Payment),
             _ => Err(ParseTransactionTypeError),
         }
     }
