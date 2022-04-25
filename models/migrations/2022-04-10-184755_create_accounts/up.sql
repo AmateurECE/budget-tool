@@ -25,7 +25,9 @@ CREATE TABLE budget_items (
        description TEXT NOT NULL,
        category TEXT NOT NULL,
        budgeted MONEY,
-       account SERIAL,
+       transaction_type TransactionType,
+       from_account SERIAL,
+       to_account SERIAL,
        periodic_budget SERIAL,
        one_time_budget SERIAL
 );

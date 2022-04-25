@@ -165,7 +165,9 @@ pub struct BudgetItem {
     pub description: String,
     pub category: String,
     pub budgeted: f32,
-    pub account: i32,
+    pub transaction_type: TransactionType,
+    pub from_account: i32,
+    pub to_account: i32,
     pub periodic_budget: i32,
     pub one_time_budget: i32,
 }
@@ -173,13 +175,16 @@ pub struct BudgetItem {
 #[cfg(not(target_family = "wasm"))]
 table! {
     use diesel::sql_types::{Int4, Money, Text};
+    use super::TransactionTypeMapping;
 
     budget_items (id) {
         id -> Int4,
         description -> Text,
         category -> Text,
         budgeted -> Money,
-        account -> Int4,
+        transaction_type -> TransactionTypeMapping,
+        from_account -> Int4,
+        to_account -> Int4,
         periodic_budget -> Int4,
         one_time_budget -> Int4,
     }
@@ -238,7 +243,7 @@ pub struct Transaction {
     #[serde(with = "ts_milliseconds")]
     pub receive_date: NaiveDateTime,
 
-    pub corrects: i32,
+    pub corrects: Vec<i32>,
     pub periodic_budget: i32,
 }
 
