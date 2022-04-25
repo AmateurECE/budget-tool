@@ -7,11 +7,14 @@
 //
 // CREATED:         04/14/2022
 //
-// LAST EDITED:     04/24/2022
+// LAST EDITED:     04/25/2022
 ////
+
+use std::str::FromStr;
 
 use budget_models::models::{PeriodicBudget};
 use wasm_bindgen_futures::spawn_local;
+use web_sys::HtmlSelectElement;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
@@ -41,6 +44,7 @@ pub enum Route {
 
 pub enum AppMessage {
     Received(Vec<PeriodicBudget>),
+    Selected(u64),
 }
 
 #[derive(Default)]
@@ -76,6 +80,11 @@ impl Component for BudgetApp {
                 self.budgets = Some(budgets);
                 true
             },
+
+            Selected(id) => {
+                self.selected_budget = id;
+                true
+            },
         }
     }
 
@@ -88,10 +97,10 @@ impl Component for BudgetApp {
 }
 
 impl BudgetApp {
-    fn render(&self, _context: &Context<Self>) -> Html {
+    fn render(&self, context: &Context<Self>) -> Html {
         html! {
             <BrowserRouter>
-                { self.view_nav() }
+                { self.view_nav(context) }
                 <main>
                     <Switch<Route>
                         render={Switch::render(BudgetApp::switch)} />
@@ -100,21 +109,36 @@ impl BudgetApp {
         }
     }
 
-    fn view_nav(&self) -> Html {
+    fn view_nav(&self, context: &Context<Self>) -> Html {
         html! {
-            <ul>
-                <li>
+            <div>
+                <ul><li>
                     <Link<Route>
                         to={Route::PeriodicBudget{id: self.selected_budget}}>
                         { "Budget" }
                     </Link<Route>>
-                </li>
-                <li>
-                    <Link<Route> to={Route::NotFound}>
-                        { "Not Found" }
-                    </Link<Route>>
-                </li>
-            </ul>
+                </li></ul>
+
+                <label for="budget-select">{"Budget"}</label>
+                <select name="budgets" id="budget-select"
+                    onchange={context.link().batch_callback(|e: Event| {
+                        if let Some(select) = e.target_dyn_into::<
+                                HtmlSelectElement>() {
+                            Some(AppMessage::Selected(
+                                u64::from_str(&select.value()).unwrap()))
+                        } else {
+                            None
+                        }
+                    })}>{
+                    self.budgets.as_ref().unwrap().iter()
+                        .map(|b| {html!{
+                            <option value={b.id.to_string()}>
+                                {b.start_date.to_string()}
+                            </option>
+                        }})
+                        .collect::<Html>()
+                }</select>
+            </div>
         }
     }
 
