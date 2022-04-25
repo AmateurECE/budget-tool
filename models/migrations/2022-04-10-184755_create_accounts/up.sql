@@ -50,6 +50,6 @@ CREATE TABLE transactions (
        tags TEXT[],
        send_date TIMESTAMP,
        receive_date TIMESTAMP,
-       corrects SERIAL,
+       corrects SERIAL[],
        periodic_budget SERIAL
 );

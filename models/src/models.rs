@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/15/2022
+// LAST EDITED:     04/25/2022
 ////
 
 use std::convert::TryFrom;
@@ -260,7 +260,7 @@ table! {
         tags -> Array<Text>,
         send_date -> Timestamp,
         receive_date -> Timestamp,
-        corrects -> Int4,
+        corrects -> Array<Int4>,
         periodic_budget -> Int4,
     }
 }
