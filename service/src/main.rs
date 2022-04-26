@@ -7,17 +7,27 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/14/2022
+// LAST EDITED:     04/25/2022
 ////
 
 use std::env;
 use std::sync::{Arc, Mutex};
 
-use axum::{routing::get, Router, Json};
-use budget_models::models::{PeriodicBudget, periodic_budgets};
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
 use dotenv::dotenv;
+
+use axum::{
+    extract::Path,
+    http::StatusCode,
+    routing::get,
+    Router, Json,
+};
+
+use budget_models::{
+    models::{PeriodicBudget, periodic_budgets},
+    entities::PeriodicBudgetEndpoint,
+};
 
 async fn list_accounts(db: Arc<Mutex<PgConnection>>) ->
     Json<Vec<PeriodicBudget>>
@@ -25,6 +35,13 @@ async fn list_accounts(db: Arc<Mutex<PgConnection>>) ->
     let db = db.lock().unwrap();
     Json(periodic_budgets::dsl::periodic_budgets.load::<PeriodicBudget>(&*db)
          .expect("Error loading periodic_budgets from database!"))
+}
+
+async fn detailed_budget(Path(id): Path<i32>, db: Arc<Mutex<PgConnection>>) ->
+    Result<Json<PeriodicBudgetEndpoint>, StatusCode>
+{
+    // let db = db.lock().unwrap();
+    Err(StatusCode::NOT_FOUND)
 }
 
 #[tokio::main]
@@ -39,6 +56,12 @@ async fn main() {
     let app = Router::new()
         .route("/api/periodic_budgets",
                get({ let db = connection.clone(); move || list_accounts(db)})
+        )
+        .route("/api/periodic_budgets/:id",
+               get({
+                   let db = connection.clone();
+                   move |id| detailed_budget(id, db)
+               })
         );
 
     axum::Server::bind(&"127.0.0.1:3000".parse().unwrap())

@@ -271,3 +271,32 @@ table! {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Initial Balances
+////
+
+#[derive(Serialize, Deserialize)]
+#[cfg_attr(not(target_family = "wasm"), derive(Queryable))]
+pub struct InitialBalance {
+    pub id: i32,
+    pub account: i32,
+    pub budget: i32,
+    pub balance: f32,
+
+    #[serde(with = "ts_milliseconds")]
+    pub last_updated: NaiveDateTime,
+}
+
+#[cfg(not(target_family = "wasm"))]
+table! {
+    use diesel::sql_types::{Int4, Money, Timestamp};
+
+    initial_balances (id) {
+        id -> Int4,
+        account -> Int4,
+        budget -> Int4,
+        balance -> Money,
+        last_updated -> Timestamp,
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
