@@ -18,6 +18,12 @@ use serde::{Serialize, Deserialize};
 #[cfg(not(target_family = "wasm"))]
 use diesel_derive_enum::DbEnum;
 
+#[cfg(not(target_family = "wasm"))]
+use diesel::pg::data_types::Cents;
+
+#[cfg(target_family = "wasm")]
+type Cents = i64;
+
 ///////////////////////////////////////////////////////////////////////////////
 // AccountType
 ////
@@ -158,18 +164,29 @@ table! {
 // Budget Items
 ////
 
-#[derive(Serialize, Deserialize)]
 #[cfg_attr(not(target_family = "wasm"), derive(Queryable))]
 pub struct BudgetItem {
     pub id: i32,
     pub description: String,
     pub category: String,
-    pub budgeted: f32,
+    pub budgeted: Cents,
     pub transaction_type: TransactionType,
     pub from_account: i32,
     pub to_account: i32,
     pub periodic_budget: i32,
     pub one_time_budget: i32,
+}
+
+impl Serialize for BudgetItem {
+    fn serialize<S>(&self, _serializer: S) -> Result<S::Ok, S::Error>
+    where S: serde::ser::Serializer
+    { todo!() }
+}
+
+impl<'a> Deserialize<'a> for BudgetItem {
+    fn deserialize<D>(_deserializer: D) -> Result<Self, D::Error>
+    where D: serde::de::Deserializer<'a>
+    { todo!() }
 }
 
 #[cfg(not(target_family = "wasm"))]
@@ -223,7 +240,6 @@ impl TryFrom<String> for TransactionType {
 // Transaction
 ////
 
-#[derive(Serialize, Deserialize)]
 #[cfg_attr(not(target_family = "wasm"), derive(Queryable))]
 pub struct Transaction {
     pub id: i32,
@@ -232,19 +248,26 @@ pub struct Transaction {
     pub transaction_type: TransactionType,
     pub sending_account: i32,
     pub receiving_account: i32,
-    pub transfer_fees: f32,
+    pub transfer_fees: Cents,
     pub receiving_entity: String,
-    pub amount: f32,
+    pub amount: Cents,
     pub tags: Vec<String>,
-
-    #[serde(with = "ts_milliseconds")]
     pub send_date: NaiveDateTime,
-
-    #[serde(with = "ts_milliseconds")]
     pub receive_date: NaiveDateTime,
-
     pub corrects: Vec<i32>,
     pub periodic_budget: i32,
+}
+
+impl Serialize for Transaction {
+    fn serialize<S>(&self, _serializer: S) -> Result<S::Ok, S::Error>
+    where S: serde::ser::Serializer
+    { todo!() }
+}
+
+impl<'a> Deserialize<'a> for Transaction {
+    fn deserialize<D>(_deserializer: D) -> Result<Self, D::Error>
+    where D: serde::de::Deserializer<'a>
+    { todo!() }
 }
 
 #[cfg(not(target_family = "wasm"))]
@@ -274,16 +297,25 @@ table! {
 // Initial Balances
 ////
 
-#[derive(Serialize, Deserialize)]
 #[cfg_attr(not(target_family = "wasm"), derive(Queryable))]
 pub struct InitialBalance {
     pub id: i32,
     pub account: i32,
     pub budget: i32,
-    pub balance: f32,
-
-    #[serde(with = "ts_milliseconds")]
+    pub balance: Cents,
     pub last_updated: NaiveDateTime,
+}
+
+impl Serialize for InitialBalance {
+    fn serialize<S>(&self, _serializer: S) -> Result<S::Ok, S::Error>
+    where S: serde::ser::Serializer
+    { todo!() }
+}
+
+impl<'a> Deserialize<'a> for InitialBalance {
+    fn deserialize<D>(_deserializer: D) -> Result<Self, D::Error>
+    where D: serde::de::Deserializer<'a>
+    { todo!() }
 }
 
 #[cfg(not(target_family = "wasm"))]

@@ -87,17 +87,4 @@ pub struct PeriodicBudgetEndpoint {
     pub initial_balances: Vec<InitialBalance>,
 }
 
-impl PeriodicBudgetEndpoint {
-    pub fn new(
-        budget: PeriodicBudget, items: HashMap<String, Vec<BudgetItem>>,
-        initial_balances: Vec<InitialBalance>
-    ) -> Self {
-        Self {
-            budget,
-            items,
-            initial_balances,
-        }
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////

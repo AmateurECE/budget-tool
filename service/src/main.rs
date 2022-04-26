@@ -14,7 +14,7 @@ use std::env;
 use std::sync::{Arc, Mutex};
 
 use diesel::prelude::*;
-use diesel::pg::PgConnection;
+use diesel::{pg::PgConnection, result::Error::NotFound};
 use dotenv::dotenv;
 
 use axum::{
@@ -25,7 +25,10 @@ use axum::{
 };
 
 use budget_models::{
-    models::{PeriodicBudget, periodic_budgets},
+    models::{
+        PeriodicBudget, periodic_budgets,
+        BudgetItem, budget_items,
+    },
     entities::PeriodicBudgetEndpoint,
 };
 
@@ -40,8 +43,33 @@ async fn list_accounts(db: Arc<Mutex<PgConnection>>) ->
 async fn detailed_budget(Path(id): Path<i32>, db: Arc<Mutex<PgConnection>>) ->
     Result<Json<PeriodicBudgetEndpoint>, StatusCode>
 {
-    // let db = db.lock().unwrap();
-    Err(StatusCode::NOT_FOUND)
+    // Lock the database connection Mutex
+    let db = db.lock().unwrap();
+
+    // Get the budget requested by `id'
+    let budget: Result<PeriodicBudget, _> =
+        periodic_budgets::dsl::periodic_budgets
+        .find(id)
+        .first(&*db);
+    if let Err::<PeriodicBudget, _>(NotFound) = budget {
+        return Err(StatusCode::NOT_FOUND);
+    } else if let Err::<PeriodicBudget, _>(_) = budget {
+        return Err(StatusCode::INTERNAL_SERVER_ERROR);
+    }
+
+    let budget = budget.unwrap();
+
+    // Locate all the budget items for this budget
+    let items: Result<Vec<BudgetItem>, _> = budget_items::dsl::budget_items
+        .filter(budget_items::periodic_budget.eq(budget.id))
+        .load::<BudgetItem>(&*db);
+    if let Err::<Vec<BudgetItem>, _>(_) = items {
+        return Err(StatusCode::INTERNAL_SERVER_ERROR);
+    }
+
+    // Collect all the categories listed in all budget items, then list the
+    // budget items by category.
+    todo!()
 }
 
 #[tokio::main]
