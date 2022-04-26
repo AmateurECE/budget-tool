@@ -20,18 +20,6 @@ CREATE TABLE one_time_budgets (
 
 CREATE TABLE categories (name TEXT UNIQUE PRIMARY KEY);
 
-CREATE TABLE budget_items (
-       id SERIAL PRIMARY KEY,
-       description TEXT NOT NULL,
-       category TEXT NOT NULL,
-       budgeted MONEY,
-       transaction_type TransactionType,
-       from_account SERIAL,
-       to_account SERIAL,
-       periodic_budget SERIAL,
-       one_time_budget SERIAL
-);
-
 CREATE TYPE TransactionType AS ENUM (
        'expense',
        'income',
@@ -39,19 +27,39 @@ CREATE TYPE TransactionType AS ENUM (
        'payment'
 );
 
+CREATE TABLE budget_items (
+       id SERIAL PRIMARY KEY,
+       description TEXT NOT NULL,
+       category TEXT NOT NULL,
+       budgeted MONEY,
+       transaction_type TransactionType,
+       from_account INTEGER,
+       to_account INTEGER,
+       periodic_budget INTEGER,
+       one_time_budget INTEGER
+);
+
 CREATE TABLE transactions (
        id SERIAL PRIMARY KEY,
-       category SERIAL NOT NULL,
-       line_item SERIAL NOT NULL,
+       category INTEGER NOT NULL,
+       line_item INTEGER NOT NULL,
        transaction_type TransactionType,
-       sending_account SERIAL,
-       receiving_account SERIAL,
+       sending_account INTEGER,
+       receiving_account INTEGER,
        transfer_fees MONEY,
        receiving_entity TEXT,
        amount MONEY,
        tags TEXT[],
        send_date TIMESTAMP,
        receive_date TIMESTAMP,
-       corrects SERIAL[],
-       periodic_budget SERIAL
+       corrects INTEGER[],
+       periodic_budget INTEGER
+);
+
+CREATE TABLE initial_balances (
+       id SERIAL PRIMARY KEY,
+       account INTEGER,
+       budget INTEGER,
+       balance MONEY,
+       last_updated TIMESTAMP
 );
