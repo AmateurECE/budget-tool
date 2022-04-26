@@ -7,9 +7,10 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/25/2022
+// LAST EDITED:     04/26/2022
 ////
 
+use std::collections::HashMap;
 use std::env;
 use std::sync::{Arc, Mutex};
 
@@ -26,8 +27,9 @@ use axum::{
 
 use budget_models::{
     models::{
-        PeriodicBudget, periodic_budgets,
         BudgetItem, budget_items,
+        InitialBalance, initial_balances,
+        PeriodicBudget, periodic_budgets,
     },
     entities::PeriodicBudgetEndpoint,
 };
@@ -67,9 +69,38 @@ async fn detailed_budget(Path(id): Path<i32>, db: Arc<Mutex<PgConnection>>) ->
         return Err(StatusCode::INTERNAL_SERVER_ERROR);
     }
 
+    let mut items = items.unwrap();
+
     // Collect all the categories listed in all budget items, then list the
     // budget items by category.
-    todo!()
+    let mut categories = items.iter().map(|item| item.category.to_owned())
+        .collect::<Vec<String>>();
+    categories.sort();
+    categories.dedup();
+    let items = categories.iter().map(|cat| {
+        let mut filtered: Vec<BudgetItem> = Vec::new();
+        for i in 0..items.len() {
+            if &items[i].category == cat {
+                filtered.push(items.remove(i));
+            }
+        }
+        (cat.to_owned(), filtered)
+    }).collect::<HashMap<String, Vec<BudgetItem>>>();
+
+    // Collect all initial balances for the time period corresponding to this
+    // budget.
+    let initial_balances: Result<Vec<InitialBalance>, _> =
+        initial_balances::dsl::initial_balances
+        .filter(initial_balances::budget.eq(budget.id))
+        .load::<InitialBalance>(&*db);
+    if let Err::<Vec<BudgetItem>, _>(_) = items {
+        return Err(StatusCode::INTERNAL_SERVER_ERROR);
+    }
+    let initial_balances = initial_balances.unwrap();
+
+    Ok(Json(PeriodicBudgetEndpoint {
+        budget, items, initial_balances,
+    }))
 }
 
 #[tokio::main]
