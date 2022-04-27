@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/25/2022
+// LAST EDITED:     04/27/2022
 ////
 
 use std::convert::TryFrom;
@@ -17,12 +17,6 @@ use serde::{Serialize, Deserialize};
 
 #[cfg(not(target_family = "wasm"))]
 use diesel_derive_enum::DbEnum;
-
-#[cfg(not(target_family = "wasm"))]
-use diesel::pg::data_types::Cents;
-
-#[cfg(target_family = "wasm")]
-type Cents = i64;
 
 ///////////////////////////////////////////////////////////////////////////////
 // AccountType
@@ -164,12 +158,13 @@ table! {
 // Budget Items
 ////
 
+#[derive(Serialize, Deserialize)]
 #[cfg_attr(not(target_family = "wasm"), derive(Queryable))]
 pub struct BudgetItem {
     pub id: i32,
     pub description: String,
     pub category: String,
-    pub budgeted: Cents,
+    pub budgeted: i64,
     pub transaction_type: TransactionType,
     pub from_account: i32,
     pub to_account: i32,
@@ -177,28 +172,16 @@ pub struct BudgetItem {
     pub one_time_budget: i32,
 }
 
-impl Serialize for BudgetItem {
-    fn serialize<S>(&self, _serializer: S) -> Result<S::Ok, S::Error>
-    where S: serde::ser::Serializer
-    { todo!() }
-}
-
-impl<'a> Deserialize<'a> for BudgetItem {
-    fn deserialize<D>(_deserializer: D) -> Result<Self, D::Error>
-    where D: serde::de::Deserializer<'a>
-    { todo!() }
-}
-
 #[cfg(not(target_family = "wasm"))]
 table! {
-    use diesel::sql_types::{Int4, Money, Text};
+    use diesel::sql_types::{Int4, BigInt, Text};
     use super::TransactionTypeMapping;
 
     budget_items (id) {
         id -> Int4,
         description -> Text,
         category -> Text,
-        budgeted -> Money,
+        budgeted -> BigInt,
         transaction_type -> TransactionTypeMapping,
         from_account -> Int4,
         to_account -> Int4,
@@ -240,6 +223,7 @@ impl TryFrom<String> for TransactionType {
 // Transaction
 ////
 
+#[derive(Serialize, Deserialize)]
 #[cfg_attr(not(target_family = "wasm"), derive(Queryable))]
 pub struct Transaction {
     pub id: i32,
@@ -248,31 +232,24 @@ pub struct Transaction {
     pub transaction_type: TransactionType,
     pub sending_account: i32,
     pub receiving_account: i32,
-    pub transfer_fees: Cents,
+    pub transfer_fees: i64,
     pub receiving_entity: String,
-    pub amount: Cents,
+    pub amount: i64,
     pub tags: Vec<String>,
+
+    #[serde(with = "ts_milliseconds")]
     pub send_date: NaiveDateTime,
+
+    #[serde(with = "ts_milliseconds")]
     pub receive_date: NaiveDateTime,
+
     pub corrects: Vec<i32>,
     pub periodic_budget: i32,
 }
 
-impl Serialize for Transaction {
-    fn serialize<S>(&self, _serializer: S) -> Result<S::Ok, S::Error>
-    where S: serde::ser::Serializer
-    { todo!() }
-}
-
-impl<'a> Deserialize<'a> for Transaction {
-    fn deserialize<D>(_deserializer: D) -> Result<Self, D::Error>
-    where D: serde::de::Deserializer<'a>
-    { todo!() }
-}
-
 #[cfg(not(target_family = "wasm"))]
 table! {
-    use diesel::sql_types::{Array, Int4, Money, Timestamp, Text};
+    use diesel::sql_types::{Array, BigInt, Int4, Timestamp, Text};
     use super::TransactionTypeMapping;
 
     transactions (id) {
@@ -282,9 +259,9 @@ table! {
         transaction_type -> TransactionTypeMapping,
         sending_account -> Int4,
         receiving_account -> Int4,
-        transfer_fees -> Money,
+        transfer_fees -> BigInt,
         receiving_entity -> Text,
-        amount -> Money,
+        amount -> BigInt,
         tags -> Array<Text>,
         send_date -> Timestamp,
         receive_date -> Timestamp,
@@ -297,36 +274,27 @@ table! {
 // Initial Balances
 ////
 
+#[derive(Serialize, Deserialize)]
 #[cfg_attr(not(target_family = "wasm"), derive(Queryable))]
 pub struct InitialBalance {
     pub id: i32,
     pub account: i32,
     pub budget: i32,
-    pub balance: Cents,
+    pub balance: i64,
+
+    #[serde(with = "ts_milliseconds")]
     pub last_updated: NaiveDateTime,
-}
-
-impl Serialize for InitialBalance {
-    fn serialize<S>(&self, _serializer: S) -> Result<S::Ok, S::Error>
-    where S: serde::ser::Serializer
-    { todo!() }
-}
-
-impl<'a> Deserialize<'a> for InitialBalance {
-    fn deserialize<D>(_deserializer: D) -> Result<Self, D::Error>
-    where D: serde::de::Deserializer<'a>
-    { todo!() }
 }
 
 #[cfg(not(target_family = "wasm"))]
 table! {
-    use diesel::sql_types::{Int4, Money, Timestamp};
+    use diesel::sql_types::{Int4, BigInt, Timestamp};
 
     initial_balances (id) {
         id -> Int4,
         account -> Int4,
         budget -> Int4,
-        balance -> Money,
+        balance -> BigInt,
         last_updated -> Timestamp,
     }
 }

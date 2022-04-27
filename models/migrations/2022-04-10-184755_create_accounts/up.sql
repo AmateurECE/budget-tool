@@ -31,7 +31,7 @@ CREATE TABLE budget_items (
        id SERIAL PRIMARY KEY,
        description TEXT NOT NULL,
        category TEXT NOT NULL,
-       budgeted MONEY,
+       budgeted BIGINT,
        transaction_type TransactionType,
        from_account INTEGER,
        to_account INTEGER,
@@ -46,9 +46,9 @@ CREATE TABLE transactions (
        transaction_type TransactionType,
        sending_account INTEGER,
        receiving_account INTEGER,
-       transfer_fees MONEY,
+       transfer_fees BIGINT,
        receiving_entity TEXT,
-       amount MONEY,
+       amount BIGINT,
        tags TEXT[],
        send_date TIMESTAMP,
        receive_date TIMESTAMP,
@@ -60,6 +60,6 @@ CREATE TABLE initial_balances (
        id SERIAL PRIMARY KEY,
        account INTEGER,
        budget INTEGER,
-       balance MONEY,
+       balance BIGINT,
        last_updated TIMESTAMP
 );

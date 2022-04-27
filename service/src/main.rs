@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/26/2022
+// LAST EDITED:     04/27/2022
 ////
 
 use std::collections::HashMap;
@@ -93,7 +93,7 @@ async fn detailed_budget(Path(id): Path<i32>, db: Arc<Mutex<PgConnection>>) ->
         initial_balances::dsl::initial_balances
         .filter(initial_balances::budget.eq(budget.id))
         .load::<InitialBalance>(&*db);
-    if let Err::<Vec<BudgetItem>, _>(_) = items {
+    if let Err::<Vec<InitialBalance>, _>(_) = initial_balances {
         return Err(StatusCode::INTERNAL_SERVER_ERROR);
     }
     let initial_balances = initial_balances.unwrap();
