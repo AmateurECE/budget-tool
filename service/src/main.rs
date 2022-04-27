@@ -21,25 +21,30 @@ use dotenv::dotenv;
 use axum::{
     extract::Path,
     http::StatusCode,
-    routing::get,
+    routing::{get, post},
     Router, Json,
 };
 
 use budget_models::{
     models::{
         BudgetItem, budget_items,
-        InitialBalance, initial_balances,
+        InitialBalance, NewInitialBalance, initial_balances,
         PeriodicBudget, periodic_budgets,
     },
     entities::PeriodicBudgetEndpoint,
 };
 
 async fn list_accounts(db: Arc<Mutex<PgConnection>>) ->
-    Json<Vec<PeriodicBudget>>
+    Result<Json<Vec<PeriodicBudget>>, StatusCode>
 {
     let db = db.lock().unwrap();
-    Json(periodic_budgets::dsl::periodic_budgets.load::<PeriodicBudget>(&*db)
-         .expect("Error loading periodic_budgets from database!"))
+    let budgets = periodic_budgets::dsl::periodic_budgets
+        .load::<PeriodicBudget>(&*db);
+    if let Err::<Vec<PeriodicBudget>, _>(_) = budgets {
+        return Err(StatusCode::INTERNAL_SERVER_ERROR);
+    }
+
+    Ok(Json(budgets.unwrap()))
 }
 
 async fn detailed_budget(Path(id): Path<i32>, db: Arc<Mutex<PgConnection>>) ->
@@ -103,6 +108,23 @@ async fn detailed_budget(Path(id): Path<i32>, db: Arc<Mutex<PgConnection>>) ->
     }))
 }
 
+async fn post_initial_balance(
+    Json(initial_balance): Json<NewInitialBalance>,
+    db: Arc<Mutex<PgConnection>>
+) ->
+    Result<Json<InitialBalance>, StatusCode>
+{
+    let db = db.lock().unwrap();
+    let initial_balance = diesel::insert_into(initial_balances::table)
+        .values(&initial_balance)
+        .get_result(&*db);
+    if let Err::<InitialBalance, _>(_) = initial_balance {
+        return Err(StatusCode::INTERNAL_SERVER_ERROR);
+    }
+
+    Ok(Json(initial_balance.unwrap()))
+}
+
 #[tokio::main]
 async fn main() {
     dotenv().ok();
@@ -120,6 +142,12 @@ async fn main() {
                get({
                    let db = connection.clone();
                    move |id| detailed_budget(id, db)
+               })
+        )
+        .route("/api/initial_balances",
+               post({
+                   let db = connection.clone();
+                   move |balance| post_initial_balance(balance, db)
                })
         );
 

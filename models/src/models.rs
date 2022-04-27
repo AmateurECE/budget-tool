@@ -299,4 +299,13 @@ table! {
     }
 }
 
+#[derive(Serialize, Deserialize)]
+#[cfg_attr(not(target_family = "wasm"), derive(Insertable))]
+#[cfg_attr(not(target_family = "wasm"), table_name="initial_balances")]
+pub struct NewInitialBalance {
+    pub account: i32,
+    pub budget: i32,
+    pub balance: i64,
+}
+
 ///////////////////////////////////////////////////////////////////////////////

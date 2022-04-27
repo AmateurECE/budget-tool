@@ -56,6 +56,9 @@ CREATE TABLE transactions (
        periodic_budget INTEGER
 );
 
+-- Table to hold a snapshot of initial balances for a single budget for a
+-- single account. The last_updated timestamp allows application logic to
+-- ensure integrity of the calculation.
 CREATE TABLE initial_balances (
        id SERIAL PRIMARY KEY,
        account INTEGER,
@@ -63,3 +66,16 @@ CREATE TABLE initial_balances (
        balance BIGINT,
        last_updated TIMESTAMP
 );
+
+-- A trigger to automatically update the last_updated timestamp column in the
+-- initial balances table.
+CREATE OR REPLACE FUNCTION update_modified_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.last_updated = now();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_initial_balance_modtime BEFORE UPDATE ON initial_balances
+FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
