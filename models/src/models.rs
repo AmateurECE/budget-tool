@@ -214,6 +214,7 @@ impl TryFrom<String> for TransactionType {
 #[cfg_attr(not(target_family = "wasm"), derive(Queryable))]
 pub struct Transaction {
     pub id: i32,
+    pub description: String,
     pub category: i32,
     pub line_item: i32,
     pub transaction_type: TransactionType,
@@ -241,6 +242,7 @@ table! {
 
     transactions (id) {
         id -> Int4,
+        description -> Text,
         category -> Int4,
         line_item -> Int4,
         transaction_type -> TransactionTypeMapping,
