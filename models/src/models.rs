@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/27/2022
+// LAST EDITED:     04/29/2022
 ////
 
 use std::convert::TryFrom;
@@ -51,25 +51,12 @@ impl TryFrom<String> for AccountType {
 // Account
 ////
 
-#[derive(Serialize, Deserialize)]
-#[cfg_attr(not(target_family = "wasm"), derive(Queryable))]
-pub struct Account {
-    pub id: i32,
-    pub name: String,
-    pub account_type: AccountType,
-    pub apr: f64,
-
-    #[serde(with = "ts_milliseconds")]
-    pub accruing_start_date: NaiveDateTime,
-}
-
 #[cfg(not(target_family = "wasm"))]
 table! {
-    use diesel::sql_types::{Double, Int4, Text, Timestamp};
+    use diesel::sql_types::{Double, Text, Timestamp};
     use super::AccountTypeMapping;
 
-    accounts (id) {
-        id -> Int4,
+    accounts (name) {
         name -> Text,
         account_type -> AccountTypeMapping,
         apr -> Double,
@@ -78,10 +65,10 @@ table! {
 }
 
 #[derive(Serialize, Deserialize)]
-#[cfg_attr(not(target_family = "wasm"), derive(Insertable))]
+#[cfg_attr(not(target_family = "wasm"), derive(Queryable, Insertable))]
 #[cfg_attr(not(target_family = "wasm"), table_name="accounts")]
-pub struct NewAccount<'a> {
-    pub name: &'a str,
+pub struct Account {
+    pub name: String,
     pub account_type: AccountType,
     pub apr: f64,
 
@@ -166,8 +153,8 @@ pub struct BudgetItem {
     pub category: String,
     pub budgeted: i64,
     pub transaction_type: TransactionType,
-    pub from_account: i32,
-    pub to_account: i32,
+    pub from_account: String,
+    pub to_account: String,
     pub periodic_budget: i32,
     pub one_time_budget: i32,
 }
@@ -183,8 +170,8 @@ table! {
         category -> Text,
         budgeted -> BigInt,
         transaction_type -> TransactionTypeMapping,
-        from_account -> Int4,
-        to_account -> Int4,
+        from_account -> Text,
+        to_account -> Text,
         periodic_budget -> Int4,
         one_time_budget -> Int4,
     }
@@ -230,8 +217,8 @@ pub struct Transaction {
     pub category: i32,
     pub line_item: i32,
     pub transaction_type: TransactionType,
-    pub sending_account: i32,
-    pub receiving_account: i32,
+    pub sending_account: String,
+    pub receiving_account: String,
     pub transfer_fees: i64,
     pub receiving_entity: String,
     pub amount: i64,
@@ -257,8 +244,8 @@ table! {
         category -> Int4,
         line_item -> Int4,
         transaction_type -> TransactionTypeMapping,
-        sending_account -> Int4,
-        receiving_account -> Int4,
+        sending_account -> Text,
+        receiving_account -> Text,
         transfer_fees -> BigInt,
         receiving_entity -> Text,
         amount -> BigInt,
@@ -278,7 +265,7 @@ table! {
 #[cfg_attr(not(target_family = "wasm"), derive(Queryable))]
 pub struct InitialBalance {
     pub id: i32,
-    pub account: i32,
+    pub account: String,
     pub budget: i32,
     pub balance: i64,
 
@@ -288,11 +275,11 @@ pub struct InitialBalance {
 
 #[cfg(not(target_family = "wasm"))]
 table! {
-    use diesel::sql_types::{Int4, BigInt, Timestamp};
+    use diesel::sql_types::{Int4, BigInt, Text, Timestamp};
 
     initial_balances (id) {
         id -> Int4,
-        account -> Int4,
+        account -> Text,
         budget -> Int4,
         balance -> BigInt,
         last_updated -> Timestamp,
@@ -303,7 +290,7 @@ table! {
 #[cfg_attr(not(target_family = "wasm"), derive(Insertable))]
 #[cfg_attr(not(target_family = "wasm"), table_name="initial_balances")]
 pub struct NewInitialBalance {
-    pub account: i32,
+    pub account: String,
     pub budget: i32,
     pub balance: i64,
 }
