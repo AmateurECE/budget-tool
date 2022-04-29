@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/27/2022
+// LAST EDITED:     04/29/2022
 ////
 
 use std::collections::HashMap;
@@ -27,6 +27,7 @@ use axum::{
 
 use budget_models::{
     models::{
+        Account, accounts,
         BudgetItem, budget_items,
         InitialBalance, NewInitialBalance, initial_balances,
         PeriodicBudget, periodic_budgets,
@@ -34,7 +35,7 @@ use budget_models::{
     entities::PeriodicBudgetEndpoint,
 };
 
-async fn list_accounts(db: Arc<Mutex<PgConnection>>) ->
+async fn list_budgets(db: Arc<Mutex<PgConnection>>) ->
     Result<Json<Vec<PeriodicBudget>>, StatusCode>
 {
     let db = db.lock().unwrap();
@@ -45,6 +46,18 @@ async fn list_accounts(db: Arc<Mutex<PgConnection>>) ->
     }
 
     Ok(Json(budgets.unwrap()))
+}
+
+async fn list_accounts(db: Arc<Mutex<PgConnection>>) ->
+    Result<Json<Vec<Account>>, StatusCode>
+{
+    let db = db.lock().unwrap();
+    let accounts = accounts::dsl::accounts.load::<Account>(&*db);
+    if let Err::<Vec<Account>, _>(_) = accounts {
+        return Err(StatusCode::INTERNAL_SERVER_ERROR);
+    }
+
+    Ok(Json(accounts.unwrap()))
 }
 
 async fn detailed_budget(Path(id): Path<i32>, db: Arc<Mutex<PgConnection>>) ->
@@ -136,7 +149,7 @@ async fn main() {
 
     let app = Router::new()
         .route("/api/periodic_budgets",
-               get({ let db = connection.clone(); move || list_accounts(db)})
+               get({ let db = connection.clone(); move || list_budgets(db) })
         )
         .route("/api/periodic_budgets/:id",
                get({
@@ -149,6 +162,9 @@ async fn main() {
                    let db = connection.clone();
                    move |balance| post_initial_balance(balance, db)
                })
+        )
+        .route("/api/accounts",
+               get({ let db = connection.clone(); move || list_accounts(db) })
         );
 
     axum::Server::bind(&"127.0.0.1:3000".parse().unwrap())
