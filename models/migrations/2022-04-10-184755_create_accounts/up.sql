@@ -32,8 +32,8 @@ CREATE TABLE budget_items (
        category TEXT NOT NULL,
        budgeted BIGINT,
        transaction_type TransactionType,
-       from_account INTEGER,
-       to_account INTEGER,
+       from_account TEXT,
+       to_account TEXT,
        periodic_budget INTEGER,
        one_time_budget INTEGER
 );
@@ -43,8 +43,8 @@ CREATE TABLE transactions (
        category INTEGER NOT NULL,
        line_item INTEGER NOT NULL,
        transaction_type TransactionType,
-       sending_account INTEGER,
-       receiving_account INTEGER,
+       sending_account TEXT,
+       receiving_account TEXT,
        transfer_fees BIGINT,
        receiving_entity TEXT,
        amount BIGINT,
@@ -60,7 +60,7 @@ CREATE TABLE transactions (
 -- ensure integrity of the calculation.
 CREATE TABLE initial_balances (
        id SERIAL PRIMARY KEY,
-       account INTEGER,
+       account TEXT,
        budget INTEGER,
        balance BIGINT,
        last_updated TIMESTAMP
