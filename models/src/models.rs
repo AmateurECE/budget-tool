@@ -215,7 +215,6 @@ impl TryFrom<String> for TransactionType {
 pub struct Transaction {
     pub id: i32,
     pub description: String,
-    pub category: i32,
     pub line_item: i32,
     pub transaction_type: TransactionType,
     pub sending_account: String,
@@ -243,7 +242,6 @@ table! {
     transactions (id) {
         id -> Int4,
         description -> Text,
-        category -> Int4,
         line_item -> Int4,
         transaction_type -> TransactionTypeMapping,
         sending_account -> Text,

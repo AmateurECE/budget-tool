@@ -41,7 +41,6 @@ CREATE TABLE budget_items (
 CREATE TABLE transactions (
        id SERIAL PRIMARY KEY,
        description TEXT,
-       category INTEGER NOT NULL,
        line_item INTEGER NOT NULL,
        transaction_type TransactionType,
        sending_account TEXT,
