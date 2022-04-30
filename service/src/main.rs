@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/29/2022
+// LAST EDITED:     04/30/2022
 ////
 
 use std::collections::HashMap;
@@ -127,7 +127,7 @@ async fn detailed_budget(Path(id): Path<i32>, db: Arc<Mutex<PgConnection>>) ->
     let initial_balances = initial_balances.unwrap();
 
     Ok(Json(PeriodicBudgetEndpoint {
-        budget, items, initial_balances,
+        budget, items, initial_balances, transactions: Vec::new(),
     }))
 }
 

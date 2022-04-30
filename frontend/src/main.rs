@@ -26,7 +26,8 @@ mod render;
 use network::fetch;
 use pages::{PeriodicBudgetView, NotFoundView};
 
-pub(crate) const PERIODIC_BUDGETS: &'static str = "/api/periodic_budgets";
+pub(crate) const PERIODIC_BUDGETS_PATH: &'static str = "/api/periodic_budgets";
+pub(crate) const ACCOUNTS_PATH: &'static str = "/api/accounts";
 
 // The Different routes we support
 #[derive(Routable, PartialEq, Clone, Debug)]
@@ -64,7 +65,7 @@ impl Component for BudgetApp {
             |budgets: Vec<PeriodicBudget>| AppMessage::Received(budgets)
         );
         spawn_local(async move {
-            let request = web_sys::Request::new_with_str(PERIODIC_BUDGETS)
+            let request = web_sys::Request::new_with_str(PERIODIC_BUDGETS_PATH)
                 .unwrap();
             let response: Vec<PeriodicBudget> = fetch(request).await.unwrap();
             link.emit(response);

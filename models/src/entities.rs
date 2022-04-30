@@ -7,7 +7,7 @@
 //
 // CREATED:         04/14/2022
 //
-// LAST EDITED:     04/25/2022
+// LAST EDITED:     04/30/2022
 ////
 
 use std::collections::HashMap;
@@ -85,6 +85,8 @@ pub struct PeriodicBudgetEndpoint {
 
     /// Initial balances for all of the accounts.
     pub initial_balances: Vec<InitialBalance>,
+
+    pub transactions: Vec<Transaction>,
 }
 
 ///////////////////////////////////////////////////////////////////////////////

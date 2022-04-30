@@ -14,7 +14,7 @@ use std::collections::HashMap;
 
 use budget_models::{
     entities::PeriodicBudgetEndpoint,
-    models::{BudgetItem, PeriodicBudget},
+    models::{Account, BudgetItem, PeriodicBudget},
 };
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
@@ -25,7 +25,7 @@ use crate::budgetizer::{
     Budgetizer,
 };
 use crate::network::fetch;
-use crate::PERIODIC_BUDGETS;
+use crate::{ACCOUNTS_PATH, PERIODIC_BUDGETS_PATH};
 use crate::render::Render;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -94,15 +94,24 @@ impl Render for ResolvedBudgetView {
 // PeriodicBudgetView
 ////
 
+// Data needed for rendering this view
+pub struct PeriodicBudgetViewContext {
+    pub budget: PeriodicBudgetEndpoint,
+    pub accounts: Vec<Account>,
+}
+
+// Properties for this component
 #[derive(Properties, PartialEq)]
 pub struct PeriodicBudgetViewProperties {
     pub id: i32,
 }
 
+// Message for this component
 pub enum PeriodicBudgetViewMessage {
-    Received(PeriodicBudgetEndpoint),
+    Received(PeriodicBudgetViewContext),
 }
 
+// Component for this view
 #[derive(Default)]
 pub struct PeriodicBudgetView {
     budget: Option<ResolvedBudgetView>,
@@ -114,13 +123,13 @@ impl Component for PeriodicBudgetView {
 
     fn create(context: &Context<Self>) -> Self {
         let mut view = PeriodicBudgetView::default();
-        view.request_budget(context);
+        view.request_context(context);
         view
     }
 
     // Here, we abuse the changed handler to request the new budget
     fn changed(&mut self, context: &Context<Self>) -> bool {
-        self.request_budget(context);
+        self.request_context(context);
         true
     }
 
@@ -146,35 +155,73 @@ impl Component for PeriodicBudgetView {
 
 impl PeriodicBudgetView {
     // Submit HTTP request to get the budget and related data from the server
-    fn request_budget(&mut self, context: &Context<Self>) {
+    fn request_context(&mut self, context: &Context<Self>) {
         self.budget = None;
 
         use PeriodicBudgetViewMessage::*;
         let link = context.link().callback(
-            |budget: PeriodicBudgetEndpoint| Received(budget)
+            |budget: PeriodicBudgetViewContext| Received(budget)
         );
-        let url = PERIODIC_BUDGETS.to_string() + "/"
-            + &context.props().id.to_string();
+        let id = context.props().id.to_string();
         spawn_local(async move {
+            // Get the detailed budget view
+            let url = PERIODIC_BUDGETS_PATH.to_string() + "/" + &id;
             let request = web_sys::Request::new_with_str(&url)
                 .unwrap();
-            let response: PeriodicBudgetEndpoint = fetch(request).await
+            let budget: PeriodicBudgetEndpoint = fetch(request).await
                 .unwrap();
-            link.emit(response);
+
+            // Get the account view
+            let request = web_sys::Request::new_with_str(ACCOUNTS_PATH)
+                .unwrap();
+            let accounts: Vec<Account> = fetch(request).await
+                .unwrap();
+            link.emit(PeriodicBudgetViewContext {
+                budget, accounts,
+            });
         });
     }
 
     // Convert PeriodicBudgetEndpoint to ResolvedBudgetView using a Budgetizer
-    fn budgetize(&self, budget: PeriodicBudgetEndpoint) -> ResolvedBudgetView {
-        let items = budget.items.into_iter().map(|(_, v)| v)
+    fn budgetize(&self, data: PeriodicBudgetViewContext) -> ResolvedBudgetView
+    {
+        let mut items = data.budget.items.into_iter().map(|(_, v)| v)
             .collect::<Vec<Vec<BudgetItem>>>()
             .concat()
             .into_iter()
             .map(|item| {
-                (item.id, item)
-            }).collect::<HashMap<i32, BudgetItem>>();
+                (item.id, item.into())
+            }).collect::<HashMap<i32, TrackedBudgetItem>>();
 
-        let budgetizer = Budgetizer::new(budget.budget);
+        let mut accounts = data.accounts.into_iter()
+            .map(|account| {
+                let initial_balance = data.budget.initial_balances.iter()
+                    .find(|item| item.account == account.name);
+                let name = account.name.to_owned();
+                match initial_balance {
+                    Some(initial_balance) => (
+                        name, TrackedAccount::with_balance(
+                            account, initial_balance)
+                    ),
+                    None => (name, account.into()),
+                }
+            })
+            .collect::<HashMap<String, TrackedAccount>>();
+
+        let budgetizer = Budgetizer::new(data.budget.budget);
+        for transaction in data.budget.transactions {
+            budgetizer.apply_transaction(
+                &mut items,
+                &mut accounts,
+                &transaction
+            );
+        }
+
+        // ResolvedBudgetView {
+        //     budget,
+        //     items,
+        //     accounts,
+        // }
         todo!()
     }
 }

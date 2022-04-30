@@ -50,12 +50,24 @@ pub struct TrackedAccount {
     pub current_balance: i64,
 }
 
-impl TrackedAccount {
-    pub fn new(account: Account, initial_balance: i64) -> Self {
+impl From<Account> for TrackedAccount {
+    fn from(account: Account) -> Self {
         Self {
             account,
-            initial_balance,
-            current_balance: initial_balance,
+            initial_balance: 0,
+            current_balance: 0,
+        }
+    }
+}
+
+impl TrackedAccount {
+    pub fn with_balance(account: Account, initial_balance: &InitialBalance) ->
+        Self
+    {
+        Self {
+            account,
+            initial_balance: initial_balance.balance,
+            current_balance: initial_balance.balance,
         }
     }
 }
@@ -78,9 +90,9 @@ impl Budgetizer {
     // The algorithm: Apply a transaction to a series of accounts and budgets.
     pub fn apply_transaction(
         &self,
-        items: &HashMap<i32, TrackedBudgetItem>,
-        accounts: &HashMap<String, TrackedAccount>,
-        transaction: Transaction
+        _items: &mut HashMap<i32, TrackedBudgetItem>,
+        _accounts: &mut HashMap<String, TrackedAccount>,
+        _transaction: &Transaction
     ) {
         todo!()
     }
