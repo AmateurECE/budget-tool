@@ -41,7 +41,7 @@ impl From<TrackedBudgetItem> for BudgetItemView {
 
 impl Render for BudgetItemView {
     fn render(&self) -> Html {
-        todo!()
+        html! { <p>{ &self.0.item.description }</p> }
     }
 }
 
@@ -74,17 +74,23 @@ pub struct ResolvedBudgetView {
 
 impl Render for ResolvedBudgetView {
     fn render(&self) -> Html {
-        html! {<div>{
+        html! {<div><h1>{
+            &self.budget.start_date
+        }</h1><h2>{ "Budget" }</h2>{
             self.items.iter().map(|(k, v)| {
                 html! {
                     <div>
-                        <h2>{ k }</h2>
+                        <h3>{ k }</h3>
                         <div>{
                             v.iter().map(|item| item.render())
                                 .collect::<Html>()
                         }</div>
                     </div>
                 }
+            }).collect::<Html>()
+        }<h2>{ "Accounts" }</h2>{
+            self.accounts.iter().map(|account| {
+                html! { <p>{ &account.0.account.name }</p> }
             }).collect::<Html>()
         }</div>}
     }
