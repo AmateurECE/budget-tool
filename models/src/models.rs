@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/29/2022
+// LAST EDITED:     04/30/2022
 ////
 
 use std::convert::TryFrom;
@@ -80,7 +80,7 @@ pub struct Account {
 // Periodic Budget
 ////
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[cfg_attr(not(target_family = "wasm"), derive(Queryable))]
 pub struct PeriodicBudget {
     pub id: i32,

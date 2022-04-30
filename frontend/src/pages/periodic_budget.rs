@@ -69,7 +69,7 @@ impl Render for AccountView {
 pub struct ResolvedBudgetView {
     budget: PeriodicBudget,
     items: HashMap<String, Vec<BudgetItemView>>,
-    accounts: HashMap<String, Vec<AccountView>>,
+    accounts: Vec<AccountView>,
 }
 
 impl Render for ResolvedBudgetView {
@@ -185,7 +185,7 @@ impl PeriodicBudgetView {
     // Convert PeriodicBudgetEndpoint to ResolvedBudgetView using a Budgetizer
     fn budgetize(&self, data: PeriodicBudgetViewContext) -> ResolvedBudgetView
     {
-        let mut items = data.budget.items.into_iter().map(|(_, v)| v)
+        let mut budget_items = data.budget.items.into_iter().map(|(_, v)| v)
             .collect::<Vec<Vec<BudgetItem>>>()
             .concat()
             .into_iter()
@@ -208,21 +208,42 @@ impl PeriodicBudgetView {
             })
             .collect::<HashMap<String, TrackedAccount>>();
 
-        let budgetizer = Budgetizer::new(data.budget.budget);
+        let budgetizer = Budgetizer::new(data.budget.budget.clone());
         for transaction in data.budget.transactions {
             budgetizer.apply_transaction(
-                &mut items,
+                &mut budget_items,
                 &mut accounts,
                 &transaction
             );
         }
 
-        // ResolvedBudgetView {
-        //     budget,
-        //     items,
-        //     accounts,
-        // }
-        todo!()
+        // Have to re-organize the budget items for rendering.
+        let mut items = budget_items.values()
+            .map(|i| i.item.category.to_owned())
+            .collect::<Vec<String>>();
+        items.sort();
+        items.dedup();
+        let mut items = items.into_iter()
+            .map(|item| (item, Vec::new()))
+            .collect::<HashMap<String, Vec<BudgetItemView>>>();
+
+        let mut budget_items = budget_items.into_iter()
+            .map(|(_, v)| v)
+            .collect::<Vec<TrackedBudgetItem>>();
+        while !budget_items.is_empty() {
+            let item = budget_items.pop().unwrap();
+            items.get_mut(&item.item.category).unwrap().push(item.into());
+        }
+
+        let accounts = accounts.into_iter()
+            .map(|(_, account)| account.into())
+            .collect::<Vec<AccountView>>();
+
+        ResolvedBudgetView {
+            budget: data.budget.budget,
+            items,
+            accounts,
+        }
     }
 }
 
