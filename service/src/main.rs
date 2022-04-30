@@ -17,6 +17,9 @@ use std::sync::{Arc, Mutex};
 use diesel::prelude::*;
 use diesel::{pg::PgConnection, result::Error::NotFound};
 use dotenv::dotenv;
+use tower_http::trace::TraceLayer;
+use tracing_subscriber;
+use tracing::{event, Level};
 
 use axum::{
     extract::Path,
@@ -73,7 +76,8 @@ async fn detailed_budget(Path(id): Path<i32>, db: Arc<Mutex<PgConnection>>) ->
         .first(&*db);
     if let Err::<PeriodicBudget, _>(NotFound) = budget {
         return Err(StatusCode::NOT_FOUND);
-    } else if let Err::<PeriodicBudget, _>(_) = budget {
+    } else if let Err::<PeriodicBudget, _>(e) = budget {
+        event!(Level::ERROR, "{}", e);
         return Err(StatusCode::INTERNAL_SERVER_ERROR);
     }
 
@@ -83,7 +87,8 @@ async fn detailed_budget(Path(id): Path<i32>, db: Arc<Mutex<PgConnection>>) ->
     let items: Result<Vec<BudgetItem>, _> = budget_items::dsl::budget_items
         .filter(budget_items::periodic_budget.eq(budget.id))
         .load::<BudgetItem>(&*db);
-    if let Err::<Vec<BudgetItem>, _>(_) = items {
+    if let Err::<Vec<BudgetItem>, _>(e) = items {
+        event!(Level::ERROR, "{}", e);
         return Err(StatusCode::INTERNAL_SERVER_ERROR);
     }
 
@@ -96,12 +101,16 @@ async fn detailed_budget(Path(id): Path<i32>, db: Arc<Mutex<PgConnection>>) ->
     categories.sort();
     categories.dedup();
     let items = categories.iter().map(|cat| {
-        let mut filtered: Vec<BudgetItem> = Vec::new();
-        for i in 0..items.len() {
-            if &items[i].category == cat {
-                filtered.push(items.remove(i));
+        // Filter out the budget items that map to this category
+        let filtered = items.iter().filter_map(|item| {
+            if item.category == *cat {
+                Some(item.clone())
+            } else {
+                None
             }
-        }
+        }).collect::<Vec<BudgetItem>>();
+        items.retain(|item| item.category != *cat);
+
         (cat.to_owned(), filtered)
     }).collect::<HashMap<String, Vec<BudgetItem>>>();
 
@@ -111,7 +120,8 @@ async fn detailed_budget(Path(id): Path<i32>, db: Arc<Mutex<PgConnection>>) ->
         initial_balances::dsl::initial_balances
         .filter(initial_balances::budget.eq(budget.id))
         .load::<InitialBalance>(&*db);
-    if let Err::<Vec<InitialBalance>, _>(_) = initial_balances {
+    if let Err::<Vec<InitialBalance>, _>(e) = initial_balances {
+        event!(Level::ERROR, "{}", e);
         return Err(StatusCode::INTERNAL_SERVER_ERROR);
     }
     let initial_balances = initial_balances.unwrap();
@@ -141,6 +151,8 @@ async fn post_initial_balance(
 #[tokio::main]
 async fn main() {
     dotenv().ok();
+    tracing_subscriber::fmt::init();
+
     let url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let connection = Arc::new(Mutex::new(
         PgConnection::establish(&url)
@@ -165,7 +177,8 @@ async fn main() {
         )
         .route("/api/accounts",
                get({ let db = connection.clone(); move || list_accounts(db) })
-        );
+        )
+        .layer(TraceLayer::new_for_http());
 
     axum::Server::bind(&"127.0.0.1:3000".parse().unwrap())
         .serve(app.into_make_service())

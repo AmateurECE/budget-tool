@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/15/2022
+// LAST EDITED:     04/29/2022
 ////
 
 #[cfg(not(target_family = "wasm"))]
@@ -16,5 +16,7 @@ extern crate diesel;
 
 pub mod models;
 pub mod entities;
+
+pub mod serde;
 
 ///////////////////////////////////////////////////////////////////////////////

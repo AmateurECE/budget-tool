@@ -8,7 +8,9 @@ edition = "2021"
 [dependencies]
 axum = "0.5.1"
 tokio = { version = "1.17", features = ["full"] }
-clap = { version = "3.1.8", features = ["derive"] }
 diesel = { version = "1.4.4", features = ["postgres", "chrono"] }
 dotenv = "0.15.0"
 budget-models = { path = "../models" }
+tower-http = { version = "0.2", features = ["trace"] }
+tracing-subscriber = "0.3"
+tracing = "0.1"

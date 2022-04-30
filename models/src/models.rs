@@ -145,7 +145,7 @@ table! {
 // Budget Items
 ////
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[cfg_attr(not(target_family = "wasm"), derive(Queryable))]
 pub struct BudgetItem {
     pub id: i32,
@@ -153,15 +153,15 @@ pub struct BudgetItem {
     pub category: String,
     pub budgeted: i64,
     pub transaction_type: TransactionType,
-    pub from_account: String,
-    pub to_account: String,
+    pub from_account: Option<String>,
+    pub to_account: Option<String>,
     pub periodic_budget: i32,
-    pub one_time_budget: i32,
+    pub one_time_budget: Option<i32>,
 }
 
 #[cfg(not(target_family = "wasm"))]
 table! {
-    use diesel::sql_types::{Int4, BigInt, Text};
+    use diesel::sql_types::{Int4, BigInt, Nullable, Text};
     use super::TransactionTypeMapping;
 
     budget_items (id) {
@@ -170,10 +170,10 @@ table! {
         category -> Text,
         budgeted -> BigInt,
         transaction_type -> TransactionTypeMapping,
-        from_account -> Text,
-        to_account -> Text,
+        from_account -> Nullable<Text>,
+        to_account -> Nullable<Text>,
         periodic_budget -> Int4,
-        one_time_budget -> Int4,
+        one_time_budget -> Nullable<Int4>,
     }
 }
 
@@ -181,7 +181,7 @@ table! {
 // TransactionType
 ////
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Clone, Serialize, Deserialize, PartialEq, Debug)]
 #[cfg_attr(not(target_family = "wasm"), derive(DbEnum))]
 pub enum TransactionType {
     Expense,
@@ -217,26 +217,26 @@ pub struct Transaction {
     pub description: String,
     pub line_item: i32,
     pub transaction_type: TransactionType,
-    pub sending_account: String,
-    pub receiving_account: String,
-    pub transfer_fees: i64,
-    pub receiving_entity: String,
+    pub sending_account: Option<String>,
+    pub receiving_account: Option<String>,
+    pub transfer_fees: Option<i64>,
+    pub receiving_entity: Option<String>,
     pub amount: i64,
-    pub tags: Vec<String>,
+    pub tags: Option<Vec<String>>,
 
     #[serde(with = "ts_milliseconds")]
     pub send_date: NaiveDateTime,
 
-    #[serde(with = "ts_milliseconds")]
-    pub receive_date: NaiveDateTime,
+    #[serde(with = "crate::serde::naive_datetime_option")]
+    pub receive_date: Option<NaiveDateTime>,
 
-    pub corrects: Vec<i32>,
+    pub corrects: Option<Vec<i32>>,
     pub periodic_budget: i32,
 }
 
 #[cfg(not(target_family = "wasm"))]
 table! {
-    use diesel::sql_types::{Array, BigInt, Int4, Timestamp, Text};
+    use diesel::sql_types::{Array, BigInt, Int4, Nullable, Timestamp, Text};
     use super::TransactionTypeMapping;
 
     transactions (id) {
@@ -244,15 +244,15 @@ table! {
         description -> Text,
         line_item -> Int4,
         transaction_type -> TransactionTypeMapping,
-        sending_account -> Text,
-        receiving_account -> Text,
-        transfer_fees -> BigInt,
-        receiving_entity -> Text,
+        sending_account -> Nullable<Text>,
+        receiving_account -> Nullable<Text>,
+        transfer_fees -> Nullable<BigInt>,
+        receiving_entity -> Nullable<Text>,
         amount -> BigInt,
-        tags -> Array<Text>,
+        tags -> Nullable<Array<Text>>,
         send_date -> Timestamp,
-        receive_date -> Timestamp,
-        corrects -> Array<Int4>,
+        receive_date -> Nullable<Timestamp>,
+        corrects -> Nullable<Array<Int4>>,
         periodic_budget -> Int4,
     }
 }
