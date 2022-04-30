@@ -18,8 +18,10 @@ use web_sys::HtmlSelectElement;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
+mod budgetizer;
 mod network;
 mod pages;
+mod render;
 
 use network::fetch;
 use pages::{PeriodicBudgetView, NotFoundView};
