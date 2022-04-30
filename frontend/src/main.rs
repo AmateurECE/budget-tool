@@ -7,7 +7,7 @@
 //
 // CREATED:         04/14/2022
 //
-// LAST EDITED:     04/25/2022
+// LAST EDITED:     04/30/2022
 ////
 
 use std::str::FromStr;
@@ -24,7 +24,7 @@ mod pages;
 use network::fetch;
 use pages::{PeriodicBudgetView, NotFoundView};
 
-const PERIODIC_BUDGETS: &'static str = "/api/periodic_budgets";
+pub(crate) const PERIODIC_BUDGETS: &'static str = "/api/periodic_budgets";
 
 // The Different routes we support
 #[derive(Routable, PartialEq, Clone, Debug)]
@@ -77,7 +77,9 @@ impl Component for BudgetApp {
         use AppMessage::*;
         match message {
             Received(budgets) => {
-                self.selected_budget = budgets[budgets.len() - 1].id;
+                if budgets.len() > 0 {
+                    self.selected_budget = budgets[0].id;
+                }
                 self.budgets = Some(budgets);
                 true
             },
