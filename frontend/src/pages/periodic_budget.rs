@@ -7,14 +7,14 @@
 //
 // CREATED:         04/20/2022
 //
-// LAST EDITED:     04/30/2022
+// LAST EDITED:     05/01/2022
 ////
 
 use std::collections::HashMap;
 
 use budget_models::{
     entities::PeriodicBudgetEndpoint,
-    models::{Account, InitialBalance, PeriodicBudget},
+    models::{Account, PeriodicBudget},
 };
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
@@ -93,6 +93,75 @@ impl Render for ResolvedBudgetView {
                 html! { <p>{ &account.0.account.name }</p> }
             }).collect::<Html>()
         }</div>}
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Data Transformations
+////
+
+mod data_transformations {
+    use std::collections::HashMap;
+    use budget_models::models::{Account, BudgetItem, InitialBalance};
+    use crate::budgetizer::{TrackedAccount, TrackedBudgetItem};
+    use super::{AccountView, BudgetItemView};
+
+    pub fn trackable_accounts(
+        accounts: Vec<Account>, initial_balances: Vec<InitialBalance>
+    ) -> HashMap<String, TrackedAccount>
+    {
+        accounts.into_iter().map(|account| {
+            let initial_balance = initial_balances.iter()
+                .find(|item| item.account == account.name);
+            let name = account.name.to_owned();
+            match initial_balance {
+                Some(initial_balance) => (
+                    name, TrackedAccount::with_balance(
+                        account, initial_balance)
+                ),
+                None => (name, account.into()),
+            }
+        }).collect::<HashMap<String, TrackedAccount>>()
+    }
+
+    pub fn viewable_accounts(accounts: HashMap<String, TrackedAccount>) ->
+        Vec<AccountView>
+    {
+        accounts.into_iter().map(|(_, account)| account.into())
+            .collect::<Vec<AccountView>>()
+    }
+
+    pub fn trackable_budget_items(items: Vec<BudgetItem>) ->
+        HashMap<i32, TrackedBudgetItem>
+    {
+        items.into_iter().map(|item| {
+            (item.id, item.into())
+        }).collect::<HashMap<i32, TrackedBudgetItem>>()
+    }
+
+    // Re-organize the trackable budget items for rendering.
+    pub fn viewable_budget_items(
+        budget_items: HashMap<i32, TrackedBudgetItem>
+    ) -> HashMap<String, Vec<BudgetItemView>>
+    {
+        let mut items = budget_items.values()
+            .map(|i| i.item.category.to_owned())
+            .collect::<Vec<String>>();
+        items.sort();
+        items.dedup();
+        let mut items = items.into_iter()
+            .map(|item| (item, Vec::new()))
+            .collect::<HashMap<String, Vec<BudgetItemView>>>();
+
+        let mut budget_items = budget_items.into_iter()
+            .map(|(_, v)| v)
+            .collect::<Vec<TrackedBudgetItem>>();
+        while !budget_items.is_empty() {
+            let item = budget_items.pop().unwrap();
+            items.get_mut(&item.item.category).unwrap().push(item.into());
+        }
+
+        items
     }
 }
 
@@ -188,57 +257,14 @@ impl PeriodicBudgetView {
         });
     }
 
-    fn trackable_accounts(
-        accounts: Vec<Account>, initial_balances: Vec<InitialBalance>
-    ) -> HashMap<String, TrackedAccount>
-    {
-        accounts.into_iter().map(|account| {
-            let initial_balance = initial_balances.iter()
-                .find(|item| item.account == account.name);
-            let name = account.name.to_owned();
-            match initial_balance {
-                Some(initial_balance) => (
-                    name, TrackedAccount::with_balance(
-                        account, initial_balance)
-                ),
-                None => (name, account.into()),
-            }
-        }).collect::<HashMap<String, TrackedAccount>>()
-    }
-
-    // Re-organize the trackable budget items for rendering.
-    fn viewable_budget_items(budget_items: HashMap<i32, TrackedBudgetItem>) ->
-        HashMap<String, Vec<BudgetItemView>>
-    {
-        let mut items = budget_items.values()
-            .map(|i| i.item.category.to_owned())
-            .collect::<Vec<String>>();
-        items.sort();
-        items.dedup();
-        let mut items = items.into_iter()
-            .map(|item| (item, Vec::new()))
-            .collect::<HashMap<String, Vec<BudgetItemView>>>();
-
-        let mut budget_items = budget_items.into_iter()
-            .map(|(_, v)| v)
-            .collect::<Vec<TrackedBudgetItem>>();
-        while !budget_items.is_empty() {
-            let item = budget_items.pop().unwrap();
-            items.get_mut(&item.item.category).unwrap().push(item.into());
-        }
-
-        items
-    }
-
     // Convert PeriodicBudgetEndpoint to ResolvedBudgetView using a Budgetizer
     fn budgetize(&self, data: PeriodicBudgetViewContext) -> ResolvedBudgetView
     {
+        use data_transformations::*;
+
         // Arrange the budget items and the accounts to be trackable
-        let mut budget_items = data.budget.items.into_iter()
-            .map(|item| {
-                (item.id, item.into())
-            }).collect::<HashMap<i32, TrackedBudgetItem>>();
-        let mut accounts = PeriodicBudgetView::trackable_accounts(
+        let mut budget_items = trackable_budget_items(data.budget.items);
+        let mut accounts = trackable_accounts(
             data.accounts, data.budget.initial_balances);
 
         // Apply the transactions to the accounts and budget
@@ -253,14 +279,10 @@ impl PeriodicBudgetView {
 
         // Convert budget items and accounts back into viewable representation
         // and return
-        let accounts = accounts.into_iter()
-            .map(|(_, account)| account.into())
-            .collect::<Vec<AccountView>>();
-
         ResolvedBudgetView {
             budget: data.budget.budget,
-            items: PeriodicBudgetView::viewable_budget_items(budget_items),
-            accounts,
+            items: viewable_budget_items(budget_items),
+            accounts: viewable_accounts(accounts),
         }
     }
 }
