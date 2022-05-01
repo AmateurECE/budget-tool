@@ -208,6 +208,18 @@ impl TryFrom<String> for TransactionType {
     }
 }
 
+impl ToString for TransactionType {
+    fn to_string(&self) -> String {
+        use TransactionType::*;
+        match &self {
+            Expense => "Expense".to_string(),
+            Income => "Income".to_string(),
+            Transfer => "Transfer".to_string(),
+            Payment => "Payment".to_string(),
+        }
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Transaction
 ////

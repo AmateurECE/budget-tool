@@ -41,7 +41,27 @@ impl From<TrackedBudgetItem> for BudgetItemView {
 
 impl Render for BudgetItemView {
     fn render(&self) -> Html {
-        html! { <p>{ &self.0.item.description }</p> }
+        let budgeted = format!("{:.2}", (self.0.item.budgeted as f64) / 100.0);
+        let spent = format!("{:.2}", (self.0.spent as f64) / 100.0);
+        html! { <tr><td data-label="Description">{
+            &self.0.item.description
+        }</td><td data-label="Transaction Type">{
+            &self.0.item.transaction_type.to_string()
+        }</td><td data-label="From">{
+            match &self.0.item.from_account {
+                Some(account) => account,
+                None => "",
+            }
+        }</td><td data-label="To">{
+            match &self.0.item.to_account {
+                Some(account) => account,
+                None => "",
+            }
+        }</td><td data-label="Budgeted">{
+            budgeted
+        }</td><td data-label="Spent">{
+            spent
+        }</td></tr>}
     }
 }
 
@@ -58,15 +78,21 @@ impl From<TrackedAccount> for AccountView {
 
 impl Render for AccountView {
     fn render(&self) -> Html {
-        html! {<p>{
+        let initial = format!(
+            "{:.2}", (self.0.initial_balance as f64) / 100.0);
+        let current = format!(
+            "{:.2}", (self.0.current_balance as f64) / 100.0);
+        let expected_end = format!(
+            "{:.2}", (self.0.expected_end_balance as f64) / 100.0);
+        html! {<tr><td data-label="Name">{
             &self.0.account.name
-        }{
-            self.0.initial_balance
-        }{
-            self.0.current_balance
-        }{
-            self.0.expected_end_balance
-        }</p>}
+        }</td><td data-label="Initial Balance">{
+            initial
+        }</td><td data-label="Current Balance">{
+            current
+        }</td><td data-label="Expected End Balance">{
+            expected_end
+        }</td></tr>}
     }
 }
 
@@ -89,18 +115,18 @@ impl Render for ResolvedBudgetView {
                 html! {
                     <div>
                         <h3>{ k }</h3>
-                        <div>{
+                        <div><table>{
                             v.iter().map(|item| item.render())
                                 .collect::<Html>()
-                        }</div>
+                        }</table></div>
                     </div>
                 }
             }).collect::<Html>()
-        }<h2>{ "Accounts" }</h2>{
+        }<h2>{ "Accounts" }</h2><table>{
             self.accounts.iter().map(|account| {
                 account.render()
             }).collect::<Html>()
-        }</div>}
+        }</table></div>}
     }
 }
 
