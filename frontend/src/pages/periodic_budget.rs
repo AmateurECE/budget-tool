@@ -26,7 +26,7 @@ use crate::budgetizer::{
 };
 use crate::network::fetch;
 use crate::{ACCOUNTS_PATH, PERIODIC_BUDGETS_PATH};
-use crate::render::Render;
+use crate::render::{Render, RenderTable};
 
 ///////////////////////////////////////////////////////////////////////////////
 // BudgetItemView
@@ -65,6 +65,24 @@ impl Render for BudgetItemView {
     }
 }
 
+impl RenderTable for BudgetItemView {
+    fn header() -> Html {
+        html! {<tr><th>{
+            "Description"
+        }</th><th>{
+            "Transaction Type"
+        }</th><th>{
+            "From"
+        }</th><th>{
+            "To"
+        }</th><th>{
+            "Budgeted"
+        }</th><th>{
+            "Spent"
+        }</th></tr>}
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // AccountView
 ////
@@ -96,6 +114,20 @@ impl Render for AccountView {
     }
 }
 
+impl RenderTable for AccountView {
+    fn header() -> Html {
+        html! {<tr><th>{
+            "Name"
+        }</th><th>{
+            "Initial Balance"
+        }</th><th>{
+            "Current Balance"
+        }</th><th>{
+            "Expected End Balance"
+        }</th></tr>}
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // ResolvedBudgetView
 ////
@@ -115,14 +147,14 @@ impl Render for ResolvedBudgetView {
                 html! {
                     <div>
                         <h3>{ k }</h3>
-                        <div><table>{
+                        <div><table>{ BudgetItemView::header() }{
                             v.iter().map(|item| item.render())
                                 .collect::<Html>()
                         }</table></div>
                     </div>
                 }
             }).collect::<Html>()
-        }<h2>{ "Accounts" }</h2><table>{
+        }<h2>{ "Accounts" }</h2><table>{ AccountView::header() }{
             self.accounts.iter().map(|account| {
                 account.render()
             }).collect::<Html>()

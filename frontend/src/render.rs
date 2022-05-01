@@ -7,13 +7,17 @@
 //
 // CREATED:         04/30/2022
 //
-// LAST EDITED:     04/30/2022
+// LAST EDITED:     05/01/2022
 ////
 
 use yew::Html;
 
 pub trait Render {
     fn render(&self) -> Html;
+}
+
+pub trait RenderTable: Render {
+    fn header() -> Html;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
