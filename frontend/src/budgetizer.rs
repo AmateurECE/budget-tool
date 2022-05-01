@@ -47,6 +47,7 @@ impl From<BudgetItem> for TrackedBudgetItem {
 pub struct TrackedAccount {
     pub account: Account,
     pub initial_balance: i64,
+    pub expected_end_balance: i64,
     pub current_balance: i64,
 }
 
@@ -55,6 +56,7 @@ impl From<Account> for TrackedAccount {
         Self {
             account,
             initial_balance: 0,
+            expected_end_balance: 0,
             current_balance: 0,
         }
     }
@@ -67,6 +69,7 @@ impl TrackedAccount {
         Self {
             account,
             initial_balance: initial_balance.balance,
+            expected_end_balance: initial_balance.balance,
             current_balance: initial_balance.balance,
         }
     }
