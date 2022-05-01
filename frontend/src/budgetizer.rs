@@ -7,7 +7,7 @@
 //
 // CREATED:         04/30/2022
 //
-// LAST EDITED:     04/30/2022
+// LAST EDITED:     05/01/2022
 ////
 
 use std::collections::HashMap;
@@ -87,7 +87,16 @@ impl Budgetizer {
         }
     }
 
-    // The algorithm: Apply a transaction to a series of accounts and budgets.
+    // First algorithm: Predict an account's end balance, based on budget.
+    pub fn predict_balance(
+        &self,
+        _accounts: &mut HashMap<String, TrackedAccount>,
+        _item: &TrackedBudgetItem,
+    ) {
+        todo!()
+    }
+
+    // Second algorithm: Apply a transaction to series of accounts and budgets.
     pub fn apply_transaction(
         &self,
         _items: &mut HashMap<i32, TrackedBudgetItem>,

@@ -267,8 +267,13 @@ impl PeriodicBudgetView {
         let mut accounts = trackable_accounts(
             data.accounts, data.budget.initial_balances);
 
-        // Apply the transactions to the accounts and budget
         let budgetizer = Budgetizer::new(data.budget.budget.clone());
+        // Predict account balances
+        for budget_item in budget_items.values() {
+            budgetizer.predict_balance(&mut accounts, &budget_item);
+        }
+
+        // Apply the transactions to the accounts and budget
         for transaction in data.budget.transactions {
             budgetizer.apply_transaction(
                 &mut budget_items,
