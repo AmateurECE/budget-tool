@@ -66,7 +66,7 @@ table! {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(not(target_family = "wasm"), derive(Queryable, Insertable))]
 #[cfg_attr(not(target_family = "wasm"), table_name="accounts")]
 pub struct Account {
@@ -147,7 +147,7 @@ table! {
 // Budget Items
 ////
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(not(target_family = "wasm"), derive(Queryable))]
 pub struct BudgetItem {
     pub id: i32,
@@ -183,7 +183,7 @@ table! {
 // TransactionType
 ////
 
-#[derive(Clone, Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq, Debug)]
 #[cfg_attr(not(target_family = "wasm"), derive(DbEnum))]
 pub enum TransactionType {
     Expense,

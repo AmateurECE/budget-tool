@@ -19,6 +19,7 @@ use budget_models::{
         BudgetItem,
         InitialBalance,
         Transaction,
+        TransactionType,
     },
 };
 
@@ -26,6 +27,7 @@ use budget_models::{
 // ProgressizeBudgetItem
 ////
 
+#[derive(Debug)]
 pub struct TrackedBudgetItem {
     pub item: BudgetItem,
     pub spent: i64,
@@ -44,6 +46,7 @@ impl From<BudgetItem> for TrackedBudgetItem {
 // TrackedAccount
 ////
 
+#[derive(Debug)]
 pub struct TrackedAccount {
     pub account: Account,
     pub initial_balance: i64,
@@ -93,9 +96,30 @@ impl Budgetizer {
     // First algorithm: Predict an account's end balance, based on budget.
     pub fn predict_balance(
         &self,
-        _accounts: &mut HashMap<String, TrackedAccount>,
-        _item: &TrackedBudgetItem,
+        accounts: &mut HashMap<String, TrackedAccount>,
+        item: &TrackedBudgetItem,
     ) {
+        use TransactionType::*;
+        let transaction_type = item.item.transaction_type;
+        let budgeted = item.item.budgeted;
+        let from_account = &item.item.from_account;
+        let to_account = &item.item.to_account;
+
+        if Income != transaction_type {
+            web_sys::console::log_1(&format!("1: {:?}", &item).into());
+            let selected_account: &mut TrackedAccount = accounts
+                .get_mut(from_account.as_ref().unwrap())
+                .unwrap();
+            selected_account.expected_end_balance += -1 * budgeted;
+        }
+
+        if Expense != transaction_type {
+            web_sys::console::log_1(&format!("2: {:?}", &item).into());
+            let selected_account: &mut TrackedAccount = accounts
+                .get_mut(to_account.as_ref().unwrap())
+                .unwrap();
+            selected_account.expected_end_balance += budgeted;
+        }
     }
 
     // Second algorithm: Apply a transaction to series of accounts and budgets.
