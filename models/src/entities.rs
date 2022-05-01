@@ -10,8 +10,6 @@
 // LAST EDITED:     04/30/2022
 ////
 
-use std::collections::HashMap;
-
 use crate::models::{
     Account,
     BudgetItem,
@@ -80,8 +78,8 @@ pub struct PeriodicBudgetEndpoint {
     /// This Periodic Budget.
     pub budget: PeriodicBudget,
 
-    /// The keys are Category text, corresponding to lists of budget items.
-    pub items: HashMap<String, Vec<BudgetItem>>,
+    /// List of BudgetItems for this PeriodicBudget
+    pub items: Vec<BudgetItem>,
 
     /// Initial balances for all of the accounts.
     pub initial_balances: Vec<InitialBalance>,

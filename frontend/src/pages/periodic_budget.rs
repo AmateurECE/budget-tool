@@ -14,7 +14,7 @@ use std::collections::HashMap;
 
 use budget_models::{
     entities::PeriodicBudgetEndpoint,
-    models::{Account, BudgetItem, PeriodicBudget},
+    models::{Account, PeriodicBudget},
 };
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
@@ -191,10 +191,7 @@ impl PeriodicBudgetView {
     // Convert PeriodicBudgetEndpoint to ResolvedBudgetView using a Budgetizer
     fn budgetize(&self, data: PeriodicBudgetViewContext) -> ResolvedBudgetView
     {
-        let mut budget_items = data.budget.items.into_iter().map(|(_, v)| v)
-            .collect::<Vec<Vec<BudgetItem>>>()
-            .concat()
-            .into_iter()
+        let mut budget_items = data.budget.items.into_iter()
             .map(|item| {
                 (item.id, item.into())
             }).collect::<HashMap<i32, TrackedBudgetItem>>();

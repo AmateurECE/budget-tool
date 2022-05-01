@@ -10,7 +10,6 @@
 // LAST EDITED:     04/30/2022
 ////
 
-use std::collections::HashMap;
 use std::env;
 use std::sync::{Arc, Mutex};
 
@@ -92,27 +91,7 @@ async fn detailed_budget(Path(id): Path<i32>, db: Arc<Mutex<PgConnection>>) ->
         return Err(StatusCode::INTERNAL_SERVER_ERROR);
     }
 
-    let mut items = items.unwrap();
-
-    // Collect all the categories listed in all budget items, then list the
-    // budget items by category.
-    let mut categories = items.iter().map(|item| item.category.to_owned())
-        .collect::<Vec<String>>();
-    categories.sort();
-    categories.dedup();
-    let items = categories.iter().map(|cat| {
-        // Filter out the budget items that map to this category
-        let filtered = items.iter().filter_map(|item| {
-            if item.category == *cat {
-                Some(item.clone())
-            } else {
-                None
-            }
-        }).collect::<Vec<BudgetItem>>();
-        items.retain(|item| item.category != *cat);
-
-        (cat.to_owned(), filtered)
-    }).collect::<HashMap<String, Vec<BudgetItem>>>();
+    let items = items.unwrap();
 
     // Collect all initial balances for the time period corresponding to this
     // budget.
