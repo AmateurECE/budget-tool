@@ -58,7 +58,15 @@ impl From<TrackedAccount> for AccountView {
 
 impl Render for AccountView {
     fn render(&self) -> Html {
-        todo!()
+        html! {<p>{
+            &self.0.account.name
+        }{
+            self.0.initial_balance
+        }{
+            self.0.current_balance
+        }{
+            self.0.expected_end_balance
+        }</p>}
     }
 }
 
@@ -90,7 +98,7 @@ impl Render for ResolvedBudgetView {
             }).collect::<Html>()
         }<h2>{ "Accounts" }</h2>{
             self.accounts.iter().map(|account| {
-                html! { <p>{ &account.0.account.name }</p> }
+                account.render()
             }).collect::<Html>()
         }</div>}
     }

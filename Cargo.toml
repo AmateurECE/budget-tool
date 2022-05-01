@@ -7,3 +7,6 @@ members = [
 exclude = [
     "frontend",
 ]
+
+[patch.crates-io]
+chrono = { git = "https://github.com/AmateurECE/chrono" }

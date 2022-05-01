@@ -96,7 +96,6 @@ impl Budgetizer {
         _accounts: &mut HashMap<String, TrackedAccount>,
         _item: &TrackedBudgetItem,
     ) {
-        todo!()
     }
 
     // Second algorithm: Apply a transaction to series of accounts and budgets.
@@ -106,7 +105,6 @@ impl Budgetizer {
         _accounts: &mut HashMap<String, TrackedAccount>,
         _transaction: &Transaction
     ) {
-        todo!()
     }
 }
 

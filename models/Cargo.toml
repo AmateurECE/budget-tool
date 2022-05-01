@@ -5,8 +5,8 @@ edition = "2021"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
-chrono = { version = "0.4.19", features = ["serde"] }
+chrono = { git = "https://github.com/AmateurECE/chrono", features = ["serde"] }
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
-diesel = { version = "1.4.4", features = ["postgres", "chrono"] }
+diesel = { version = "1.4.8", features = ["postgres", "chrono"] }
 diesel-derive-enum = { version = "1.1.2", features = ["postgres"] }

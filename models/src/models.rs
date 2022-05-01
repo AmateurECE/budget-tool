@@ -7,12 +7,14 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/30/2022
+// LAST EDITED:     05/01/2022
 ////
 
 use std::convert::TryFrom;
 
-use chrono::naive::{NaiveDateTime, serde::ts_milliseconds};
+use chrono::naive::{
+    NaiveDateTime, serde::{ts_milliseconds, ts_milliseconds_option},
+};
 use serde::{Serialize, Deserialize};
 
 #[cfg(not(target_family = "wasm"))]
@@ -227,7 +229,7 @@ pub struct Transaction {
     #[serde(with = "ts_milliseconds")]
     pub send_date: NaiveDateTime,
 
-    #[serde(with = "crate::serde::naive_datetime_option")]
+    #[serde(with = "ts_milliseconds_option")]
     pub receive_date: Option<NaiveDateTime>,
 
     pub corrects: Option<Vec<i32>>,
