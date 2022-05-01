@@ -33,9 +33,30 @@ use budget_models::{
         BudgetItem, budget_items,
         InitialBalance, NewInitialBalance, initial_balances,
         PeriodicBudget, periodic_budgets,
+        Transaction, transactions,
     },
     entities::PeriodicBudgetEndpoint,
 };
+
+///////////////////////////////////////////////////////////////////////////////
+// Accounts Endpoints
+////
+
+async fn list_accounts(db: Arc<Mutex<PgConnection>>) ->
+    Result<Json<Vec<Account>>, StatusCode>
+{
+    let db = db.lock().unwrap();
+    let accounts = accounts::dsl::accounts.load::<Account>(&*db);
+    if let Err::<Vec<Account>, _>(_) = accounts {
+        return Err(StatusCode::INTERNAL_SERVER_ERROR);
+    }
+
+    Ok(Json(accounts.unwrap()))
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Budget Endpoints
+////
 
 async fn list_budgets(db: Arc<Mutex<PgConnection>>) ->
     Result<Json<Vec<PeriodicBudget>>, StatusCode>
@@ -48,18 +69,6 @@ async fn list_budgets(db: Arc<Mutex<PgConnection>>) ->
     }
 
     Ok(Json(budgets.unwrap()))
-}
-
-async fn list_accounts(db: Arc<Mutex<PgConnection>>) ->
-    Result<Json<Vec<Account>>, StatusCode>
-{
-    let db = db.lock().unwrap();
-    let accounts = accounts::dsl::accounts.load::<Account>(&*db);
-    if let Err::<Vec<Account>, _>(_) = accounts {
-        return Err(StatusCode::INTERNAL_SERVER_ERROR);
-    }
-
-    Ok(Json(accounts.unwrap()))
 }
 
 async fn detailed_budget(Path(id): Path<i32>, db: Arc<Mutex<PgConnection>>) ->
@@ -105,10 +114,26 @@ async fn detailed_budget(Path(id): Path<i32>, db: Arc<Mutex<PgConnection>>) ->
     }
     let initial_balances = initial_balances.unwrap();
 
+    // Collect all the transactions for the time period corresponding to this
+    // budget.
+    let transactions: Result<Vec<Transaction>, _> =
+        transactions::dsl::transactions
+        .filter(transactions::periodic_budget.eq(budget.id))
+        .load::<Transaction>(&*db);
+    if let Err::<Vec<Transaction>, _>(e) = transactions {
+        event!(Level::ERROR, "{}", e);
+        return Err(StatusCode::INTERNAL_SERVER_ERROR);
+    }
+    let transactions = transactions.unwrap();
+
     Ok(Json(PeriodicBudgetEndpoint {
-        budget, items, initial_balances, transactions: Vec::new(),
+        budget, items, initial_balances, transactions,
     }))
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// Initial Balance Endpoints
+////
 
 async fn post_initial_balance(
     Json(initial_balance): Json<NewInitialBalance>,
@@ -126,6 +151,10 @@ async fn post_initial_balance(
 
     Ok(Json(initial_balance.unwrap()))
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// Main
+////
 
 #[tokio::main]
 async fn main() {
