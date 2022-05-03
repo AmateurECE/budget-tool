@@ -7,7 +7,7 @@
 //
 // CREATED:         04/30/2022
 //
-// LAST EDITED:     05/01/2022
+// LAST EDITED:     05/03/2022
 ////
 
 use std::collections::HashMap;
@@ -106,7 +106,6 @@ impl Budgetizer {
         let to_account = &item.item.to_account;
 
         if Income != transaction_type {
-            web_sys::console::log_1(&format!("1: {:?}", &item).into());
             let selected_account: &mut TrackedAccount = accounts
                 .get_mut(from_account.as_ref().unwrap())
                 .unwrap();
@@ -114,7 +113,6 @@ impl Budgetizer {
         }
 
         if Expense != transaction_type {
-            web_sys::console::log_1(&format!("2: {:?}", &item).into());
             let selected_account: &mut TrackedAccount = accounts
                 .get_mut(to_account.as_ref().unwrap())
                 .unwrap();
@@ -125,10 +123,34 @@ impl Budgetizer {
     // Second algorithm: Apply a transaction to series of accounts and budgets.
     pub fn apply_transaction(
         &self,
-        _items: &mut HashMap<i32, TrackedBudgetItem>,
-        _accounts: &mut HashMap<String, TrackedAccount>,
-        _transaction: &Transaction
+        items: &mut HashMap<i32, TrackedBudgetItem>,
+        accounts: &mut HashMap<String, TrackedAccount>,
+        transaction: &Transaction
     ) {
+        use TransactionType::*;
+
+        let item: &mut TrackedBudgetItem = items
+            .get_mut(&transaction.line_item)
+            .unwrap();
+        let from_account = &transaction.sending_account;
+        let to_account = &transaction.receiving_account;
+        let transaction_type = transaction.transaction_type;
+
+        if Income != transaction_type {
+            let account: &mut TrackedAccount = accounts
+                .get_mut(from_account.as_ref().unwrap())
+                .unwrap();
+            account.current_balance += -1 * transaction.amount;
+            item.spent += -1 * transaction.amount;
+        }
+
+        if Expense != transaction_type {
+            let account: &mut TrackedAccount = accounts
+                .get_mut(to_account.as_ref().unwrap())
+                .unwrap();
+            account.current_balance += transaction.amount;
+            item.spent += transaction.amount;
+        }
     }
 }
 
