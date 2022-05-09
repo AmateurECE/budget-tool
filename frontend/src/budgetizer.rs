@@ -140,16 +140,25 @@ impl Budgetizer {
             let account: &mut TrackedAccount = accounts
                 .get_mut(from_account.as_ref().unwrap())
                 .unwrap();
-            account.current_balance += -1 * transaction.amount;
-            item.spent += -1 * transaction.amount;
+            account.current_balance += transaction.amount;
         }
 
         if Expense != transaction_type {
             let account: &mut TrackedAccount = accounts
                 .get_mut(to_account.as_ref().unwrap())
                 .unwrap();
-            account.current_balance += transaction.amount;
+
+            if Income != transaction_type {
+                account.current_balance += -1 * transaction.amount;
+            } else {
+                account.current_balance += transaction.amount;
+            }
+        }
+
+        if Income == transaction_type {
             item.spent += transaction.amount;
+        } else {
+            item.spent += -1 * transaction.amount;
         }
     }
 }
