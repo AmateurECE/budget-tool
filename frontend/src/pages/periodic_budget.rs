@@ -7,7 +7,7 @@
 //
 // CREATED:         04/20/2022
 //
-// LAST EDITED:     05/01/2022
+// LAST EDITED:     05/09/2022
 ////
 
 use std::collections::HashMap;
@@ -19,6 +19,7 @@ use budget_models::{
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 
+use crate::balance_synchronizer::BalanceSynchronizer;
 use crate::budgetizer::{
     TrackedBudgetItem,
     TrackedAccount,
@@ -239,6 +240,7 @@ mod data_transformations {
 pub struct PeriodicBudgetViewContext {
     pub budget: PeriodicBudgetEndpoint,
     pub accounts: Vec<Account>,
+    pub balancer: BalanceSynchronizer,
 }
 
 // Properties for this component
@@ -256,6 +258,7 @@ pub enum PeriodicBudgetViewMessage {
 #[derive(Default)]
 pub struct PeriodicBudgetView {
     budget: Option<ResolvedBudgetView>,
+    balancer: Option<BalanceSynchronizer>,
 }
 
 impl Component for PeriodicBudgetView {
@@ -317,8 +320,11 @@ impl PeriodicBudgetView {
                 .unwrap();
             let accounts: Vec<Account> = fetch(request).await
                 .unwrap();
+
+            // Get initial balances for all accounts
+            let balancer = BalanceSynchronizer::new().await.unwrap();
             link.emit(PeriodicBudgetViewContext {
-                budget, accounts,
+                budget, accounts, balancer,
             });
         });
     }
@@ -347,6 +353,13 @@ impl PeriodicBudgetView {
                 &transaction
             );
         }
+
+        // TODO: Implement balance synchronizer
+        // let mut balancer = data.balancer;
+        // let accounts_snapshot = accounts.clone();
+        // spawn_local(async move {
+        //     balancer.update_balances(accounts_snapshot).await.unwrap();
+        // });
 
         // Convert budget items and accounts back into viewable representation
         // and return

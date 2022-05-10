@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     05/01/2022
+// LAST EDITED:     05/09/2022
 ////
 
 use std::convert::TryFrom;
@@ -24,7 +24,7 @@ use diesel_derive_enum::DbEnum;
 // AccountType
 ////
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 #[cfg_attr(not(target_family = "wasm"), derive(DbEnum))]
 pub enum AccountType {
     Checking,
@@ -66,7 +66,7 @@ table! {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(not(target_family = "wasm"), derive(Queryable, Insertable))]
 #[cfg_attr(not(target_family = "wasm"), table_name="accounts")]
 pub struct Account {

@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     04/30/2022
+// LAST EDITED:     05/09/2022
 ////
 
 use std::env;
@@ -135,6 +135,19 @@ async fn detailed_budget(Path(id): Path<i32>, db: Arc<Mutex<PgConnection>>) ->
 // Initial Balance Endpoints
 ////
 
+async fn list_initial_balances(db: Arc<Mutex<PgConnection>>) ->
+    Result<Json<Vec<InitialBalance>>, StatusCode>
+{
+    let db = db.lock().unwrap();
+    let initial_balances = initial_balances::dsl::initial_balances
+        .load::<InitialBalance>(&*db);
+    if let Err::<Vec<InitialBalance>, _>(e) = initial_balances {
+        event!(Level::ERROR, "{}", e);
+        return Err(StatusCode::INTERNAL_SERVER_ERROR);
+    }
+    Ok(Json(initial_balances.unwrap()))
+}
+
 async fn post_initial_balance(
     Json(initial_balance): Json<NewInitialBalance>,
     db: Arc<Mutex<PgConnection>>
@@ -178,7 +191,11 @@ async fn main() {
                })
         )
         .route("/api/initial_balances",
-               post({
+               get({
+                   let db = connection.clone();
+                   move || list_initial_balances(db)
+               })
+               .post({
                    let db = connection.clone();
                    move |balance| post_initial_balance(balance, db)
                })

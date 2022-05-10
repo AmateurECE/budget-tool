@@ -7,7 +7,7 @@
 //
 // CREATED:         04/30/2022
 //
-// LAST EDITED:     05/03/2022
+// LAST EDITED:     05/09/2022
 ////
 
 use std::collections::HashMap;
@@ -46,7 +46,7 @@ impl From<BudgetItem> for TrackedBudgetItem {
 // TrackedAccount
 ////
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct TrackedAccount {
     pub account: Account,
     pub initial_balance: i64,
