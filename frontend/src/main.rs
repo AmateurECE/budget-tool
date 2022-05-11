@@ -7,7 +7,7 @@
 //
 // CREATED:         04/14/2022
 //
-// LAST EDITED:     05/09/2022
+// LAST EDITED:     05/10/2022
 ////
 
 use std::str::FromStr;
@@ -25,7 +25,7 @@ mod pages;
 mod render;
 
 use network::fetch;
-use pages::{PeriodicBudgetView, NotFoundView};
+use pages::{PeriodicBudgetView, TransactionView, NotFoundView};
 
 pub(crate) const PERIODIC_BUDGETS_PATH: &'static str = "/api/periodic_budgets";
 pub(crate) const ACCOUNTS_PATH: &'static str = "/api/accounts";
@@ -38,6 +38,8 @@ pub enum Route {
     Home,
     #[at("/periodic_budgets/:id")]
     PeriodicBudget{ id: i32 },
+    #[at("/transactions/:id")]
+    Transactions{ id: i32 },
     #[not_found]
     #[at("/404")]
     NotFound,
@@ -125,6 +127,11 @@ impl BudgetApp {
                         to={Route::PeriodicBudget{id: self.selected_budget}}>
                         { "Budget" }
                     </Link<Route>>
+                </li><li>
+                    <Link<Route>
+                        to={Route::Transactions{id: self.selected_budget}}>
+                        { "Transactions" }
+                    </Link<Route>>
                 </li></ul>
 
                 <label for="budget-select">{"Budget"}</label>
@@ -159,6 +166,10 @@ impl BudgetApp {
             Route::PeriodicBudget{id} => {
                 html! { <PeriodicBudgetView {id} /> }
             },
+
+            Route::Transactions{id} => {
+                html! { <TransactionView {id} /> }
+            }
 
             _ => {
                 html! { <NotFoundView /> }
