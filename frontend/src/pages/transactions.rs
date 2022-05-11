@@ -7,7 +7,7 @@
 //
 // CREATED:         05/10/2022
 //
-// LAST EDITED:     05/10/2022
+// LAST EDITED:     05/11/2022
 ////
 
 use std::collections::HashMap;
@@ -15,6 +15,7 @@ use budget_models::{
     models::{
         InitialBalance,
         Transaction,
+        TransactionType,
     },
     entities::PeriodicBudgetEndpoint,
 };
@@ -33,6 +34,7 @@ pub struct TransactionEntry {
     pub transaction: Transaction,
     pub sending_new_balance: i64,
     pub receiving_new_balance: i64,
+    pub line_item_name: String,
 }
 
 impl From<Transaction> for TransactionEntry {
@@ -41,6 +43,7 @@ impl From<Transaction> for TransactionEntry {
             transaction,
             sending_new_balance: 0,
             receiving_new_balance: 0,
+            line_item_name: String::new(),
         }
     }
 }
@@ -49,33 +52,48 @@ impl Render for TransactionEntry {
     fn render(&self) -> Html {
         let receiving = match self.transaction.receiving_account.as_ref() {
             Some(account) => {
-                format!("{}/{}", account.clone(), self.receiving_new_balance)
+                format!("{} / {:.2}", account.clone(),
+                        (self.receiving_new_balance as f64) / 100.0)
             },
             None => "".to_string(),
         };
 
         let sending = match self.transaction.sending_account.as_ref() {
             Some(account) => {
-                format!("{}/{}", account.clone(), self.sending_new_balance)
+                format!("{} / {:.2}", account.clone(),
+                        (self.sending_new_balance as f64) / 100.0)
             },
             None => "".to_string(),
         };
 
-        let transfer_fees = format!("{:?}", self.transaction.transfer_fees);
-        let corrects = format!("{:?}", self.transaction.corrects);
+        let transfer_fees = match &self.transaction.transfer_fees {
+            Some(fees) => format!("{}", fees),
+            None => "".to_string(),
+        };
+        let corrects = match &self.transaction.corrects {
+            Some(correction) => format!("{:?}", correction),
+            None => "".to_string(),
+        };
+
+        let receive_date = self.transaction.receive_date.unwrap()
+            .format("%m-%d")
+            .to_string();
+
+        let amount = format!(
+            "{:.2}", (self.transaction.amount as f64) / 100.0);
 
         html! {<tr><td>{
-            self.transaction.send_date
+            &receive_date
         }</td><td>{
             &self.transaction.description
         }</td><td>{
-            self.transaction.line_item
+            &self.line_item_name
         }</td><td>{
             &sending
         }</td><td>{
             &receiving
         }</td><td>{
-            self.transaction.amount
+            &amount
         }</td><td>{
             &transfer_fees
         }</td><td>{
@@ -162,10 +180,10 @@ impl Component for TransactionView {
                 <main>
                     <h1>{ "Transactions" }</h1>
                     <table>{ TransactionEntry::header() }{
-                            transactions.iter().map(|item| item.render())
-                                .collect::<Html>()
+                        transactions.iter().map(|item| item.render())
+                            .collect::<Html>()
                     }</table>
-                </main>
+                    </main>
             },
             None => html! { <p>{ "Loading..." }</p> },
         }
@@ -197,17 +215,51 @@ impl TransactionView {
     fn transactionize(&self, data: TransactionViewContext) ->
         Vec<TransactionEntry>
     {
-        let accounts = data.budget.initial_balances.into_iter()
+        let mut accounts = data.budget.initial_balances.into_iter()
             .map(|b| (b.account, b.balance))
             .collect::<HashMap<String, i64>>();
+
+        let line_items = data.budget.items.into_iter()
+            .map(|i| (i.id, i.description))
+            .collect::<HashMap<i32, String>>();
 
         let mut transactions = data.budget.transactions.into_iter()
             .map(|t| t.into())
             .collect::<Vec<TransactionEntry>>();
 
         // Have to map in info about sending/receiving accounts
-        // for transaction in &transactions {
-        // }
+        use TransactionType::*;
+        for transaction in &mut transactions {
+            transaction.line_item_name = line_items
+                .get(&transaction.transaction.line_item)
+                .unwrap()
+                .clone();
+
+            if Income != transaction.transaction.transaction_type {
+                // Update sending_account balance
+                let sending_account = accounts.get_mut(
+                    transaction.transaction.sending_account.as_ref()
+                        .unwrap()
+                ).unwrap();
+                *sending_account += transaction.transaction.amount;
+                transaction.sending_new_balance = *sending_account;
+            }
+
+            if Expense != transaction.transaction.transaction_type {
+                // Update receiving_account balance
+                let receiving_account = accounts.get_mut(
+                    transaction.transaction.receiving_account.as_ref()
+                        .unwrap()
+                ).unwrap();
+
+                if Payment == transaction.transaction.transaction_type {
+                    *receiving_account += -1 * transaction.transaction.amount;
+                } else {
+                    *receiving_account += transaction.transaction.amount;
+                }
+                transaction.receiving_new_balance = *receiving_account;
+            }
+        }
 
         transactions
     }
