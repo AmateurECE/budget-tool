@@ -7,13 +7,15 @@
 //
 // CREATED:         05/13/2022
 //
-// LAST EDITED:     05/13/2022
+// LAST EDITED:     05/14/2022
 ////
 
 use std::rc::Rc;
+
+use strum::IntoEnumIterator;
+use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlSelectElement;
 use yew::prelude::*;
-use strum::IntoEnumIterator;
 
 use budget_models::{
     entities::PeriodicBudgetEndpoint,
@@ -21,6 +23,9 @@ use budget_models::{
         Transaction, TransactionType, PeriodicBudget,
     }
 };
+
+use crate::network::fetch;
+use crate::PERIODIC_BUDGETS_PATH;
 
 ///////////////////////////////////////////////////////////////////////////////
 // TransactionForm
@@ -31,6 +36,10 @@ pub struct TransactionFormProperties {
     pub data: Rc<Transaction>,
 }
 
+pub enum TransactionFormMessage {
+    ReceivedBudgets(Vec<PeriodicBudget>),
+}
+
 #[derive(Default)]
 pub struct TransactionForm {
     budget_data: Option<PeriodicBudgetEndpoint>,
@@ -38,11 +47,24 @@ pub struct TransactionForm {
 }
 
 impl Component for TransactionForm {
-    type Message = ();
+    type Message = TransactionFormMessage;
     type Properties = TransactionFormProperties;
 
-    fn create(_context: &Context<Self>) -> Self {
-        Self::default()
+    fn create(context: &Context<Self>) -> Self {
+        let mut form = Self::default();
+        form.request_budgets(context);
+        form
+    }
+
+    fn update(&mut self, _context: &Context<Self>, message: Self::Message) ->
+        bool
+    {
+        if let TransactionFormMessage::ReceivedBudgets(budgets) = message {
+            self.budgets = Some(budgets);
+            true
+        } else {
+            false
+        }
     }
 
     fn view(&self, _context: &Context<Self>) -> Html {
@@ -52,8 +74,20 @@ impl Component for TransactionForm {
                 <h2>{ "Transaction" }</h2>
                 <div class="input-group">
                     <label for="budget">{ "Budget" }</label>
-                    <select id="budget">
-                    </select>
+                    <select id="budget">{
+                        match &self.budgets {
+                            Some(budgets) => budgets.iter()
+                                .map(|budget| html! {
+                                    <option value={budget.id.to_string()}>{
+                                        budget.start_date
+                                    }</option>
+                                })
+                                .collect::<Html>(),
+                            None => html! {
+                                <option value="">{ "Loading..." }</option>
+                            },
+                        }
+                    }</select>
                 </div>
 
                 <div class="input-group">
@@ -136,6 +170,24 @@ impl Component for TransactionForm {
 
             </form>
         }
+    }
+}
+
+impl TransactionForm {
+    fn request_budgets(&mut self, context: &Context<Self>) {
+        self.budgets = None;
+
+        use TransactionFormMessage::*;
+        let link = context.link().callback(
+            |budgets: Vec<PeriodicBudget>| ReceivedBudgets(budgets)
+        );
+        spawn_local(async move {
+            // Get the list of budgets
+            let request = web_sys::Request::new_with_str(PERIODIC_BUDGETS_PATH)
+                .unwrap();
+            let budgets: Vec<PeriodicBudget> = fetch(request).await.unwrap();
+            link.emit(budgets);
+        });
     }
 }
 
