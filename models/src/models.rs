@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     05/09/2022
+// LAST EDITED:     05/13/2022
 ////
 
 use std::convert::TryFrom;
@@ -220,11 +220,17 @@ impl ToString for TransactionType {
     }
 }
 
+impl Default for TransactionType {
+    fn default() -> Self {
+        Self::Expense
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Transaction
 ////
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, Default, PartialEq)]
 #[cfg_attr(not(target_family = "wasm"), derive(Queryable))]
 pub struct Transaction {
     pub id: i32,
