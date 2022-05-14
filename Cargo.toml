@@ -9,4 +9,4 @@ exclude = [
 ]
 
 [patch.crates-io]
-chrono = { git = "https://github.com/AmateurECE/chrono" }
+chrono = { git = "https://github.com/chronotope/chrono" }
