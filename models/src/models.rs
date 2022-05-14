@@ -16,6 +16,7 @@ use chrono::naive::{
     NaiveDateTime, serde::{ts_milliseconds, ts_milliseconds_option},
 };
 use serde::{Serialize, Deserialize};
+use strum_macros::EnumIter;
 
 #[cfg(not(target_family = "wasm"))]
 use diesel_derive_enum::DbEnum;
@@ -183,7 +184,7 @@ table! {
 // TransactionType
 ////
 
-#[derive(Clone, Copy, Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq, Debug, EnumIter)]
 #[cfg_attr(not(target_family = "wasm"), derive(DbEnum))]
 pub enum TransactionType {
     Expense,
