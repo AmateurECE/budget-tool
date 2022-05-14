@@ -15,7 +15,12 @@ use web_sys::HtmlSelectElement;
 use yew::prelude::*;
 use strum::IntoEnumIterator;
 
-use budget_models::models::{Transaction, TransactionType};
+use budget_models::{
+    entities::PeriodicBudgetEndpoint,
+    models::{
+        Transaction, TransactionType, PeriodicBudget,
+    }
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // TransactionForm
@@ -26,19 +31,31 @@ pub struct TransactionFormProperties {
     pub data: Rc<Transaction>,
 }
 
-pub struct TransactionForm;
+#[derive(Default)]
+pub struct TransactionForm {
+    budget_data: Option<PeriodicBudgetEndpoint>,
+    budgets: Option<Vec<PeriodicBudget>>,
+}
+
 impl Component for TransactionForm {
     type Message = ();
     type Properties = TransactionFormProperties;
 
     fn create(_context: &Context<Self>) -> Self {
-        Self
+        Self::default()
     }
 
     fn view(&self, _context: &Context<Self>) -> Html {
         html! {
             <form>
+
                 <h2>{ "Transaction" }</h2>
+                <div class="input-group">
+                    <label for="budget">{ "Budget" }</label>
+                    <select id="budget">
+                    </select>
+                </div>
+
                 <div class="input-group">
                     <label for="description">{ "Description" }</label>
                     <input type="text" id="description" />
@@ -67,14 +84,16 @@ impl Component for TransactionForm {
 
                 <div class="input-group">
                     <label for="sending-account">{ "Sending Account" }</label>
-                    <input type="text" id="sending-account" />
+                    <select id="sending-account">
+                    </select>
                 </div>
 
                 <div class="input-group">
                     <label for="receiving-account">{
                         "Receiving Account"
                     }</label>
-                    <input type="text" id="receiving-account" />
+                    <select id="sending-account">
+                    </select>
                 </div>
 
                 <div class="input-group">
@@ -112,12 +131,6 @@ impl Component for TransactionForm {
                 <div class="input-group">
                     <label for="corrects">{ "Corrects Transaction" }</label>
                     <select id="corrects">
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label for="budget">{ "Budget" }</label>
-                    <select id="budget">
                     </select>
                 </div>
 
