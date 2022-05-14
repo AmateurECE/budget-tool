@@ -38,6 +38,7 @@ pub struct TransactionFormProperties {
 
 pub enum TransactionFormMessage {
     ReceivedBudgets(Vec<PeriodicBudget>),
+    ReceivedOneBudget(PeriodicBudgetEndpoint),
 }
 
 #[derive(Default)]
@@ -56,10 +57,13 @@ impl Component for TransactionForm {
         form
     }
 
-    fn update(&mut self, _context: &Context<Self>, message: Self::Message) ->
+    fn update(&mut self, context: &Context<Self>, message: Self::Message) ->
         bool
     {
         if let TransactionFormMessage::ReceivedBudgets(budgets) = message {
+            if !budgets.is_empty() {
+                self.request_one_budget(budgets.first().unwrap().id, context);
+            }
             self.budgets = Some(budgets);
             true
         } else {
@@ -188,6 +192,22 @@ impl TransactionForm {
             let budgets: Vec<PeriodicBudget> = fetch(request).await.unwrap();
             link.emit(budgets);
         });
+    }
+
+    fn request_one_budget(&mut self, id: i32, context: &Context<Self>) {
+        self.budget_data = None;
+
+        use TransactionFormMessage::*;
+        let link = context.link().callback(
+            |budget: PeriodicBudgetEndpoint| ReceivedOneBudget(budget)
+        );
+        let id = id.to_string();
+        spawn_local(async move {
+            let url = PERIODIC_BUDGETS_PATH.to_string() + "/" + &id;
+            let request = web_sys::Request::new_with_str(&url).unwrap();
+            let budget: PeriodicBudgetEndpoint = fetch(request).await.unwrap();
+            link.emit(budget);
+        })
     }
 }
 
