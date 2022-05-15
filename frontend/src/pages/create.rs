@@ -11,6 +11,7 @@
 ////
 
 use std::rc::Rc;
+use std::str::FromStr;
 
 use strum::IntoEnumIterator;
 use wasm_bindgen_futures::spawn_local;
@@ -37,6 +38,7 @@ pub struct TransactionFormProperties {
 }
 
 pub enum TransactionFormMessage {
+    BudgetSelected(String),
     ReceivedBudgets(Vec<PeriodicBudget>),
     ReceivedOneBudget(PeriodicBudgetEndpoint),
 }
@@ -60,25 +62,37 @@ impl Component for TransactionForm {
     fn update(&mut self, context: &Context<Self>, message: Self::Message) ->
         bool
     {
-        if let TransactionFormMessage::ReceivedBudgets(budgets) = message {
+        use TransactionFormMessage::*;
+        if let ReceivedBudgets(budgets) = message {
             if !budgets.is_empty() {
                 self.request_one_budget(budgets.first().unwrap().id, context);
             }
             self.budgets = Some(budgets);
-            true
-        } else {
-            false
+        } else if let ReceivedOneBudget(budget) = message {
+            self.budget_data = Some(budget);
+        } else if let BudgetSelected(id) = message {
+            self.request_one_budget(i32::from_str(&id).unwrap(), context);
         }
+        true
     }
 
-    fn view(&self, _context: &Context<Self>) -> Html {
+    fn view(&self, context: &Context<Self>) -> Html {
+        use TransactionFormMessage::*;
         html! {
             <form>
 
                 <h2>{ "Transaction" }</h2>
                 <div class="input-group">
                     <label for="budget">{ "Budget" }</label>
-                    <select id="budget">{
+                    <select id="budget"
+                     onchange={context.link().batch_callback(|e: Event| {
+                         if let Some(select) = e.target_dyn_into::<
+                                 HtmlSelectElement>() {
+                             Some(BudgetSelected(select.value()))
+                         } else {
+                             None
+                         }
+                     })}>{
                         match &self.budgets {
                             Some(budgets) => budgets.iter()
                                 .map(|budget| html! {
