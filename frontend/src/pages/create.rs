@@ -7,7 +7,7 @@
 //
 // CREATED:         05/13/2022
 //
-// LAST EDITED:     05/14/2022
+// LAST EDITED:     05/15/2022
 ////
 
 use std::rc::Rc;
@@ -78,6 +78,13 @@ impl Component for TransactionForm {
 
     fn view(&self, context: &Context<Self>) -> Html {
         use TransactionFormMessage::*;
+        let accounts: Vec<String> = match &self.budget_data {
+            Some(data) => data.initial_balances.iter()
+                .map(|a| a.account.to_owned())
+                .collect(),
+            None => Vec::new(),
+        };
+
         html! {
             <form>
 
@@ -148,16 +155,31 @@ impl Component for TransactionForm {
 
                 <div class="input-group">
                     <label for="sending-account">{ "Sending Account" }</label>
-                    <select id="sending-account">
-                    </select>
+                    <select id="sending-account">{
+                        accounts.iter().map(|acct| {
+                            html! {
+                                <option value={acct.clone()}>{ acct }</option>
+                            }
+                        }).collect::<Html>()
+                    }</select>
                 </div>
 
                 <div class="input-group">
                     <label for="receiving-account">{
                         "Receiving Account"
                     }</label>
-                    <select id="sending-account">
-                    </select>
+                    <select id="receiving-account">{
+                        accounts.iter().map(|acct| {
+                            html! {
+                                <option value={acct.clone()}>{ acct }</option>
+                            }
+                        }).collect::<Html>()
+                    }</select>
+                </div>
+
+                <div class="input-group">
+                    <label for="amount">{ "Amount" }</label>
+                    <input type="money" id="amount" />
                 </div>
 
                 <div class="input-group">
@@ -170,11 +192,6 @@ impl Component for TransactionForm {
                         "Receiving Entity"
                     }</label>
                     <input type="text" id="receiving-entity" />
-                </div>
-
-                <div class="input-group">
-                    <label for="amount">{ "Amount" }</label>
-                    <input type="money" id="amount" />
                 </div>
 
                 <div class="input-group">
@@ -194,8 +211,20 @@ impl Component for TransactionForm {
 
                 <div class="input-group">
                     <label for="corrects">{ "Corrects Transaction" }</label>
-                    <select id="corrects">
-                    </select>
+                    <select id="corrects">{
+                        if let Some(data) = &self.budget_data {
+                            data.transactions.iter().map(|t| {
+                                html! {
+                                    <option value={t.id.to_string()}>{
+                                        t.description.clone() + " ("
+                                            + &t.send_date.to_string() + ")"
+                                    }</option>
+                                }
+                            }).collect::<Html>()
+                        } else {
+                            html! {<option value="">{ "Loading..." }</option>}
+                        }
+                    }</select>
                 </div>
 
             </form>

@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     05/09/2022
+// LAST EDITED:     05/15/2022
 ////
 
 use std::env;
@@ -23,7 +23,7 @@ use tracing::{event, Level};
 use axum::{
     extract::Path,
     http::StatusCode,
-    routing::{get, post},
+    routing::get,
     Router, Json,
 };
 
