@@ -122,7 +122,9 @@ impl Component for TransactionForm {
 
                 <div class="input-group">
                     <label for="line-item">{ "Line Item" }</label>
-                    <select name="line-item">{
+                    <select name="line-item">
+                        <option value="">{"--Unselected--"}</option>
+                    {
                         if let Some(budget) = &self.budget_data {
                             budget.items.iter().map(|i| {
                                 html! {
@@ -155,7 +157,9 @@ impl Component for TransactionForm {
 
                 <div class="input-group">
                     <label for="sending-account">{ "Sending Account" }</label>
-                    <select id="sending-account">{
+                    <select id="sending-account">
+                        <option value="">{"--Unselected--"}</option>
+                    {
                         accounts.iter().map(|acct| {
                             html! {
                                 <option value={acct.clone()}>{ acct }</option>
@@ -168,7 +172,9 @@ impl Component for TransactionForm {
                     <label for="receiving-account">{
                         "Receiving Account"
                     }</label>
-                    <select id="receiving-account">{
+                    <select id="receiving-account">
+                        <option value="">{"--Unselected--"}</option>
+                    {
                         accounts.iter().map(|acct| {
                             html! {
                                 <option value={acct.clone()}>{ acct }</option>
@@ -211,13 +217,16 @@ impl Component for TransactionForm {
 
                 <div class="input-group">
                     <label for="corrects">{ "Corrects Transaction" }</label>
-                    <select id="corrects">{
+                    <select id="corrects">
+                        <option value="">{"--Unselected--"}</option>
+                    {
                         if let Some(data) = &self.budget_data {
                             data.transactions.iter().map(|t| {
                                 html! {
                                     <option value={t.id.to_string()}>{
                                         t.description.clone() + " ("
-                                            + &t.send_date.to_string() + ")"
+                                            + &t.send_date.format("%m-%d")
+                                            .to_string() + ")"
                                     }</option>
                                 }
                             }).collect::<Html>()
