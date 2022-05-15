@@ -115,7 +115,19 @@ impl Component for TransactionForm {
 
                 <div class="input-group">
                     <label for="line-item">{ "Line Item" }</label>
-                    <input type="text" id="line-item" />
+                    <select name="line-item">{
+                        if let Some(budget) = &self.budget_data {
+                            budget.items.iter().map(|i| {
+                                html! {
+                                    <option value={i.id.to_string()}>{
+                                        &i.description
+                                    }</option>
+                                }
+                            }).collect::<Html>()
+                        } else {
+                            html! {<option value="">{ "Loading..." }</option>}
+                        }
+                    }</select>
                 </div>
 
                 <div class="input-group">
