@@ -7,7 +7,7 @@
 //
 // CREATED:         05/16/2022
 //
-// LAST EDITED:     05/16/2022
+// LAST EDITED:     05/17/2022
 ////
 
 use std::cell::RefCell;
@@ -30,6 +30,7 @@ where S: ToString + PartialEq,
     name: String,
     value: Rc<RefCell<T>>,
     options: Vec<S>,
+    onchange: Callback<String>,
 }
 
 pub struct SelectInput<S, T>
@@ -68,14 +69,17 @@ where S: ToString + 'static + PartialEq,
 
     fn view(&self, context: &Context<Self>) -> Html {
         let name = (*context.props().name).to_string();
+        let onchange = context.props().onchange.clone();
         html! {
             <>
                 <label for={name.clone()}>{&name}</label>
                 <select id={name}
-                 onchange={context.link().batch_callback(|e: Event| {
+                 onchange={context.link().batch_callback(move |e: Event| {
                      if let Some(select) = e.target_dyn_into::<
                              HtmlSelectElement>() {
-                         Some(SelectMessage::Selected(select.value()))
+                         let value = select.value();
+                         onchange.emit(value.clone());
+                         Some(SelectMessage::Selected(value))
                      } else {
                          None
                      }
