@@ -7,7 +7,7 @@
 //
 // CREATED:         04/14/2022
 //
-// LAST EDITED:     05/13/2022
+// LAST EDITED:     05/17/2022
 ////
 
 use std::str::FromStr;
@@ -18,6 +18,7 @@ use web_sys::HtmlSelectElement;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
+// mod forms;
 mod balance_synchronizer;
 mod budgetizer;
 mod network;
@@ -30,6 +31,7 @@ use pages::{CreateView, PeriodicBudgetView, TransactionView, NotFoundView};
 pub(crate) const PERIODIC_BUDGETS_PATH: &'static str = "/api/periodic_budgets";
 pub(crate) const ACCOUNTS_PATH: &'static str = "/api/accounts";
 pub(crate) const INITIAL_BALANCES_PATH: &'static str = "/api/initial_balances";
+pub(crate) const TRANSACTIONS_PATH: &'static str = "/api/transactions";
 
 // The Different routes we support
 #[derive(Routable, PartialEq, Clone, Debug)]
