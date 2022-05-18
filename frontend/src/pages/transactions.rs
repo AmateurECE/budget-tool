@@ -7,13 +7,12 @@
 //
 // CREATED:         05/10/2022
 //
-// LAST EDITED:     05/11/2022
+// LAST EDITED:     05/18/2022
 ////
 
 use std::collections::HashMap;
 use budget_models::{
     models::{
-        InitialBalance,
         Transaction,
         TransactionType,
     },

@@ -16,7 +16,7 @@ use std::str::FromStr;
 use strum::IntoEnumIterator;
 use wasm_bindgen::JsValue;
 use wasm_bindgen_futures::spawn_local;
-use web_sys::{HtmlSelectElement, InputEvent};
+use web_sys::HtmlSelectElement;
 use yew::prelude::*;
 
 use budget_models::{
@@ -54,6 +54,18 @@ pub struct TransactionForm {
 
     // NewTransaction data (form state)
     budget_id: i32,
+    description: NodeRef,
+    line_item: NodeRef,
+    transaction_type: NodeRef,
+    sending_account: NodeRef,
+    receiving_account: NodeRef,
+    transfer_fees: NodeRef,
+    receiving_entity: NodeRef,
+    amount: NodeRef,
+    tags: NodeRef,
+    send_date: NodeRef,
+    receive_date: NodeRef,
+    corrects: NodeRef,
 }
 
 impl Component for TransactionForm {
@@ -160,12 +172,13 @@ impl Component for TransactionForm {
 
                 <div class="input-group">
                     <label for="description">{ "Description" }</label>
-                    <input type="text" id="description" />
+                    <input type="text" id="description"
+                     ref={self.description.clone()} />
                 </div>
 
                 <div class="input-group">
                     <label for="line-item">{ "Line Item" }</label>
-                    <select name="line-item">
+                    <select name="line-item" ref={self.line_item.clone()}>
                         <option value="">{"--Unselected--"}</option>
                     {
                         if let Some(budget) = &self.budget_data {
@@ -186,7 +199,8 @@ impl Component for TransactionForm {
                     <label for="transaction-type">{
                         "Transaction Type"
                     }</label>
-                    <select id="transaction-type">{
+                    <select id="transaction-type"
+                     ref={self.transaction_type.clone()}>{
                         TransactionType::iter().map(|t_type| {
                             let t_type = t_type.to_string();
                             html! {
@@ -200,7 +214,8 @@ impl Component for TransactionForm {
 
                 <div class="input-group">
                     <label for="sending-account">{ "Sending Account" }</label>
-                    <select id="sending-account">
+                    <select id="sending-account"
+                     ref={self.sending_account.clone()}>
                         <option value="">{"--Unselected--"}</option>
                     {
                         accounts.iter().map(|acct| {
@@ -215,7 +230,8 @@ impl Component for TransactionForm {
                     <label for="receiving-account">{
                         "Receiving Account"
                     }</label>
-                    <select id="receiving-account">
+                    <select id="receiving-account"
+                     ref={self.receiving_account.clone()}>
                         <option value="">{"--Unselected--"}</option>
                     {
                         accounts.iter().map(|acct| {
@@ -228,39 +244,45 @@ impl Component for TransactionForm {
 
                 <div class="input-group">
                     <label for="amount">{ "Amount" }</label>
-                    <input type="money" id="amount" />
+                    <input type="money" id="amount"
+                     ref={self.amount.clone()} />
                 </div>
 
                 <div class="input-group">
                     <label for="transfer-fees">{ "Transfer Fees" }</label>
-                    <input type="money" id="transfer-fees" />
+                    <input type="money" id="transfer-fees"
+                     ref={self.transfer_fees.clone()} />
                 </div>
 
                 <div class="input-group">
                     <label for="receiving-entity">{
                         "Receiving Entity"
                     }</label>
-                    <input type="text" id="receiving-entity" />
+                    <input type="text" id="receiving-entity"
+                     ref={self.receiving_entity.clone()} />
                 </div>
 
                 <div class="input-group">
                     <label for="tags">{ "Tags" }</label>
-                    <input type="text" id="tags" />
+                    <input type="text" id="tags"
+                     ref={self.tags.clone()} />
                 </div>
 
                 <div class="input-group">
                     <label for="send-date">{ "Send Date" }</label>
-                    <input type="date" id="send-date" />
+                    <input type="date" id="send-date"
+                     ref={self.send_date.clone()} />
                 </div>
 
                 <div class="input-group">
                     <label for="receive-date">{ "Receive Date" }</label>
-                    <input type="date" id="receive-date" />
+                    <input type="date" id="receive-date"
+                     ref={self.receive_date.clone()} />
                 </div>
 
                 <div class="input-group">
                     <label for="corrects">{ "Corrects Transaction" }</label>
-                    <select id="corrects">
+                    <select id="corrects" ref={self.corrects.clone()}>
                         <option value="">{"--Unselected--"}</option>
                     {
                         if let Some(data) = &self.budget_data {
@@ -367,25 +389,22 @@ impl Component for CreateView {
     fn update(&mut self, _context: &Context<Self>, message: Self::Message) ->
         bool
     {
-        if let CreateViewMessage::Selected(entity_type) = message {
-            match entity_type.as_str() {
-                "transaction" => {
-                    self.0 = EntitySelect::Transaction(
-                        Rc::new(Transaction::default()));
-                },
+        let CreateViewMessage::Selected(entity_type) = message;
+        match entity_type.as_str() {
+            "transaction" => {
+                self.0 = EntitySelect::Transaction(
+                    Rc::new(Transaction::default()));
+            },
 
-                "" => {
-                    self.0 = EntitySelect::Select;
-                },
+            "" => {
+                self.0 = EntitySelect::Select;
+            },
 
-                &_ => {
-                    panic!("Unexpected string in form")
-                },
-            }
-            true
-        } else {
-            false
-        }
+            &_ => {
+                panic!("Unexpected string in form")
+            },
+        };
+        true
     }
 
     fn view(&self, context: &Context<Self>) -> Html {
