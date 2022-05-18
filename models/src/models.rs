@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     05/13/2022
+// LAST EDITED:     05/15/2022
 ////
 
 use std::convert::TryFrom;
@@ -276,6 +276,30 @@ table! {
         corrects -> Nullable<Array<Int4>>,
         periodic_budget -> Int4,
     }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, Default)]
+#[cfg_attr(not(target_family = "wasm"), derive(Insertable))]
+#[cfg_attr(not(target_family = "wasm"), table_name = "transactions")]
+pub struct NewTransaction {
+    pub description: String,
+    pub line_item: i32,
+    pub transaction_type: TransactionType,
+    pub sending_account: Option<String>,
+    pub receiving_account: Option<String>,
+    pub transfer_fees: Option<i64>,
+    pub receiving_entity: Option<String>,
+    pub amount: i64,
+    pub tags: Option<Vec<String>>,
+
+    #[serde(with = "ts_milliseconds")]
+    pub send_date: NaiveDateTime,
+
+    #[serde(with = "ts_milliseconds_option")]
+    pub receive_date: Option<NaiveDateTime>,
+
+    pub corrects: Option<Vec<i32>>,
+    pub periodic_budget: i32,
 }
 
 ///////////////////////////////////////////////////////////////////////////////

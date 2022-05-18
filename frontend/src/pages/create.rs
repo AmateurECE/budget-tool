@@ -7,26 +7,27 @@
 //
 // CREATED:         05/13/2022
 //
-// LAST EDITED:     05/15/2022
+// LAST EDITED:     05/18/2022
 ////
 
 use std::rc::Rc;
 use std::str::FromStr;
 
 use strum::IntoEnumIterator;
+use wasm_bindgen::JsValue;
 use wasm_bindgen_futures::spawn_local;
-use web_sys::HtmlSelectElement;
+use web_sys::{HtmlSelectElement, InputEvent};
 use yew::prelude::*;
 
 use budget_models::{
     entities::PeriodicBudgetEndpoint,
     models::{
-        Transaction, TransactionType, PeriodicBudget,
+        Transaction, TransactionType, PeriodicBudget, NewTransaction,
     }
 };
 
 use crate::network::fetch;
-use crate::PERIODIC_BUDGETS_PATH;
+use crate::{PERIODIC_BUDGETS_PATH, TRANSACTIONS_PATH};
 
 ///////////////////////////////////////////////////////////////////////////////
 // TransactionForm
@@ -41,12 +42,18 @@ pub enum TransactionFormMessage {
     BudgetSelected(String),
     ReceivedBudgets(Vec<PeriodicBudget>),
     ReceivedOneBudget(PeriodicBudgetEndpoint),
+    Submitted,
+    SubmitResponseReceived(Transaction),
 }
 
 #[derive(Default)]
 pub struct TransactionForm {
     budget_data: Option<PeriodicBudgetEndpoint>,
     budgets: Option<Vec<PeriodicBudget>>,
+    response_message: String,
+
+    // NewTransaction data (form state)
+    budget_id: i32,
 }
 
 impl Component for TransactionForm {
@@ -63,17 +70,53 @@ impl Component for TransactionForm {
         bool
     {
         use TransactionFormMessage::*;
-        if let ReceivedBudgets(budgets) = message {
+        if let BudgetSelected(id) = message {
+            self.budget_id = i32::from_str(&id).unwrap();
+            self.request_one_budget(self.budget_id, context);
+            true
+        }
+
+        else if let ReceivedBudgets(budgets) = message {
             if !budgets.is_empty() {
                 self.request_one_budget(budgets.first().unwrap().id, context);
             }
             self.budgets = Some(budgets);
-        } else if let ReceivedOneBudget(budget) = message {
-            self.budget_data = Some(budget);
-        } else if let BudgetSelected(id) = message {
-            self.request_one_budget(i32::from_str(&id).unwrap(), context);
+            true
         }
-        true
+
+        else if let ReceivedOneBudget(budget) = message {
+            self.budget_data = Some(budget);
+            true
+        }
+
+        else if let Submitted = message {
+            let link = context.link().callback(|t: Transaction| {
+                SubmitResponseReceived(t)
+            });
+
+            let new_transaction = self.validate_new_transaction();
+            spawn_local(async move {
+                let mut request_init = web_sys::RequestInit::new();
+                request_init.method("POST");
+                request_init.body(
+                    Some(&JsValue::from_serde(&new_transaction).unwrap()));
+                let request = web_sys::Request::new_with_str_and_init(
+                    TRANSACTIONS_PATH, &request_init).unwrap();
+                let transaction: Transaction = fetch(request).await.unwrap();
+                link.emit(transaction);
+            });
+            true
+        }
+
+        else if let SubmitResponseReceived(transaction) = message {
+            self.budget_data.as_mut().unwrap().transactions.push(transaction);
+            self.response_message = "Transaction Created".to_string();
+            true
+        }
+
+        else {
+            false
+        }
     }
 
     fn view(&self, context: &Context<Self>) -> Html {
@@ -236,12 +279,24 @@ impl Component for TransactionForm {
                     }</select>
                 </div>
 
+                <div class="input-group">
+                    <button onclick={context.link().callback(|_: MouseEvent| {
+                        TransactionFormMessage::Submitted
+                    })}>{ "Submit" }</button>
+                </div>
+
+                <div class="response-message">{ &self.response_message }</div>
+
             </form>
         }
     }
 }
 
 impl TransactionForm {
+    fn validate_new_transaction(&self) -> NewTransaction {
+        todo!()
+    }
+
     fn request_budgets(&mut self, context: &Context<Self>) {
         self.budgets = None;
 
