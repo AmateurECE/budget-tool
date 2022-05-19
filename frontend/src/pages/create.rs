@@ -13,10 +13,11 @@
 use std::rc::Rc;
 use std::str::FromStr;
 
+use chrono::naive::NaiveDate;
 use strum::IntoEnumIterator;
 use wasm_bindgen::JsValue;
 use wasm_bindgen_futures::spawn_local;
-use web_sys::HtmlSelectElement;
+use web_sys::{HtmlInputElement, HtmlSelectElement};
 use yew::prelude::*;
 
 use budget_models::{
@@ -107,16 +108,17 @@ impl Component for TransactionForm {
             });
 
             let new_transaction = self.validate_new_transaction();
-            spawn_local(async move {
-                let mut request_init = web_sys::RequestInit::new();
-                request_init.method("POST");
-                request_init.body(
-                    Some(&JsValue::from_serde(&new_transaction).unwrap()));
-                let request = web_sys::Request::new_with_str_and_init(
-                    TRANSACTIONS_PATH, &request_init).unwrap();
-                let transaction: Transaction = fetch(request).await.unwrap();
-                link.emit(transaction);
-            });
+            web_sys::console::log_1(&format!("{:?}", new_transaction).into());
+            // spawn_local(async move {
+            //     let mut request_init = web_sys::RequestInit::new();
+            //     request_init.method("POST");
+            //     request_init.body(
+            //         Some(&JsValue::from_serde(&new_transaction).unwrap()));
+            //     let request = web_sys::Request::new_with_str_and_init(
+            //         TRANSACTIONS_PATH, &request_init).unwrap();
+            //     let transaction: Transaction = fetch(request).await.unwrap();
+            //     link.emit(transaction);
+            // });
             true
         }
 
@@ -204,7 +206,7 @@ impl Component for TransactionForm {
                         TransactionType::iter().map(|t_type| {
                             let t_type = t_type.to_string();
                             html! {
-                                <option value={t_type.to_lowercase()}>{
+                                <option value={t_type.clone()}>{
                                     t_type
                                 }</option>
                             }
@@ -302,7 +304,8 @@ impl Component for TransactionForm {
                 </div>
 
                 <div class="input-group">
-                    <button onclick={context.link().callback(|_: MouseEvent| {
+                    <button onclick={context.link().callback(|e: MouseEvent| {
+                        e.prevent_default();
                         TransactionFormMessage::Submitted
                     })}>{ "Submit" }</button>
                 </div>
@@ -316,7 +319,74 @@ impl Component for TransactionForm {
 
 impl TransactionForm {
     fn validate_new_transaction(&self) -> NewTransaction {
-        todo!()
+        let periodic_budget = self.budget_id;
+        let description = self.description.cast::<HtmlInputElement>().unwrap()
+            .value();
+        let line_item = self.line_item.cast::<HtmlSelectElement>().unwrap()
+            .value().as_str().parse().unwrap();
+        let transaction_type: TransactionType = self.transaction_type
+            .cast::<HtmlSelectElement>().unwrap().value().try_into().unwrap();
+
+        let sending_account = match self.sending_account
+            .cast::<HtmlSelectElement>().unwrap().value().as_str() {
+                "" => None,
+                value => Some(value.to_string()),
+            };
+        let receiving_account = match self.receiving_account
+            .cast::<HtmlSelectElement>().unwrap().value().as_str() {
+                "" => None,
+                value => Some(value.to_string()),
+            };
+
+        let transfer_fees = match self.transfer_fees
+            .cast::<HtmlInputElement>().unwrap().value().as_str() {
+                "" => None,
+                value => Some((value.parse::<f32>().unwrap() * 100.0) as i64),
+            };
+        let receiving_entity = match self.receiving_entity
+            .cast::<HtmlInputElement>().unwrap().value().as_str() {
+                "" => None,
+                value => Some(value.to_string()),
+            };
+
+        let amount = (self.amount.cast::<HtmlInputElement>().unwrap().value()
+                      .parse::<f32>().unwrap() * 100.0) as i64;
+        let tags = match self.tags
+            .cast::<HtmlInputElement>().unwrap().value().as_str() {
+                "" => None,
+                value => Some(
+                    value.split(",").map(|s| s.to_string())
+                        .collect::<Vec<String>>()
+                ),
+            };
+
+        const DATE_FORMAT: &'static str = "%Y-%m-%d";
+        let send_date = NaiveDate::parse_from_str(
+            &self.send_date.cast::<HtmlInputElement>().unwrap().value(),
+            DATE_FORMAT
+        ).unwrap().and_hms(0, 0, 0);
+        let receive_date = match self.receive_date
+            .cast::<HtmlInputElement>().unwrap().value().as_str() {
+                "" => None,
+                value => Some(
+                    NaiveDate::parse_from_str(&value, DATE_FORMAT).unwrap()
+                        .and_hms(0, 0, 0)
+                ),
+            };
+        let corrects = match self.corrects
+            .cast::<HtmlInputElement>().unwrap().value().as_str() {
+                "" => None,
+                value => Some(
+                    value.split(",").map(|s| s.parse().unwrap())
+                        .collect::<Vec<i32>>()
+                ),
+            };
+
+        NewTransaction {
+            periodic_budget, description, line_item, transaction_type,
+            sending_account, receiving_account, transfer_fees,
+            receiving_entity, amount, tags, send_date, receive_date, corrects,
+        }
     }
 
     fn request_budgets(&mut self, context: &Context<Self>) {
