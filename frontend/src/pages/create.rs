@@ -7,7 +7,7 @@
 //
 // CREATED:         05/13/2022
 //
-// LAST EDITED:     05/18/2022
+// LAST EDITED:     05/19/2022
 ////
 
 use std::rc::Rc;
@@ -15,7 +15,6 @@ use std::str::FromStr;
 
 use chrono::naive::NaiveDate;
 use strum::IntoEnumIterator;
-use wasm_bindgen::JsValue;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::{HtmlInputElement, HtmlSelectElement};
 use yew::prelude::*;
@@ -90,9 +89,6 @@ impl Component for TransactionForm {
         }
 
         else if let ReceivedBudgets(budgets) = message {
-            if !budgets.is_empty() {
-                self.request_one_budget(budgets.first().unwrap().id, context);
-            }
             self.budgets = Some(budgets);
             true
         }
@@ -109,16 +105,21 @@ impl Component for TransactionForm {
 
             let new_transaction = self.validate_new_transaction();
             web_sys::console::log_1(&format!("{:?}", new_transaction).into());
-            // spawn_local(async move {
-            //     let mut request_init = web_sys::RequestInit::new();
-            //     request_init.method("POST");
-            //     request_init.body(
-            //         Some(&JsValue::from_serde(&new_transaction).unwrap()));
-            //     let request = web_sys::Request::new_with_str_and_init(
-            //         TRANSACTIONS_PATH, &request_init).unwrap();
-            //     let transaction: Transaction = fetch(request).await.unwrap();
-            //     link.emit(transaction);
-            // });
+            spawn_local(async move {
+                let headers = web_sys::Headers::new().unwrap();
+                headers.set("Content-Type", "application/json").unwrap();
+
+                let mut request_init = web_sys::RequestInit::new();
+                request_init.method("POST");
+                request_init.headers(&headers.into());
+                request_init.body(
+                    Some(&serde_json::to_string(&new_transaction).unwrap()
+                         .into()));
+                let request = web_sys::Request::new_with_str_and_init(
+                    TRANSACTIONS_PATH, &request_init).unwrap();
+                let transaction: Transaction = fetch(request).await.unwrap();
+                link.emit(transaction);
+            });
             true
         }
 
@@ -156,7 +157,9 @@ impl Component for TransactionForm {
                          } else {
                              None
                          }
-                     })}>{
+                     })}>
+                        <option value="">{"--Unselected--"}</option>
+                    {
                         match &self.budgets {
                             Some(budgets) => budgets.iter()
                                 .map(|budget| html! {

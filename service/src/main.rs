@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     05/15/2022
+// LAST EDITED:     05/19/2022
 ////
 
 use std::env;
@@ -23,7 +23,7 @@ use tracing::{event, Level};
 use axum::{
     extract::Path,
     http::StatusCode,
-    routing::get,
+    routing::{get, post},
     Router, Json,
 };
 
@@ -33,7 +33,7 @@ use budget_models::{
         BudgetItem, budget_items,
         InitialBalance, NewInitialBalance, initial_balances,
         PeriodicBudget, periodic_budgets,
-        Transaction, transactions,
+        NewTransaction, Transaction, transactions,
     },
     entities::PeriodicBudgetEndpoint,
 };
@@ -166,6 +166,29 @@ async fn post_initial_balance(
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Transactions
+////
+
+async fn create_transaction (
+    Json(new_transaction): Json<NewTransaction>,
+    db: Arc<Mutex<PgConnection>>
+) ->
+    Result<Json<Transaction>, StatusCode>
+{
+    let db = db.lock().unwrap();
+    event!(Level::INFO, "{:?}", &new_transaction);
+    let transaction = diesel::insert_into(transactions::table)
+        .values(&new_transaction)
+        .get_result(&*db);
+    if let Err::<Transaction, _>(e) = transaction {
+        event!(Level::ERROR, "{}", e);
+        return Err(StatusCode::INTERNAL_SERVER_ERROR);
+    }
+
+    Ok(Json(transaction.unwrap()))
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Main
 ////
 
@@ -202,6 +225,12 @@ async fn main() {
         )
         .route("/api/accounts",
                get({ let db = connection.clone(); move || list_accounts(db) })
+        )
+        .route("/api/transactions",
+               post({
+                   let db = connection.clone();
+                   move |transaction| create_transaction(transaction, db)
+               })
         )
         .layer(TraceLayer::new_for_http());
 
