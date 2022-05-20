@@ -7,7 +7,7 @@
 //
 // CREATED:         05/10/2022
 //
-// LAST EDITED:     05/18/2022
+// LAST EDITED:     05/20/2022
 ////
 
 use std::collections::HashMap;
@@ -74,15 +74,14 @@ impl Render for TransactionEntry {
             None => "".to_string(),
         };
 
-        let receive_date = self.transaction.receive_date.unwrap()
-            .format("%m-%d")
+        let send_date = self.transaction.send_date.format("%m-%d")
             .to_string();
 
         let amount = format!(
             "{:.2}", (self.transaction.amount as f64) / 100.0);
 
         html! {<tr><td>{
-            &receive_date
+            &send_date
         }</td><td>{
             &self.transaction.description
         }</td><td>{
@@ -225,6 +224,8 @@ impl TransactionView {
         let mut transactions = data.budget.transactions.into_iter()
             .map(|t| t.into())
             .collect::<Vec<TransactionEntry>>();
+        transactions.sort_by(|a, b| a.transaction.send_date.partial_cmp(
+            &b.transaction.send_date).unwrap());
 
         // Have to map in info about sending/receiving accounts
         use TransactionType::*;
