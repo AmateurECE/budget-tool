@@ -7,7 +7,7 @@
 //
 // CREATED:         05/13/2022
 //
-// LAST EDITED:     05/19/2022
+// LAST EDITED:     05/23/2022
 ////
 
 use std::rc::Rc;
@@ -44,6 +44,7 @@ pub enum TransactionFormMessage {
     ReceivedOneBudget(PeriodicBudgetEndpoint),
     Submitted,
     SubmitResponseReceived(Transaction),
+    DateUpdated(String)
 }
 
 #[derive(Default)]
@@ -51,6 +52,7 @@ pub struct TransactionForm {
     budget_data: Option<PeriodicBudgetEndpoint>,
     budgets: Option<Vec<PeriodicBudget>>,
     response_message: String,
+    date_mirror: String,
 
     // NewTransaction data (form state)
     budget_id: i32,
@@ -126,6 +128,11 @@ impl Component for TransactionForm {
         else if let SubmitResponseReceived(transaction) = message {
             self.budget_data.as_mut().unwrap().transactions.push(transaction);
             self.response_message = "Transaction Created".to_string();
+            true
+        }
+
+        else if let DateUpdated(new_date) = message {
+            self.date_mirror = new_date;
             true
         }
 
@@ -276,13 +283,22 @@ impl Component for TransactionForm {
                 <div class="input-group">
                     <label for="send-date">{ "Send Date" }</label>
                     <input type="date" id="send-date"
-                     ref={self.send_date.clone()} />
+                     ref={self.send_date.clone()}
+                     onblur={context.link().batch_callback(|e: FocusEvent| {
+                         if let Some(input) = e.target_dyn_into::<
+                                 HtmlInputElement>() {
+                             Some(DateUpdated(input.value()))
+                         } else {
+                             None
+                         }
+                     })} />
                 </div>
 
                 <div class="input-group">
                     <label for="receive-date">{ "Receive Date" }</label>
                     <input type="date" id="receive-date"
-                     ref={self.receive_date.clone()} />
+                     ref={self.receive_date.clone()}
+                     value={self.date_mirror.clone()} />
                 </div>
 
                 <div class="input-group">
