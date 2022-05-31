@@ -7,7 +7,7 @@
 //
 // CREATED:         05/13/2022
 //
-// LAST EDITED:     05/23/2022
+// LAST EDITED:     05/31/2022
 ////
 
 use std::rc::Rc;
@@ -44,7 +44,8 @@ pub enum TransactionFormMessage {
     ReceivedOneBudget(PeriodicBudgetEndpoint),
     Submitted,
     SubmitResponseReceived(Transaction),
-    DateUpdated(String)
+    DateUpdated(String),
+    TransactionTypeChanged(TransactionType),
 }
 
 #[derive(Default)]
@@ -58,7 +59,7 @@ pub struct TransactionForm {
     budget_id: i32,
     description: NodeRef,
     line_item: NodeRef,
-    transaction_type: NodeRef,
+    transaction_type: TransactionType,
     sending_account: NodeRef,
     receiving_account: NodeRef,
     transfer_fees: NodeRef,
@@ -133,6 +134,11 @@ impl Component for TransactionForm {
 
         else if let DateUpdated(new_date) = message {
             self.date_mirror = new_date;
+            true
+        }
+
+        else if let TransactionTypeChanged(new_type) = message {
+            self.transaction_type = new_type;
             true
         }
 
@@ -212,7 +218,16 @@ impl Component for TransactionForm {
                         "Transaction Type"
                     }</label>
                     <select id="transaction-type"
-                     ref={self.transaction_type.clone()}>{
+                     onchange={context.link().batch_callback(|e: Event| {
+                         if let Some(select) = e
+                             .target_dyn_into::<HtmlSelectElement>()
+                         {
+                             Some(TransactionTypeChanged(
+                                 select.value().try_into().unwrap()))
+                         } else {
+                             None
+                         }
+                     })}>{
                         TransactionType::iter().map(|t_type| {
                             let t_type = t_type.to_string();
                             html! {
@@ -224,6 +239,7 @@ impl Component for TransactionForm {
                     }</select>
                 </div>
 
+            if self.transaction_type != TransactionType::Income {
                 <div class="input-group">
                     <label for="sending-account">{ "Sending Account" }</label>
                     <select id="sending-account"
@@ -237,7 +253,9 @@ impl Component for TransactionForm {
                         }).collect::<Html>()
                     }</select>
                 </div>
+            }
 
+            if self.transaction_type != TransactionType::Expense {
                 <div class="input-group">
                     <label for="receiving-account">{
                         "Receiving Account"
@@ -253,6 +271,7 @@ impl Component for TransactionForm {
                         }).collect::<Html>()
                     }</select>
                 </div>
+            }
 
                 <div class="input-group">
                     <label for="amount">{ "Amount" }</label>
@@ -343,8 +362,7 @@ impl TransactionForm {
             .value();
         let line_item = self.line_item.cast::<HtmlSelectElement>().unwrap()
             .value().as_str().parse().unwrap();
-        let transaction_type: TransactionType = self.transaction_type
-            .cast::<HtmlSelectElement>().unwrap().value().try_into().unwrap();
+        let transaction_type = self.transaction_type;
 
         let sending_account = match self.sending_account
             .cast::<HtmlSelectElement>().unwrap().value().as_str() {
