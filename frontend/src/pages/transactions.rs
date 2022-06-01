@@ -7,7 +7,7 @@
 //
 // CREATED:         05/10/2022
 //
-// LAST EDITED:     05/20/2022
+// LAST EDITED:     06/01/2022
 ////
 
 use std::collections::HashMap;
@@ -242,20 +242,26 @@ impl TransactionView {
                         .unwrap()
                 ).unwrap();
                 *sending_account += transaction.transaction.amount;
+                if let Some(fees) = transaction.transaction.transfer_fees {
+                    *sending_account -= fees;
+                }
                 transaction.sending_new_balance = *sending_account;
             }
 
             if Expense != transaction.transaction.transaction_type {
                 // Update receiving_account balance
-                let receiving_account = accounts.get_mut(
-                    transaction.transaction.receiving_account.as_ref()
-                        .unwrap()
-                ).unwrap();
+                let account_name = transaction.transaction
+                    .receiving_account.as_ref().unwrap();
+                let receiving_account = accounts.get_mut(account_name)
+                    .expect(&format!("No account named '{}'!", account_name));
 
                 if Payment == transaction.transaction.transaction_type {
                     *receiving_account += -1 * transaction.transaction.amount;
                 } else {
                     *receiving_account += transaction.transaction.amount;
+                }
+                if let Some(fees) = transaction.transaction.transfer_fees {
+                    *receiving_account += fees;
                 }
                 transaction.receiving_new_balance = *receiving_account;
             }

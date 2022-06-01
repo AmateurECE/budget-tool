@@ -365,9 +365,12 @@ impl TransactionForm {
         let transaction_type = self.transaction_type;
 
         let sending_account = match self.sending_account
-            .cast::<HtmlSelectElement>().unwrap().value().as_str() {
-                "" => None,
-                value => Some(value.to_string()),
+            .cast::<HtmlSelectElement>() {
+                Some(select) => match select.value().as_str() {
+                    "" => None,
+                    value => Some(value.to_string()),
+                },
+                None => None,
             };
         let receiving_account = match self.receiving_account
             .cast::<HtmlSelectElement>() {
