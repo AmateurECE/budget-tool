@@ -370,9 +370,12 @@ impl TransactionForm {
                 value => Some(value.to_string()),
             };
         let receiving_account = match self.receiving_account
-            .cast::<HtmlSelectElement>().unwrap().value().as_str() {
-                "" => None,
-                value => Some(value.to_string()),
+            .cast::<HtmlSelectElement>() {
+                Some(select) => match select.value().as_str() {
+                    "" => None,
+                    value => Some(value.to_string()),
+                },
+                None => None,
             };
 
         let transfer_fees = match self.transfer_fees
