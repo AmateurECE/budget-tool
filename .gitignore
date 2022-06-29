@@ -1,5 +1,5 @@
-Cargo.lock
-/target/
+/budget-models/target/
+/budget-models/Cargo.lock
+/budget-service/target/
 /frontend/dist/
 /frontend/target/
-/budget-models/target/
