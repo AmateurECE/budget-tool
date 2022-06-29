@@ -6,8 +6,8 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0"
 axum = "0.5.1"
-budget-models = { path = "../budget-models" }
-sqlx = { version = "0.5", features = ["runtime-tokio-native-tls", "postgres"] }
+budget-models = { path = "../budget-models", features = ["sqlx"] }
+sqlx = { version = "0.5", features = ["runtime-tokio-native-tls", "postgres", "chrono"] }
 tokio = { version = "1.17", features = ["full"] }
 tower-http = { version = "0.2", features = ["trace"] }
 tracing = "0.1"

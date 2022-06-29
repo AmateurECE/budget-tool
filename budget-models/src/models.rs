@@ -20,6 +20,8 @@ use strum_macros::EnumIter;
 ////
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
+#[cfg_attr(feature = "sqlx", derive(sqlx::Type))]
+#[cfg_attr(feature = "sqlx", sqlx(rename_all = "lowercase"))]
 pub enum AccountType {
     Checking,
     Saving,
@@ -51,10 +53,6 @@ impl TryFrom<String> for AccountType {
 pub struct Account {
     pub name: String,
     pub account_type: AccountType,
-    pub apr: f64,
-
-    #[serde(with = "chrono::serde::ts_milliseconds")]
-    pub accruing_start_date: DateTime<Utc>,
 }
 
 ///////////////////////////////////////////////////////////////////////////////

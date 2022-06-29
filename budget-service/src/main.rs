@@ -13,6 +13,7 @@
 use std::env;
 use sqlx::PgPool;
 use tower_http::trace::TraceLayer;
+use tracing::{event, Level};
 
 use axum::{
     extract::Path, http::StatusCode, routing::{get, post}, Router, Json,
@@ -30,17 +31,20 @@ use budget_models::{
 // Accounts Endpoints
 ////
 
-async fn list_accounts(_db: PgPool) ->
+async fn list_accounts(db: PgPool) ->
     Result<Json<Vec<Account>>, StatusCode>
 {
-    // let db = db.lock().unwrap();
-    // let accounts = accounts::dsl::accounts.load::<Account>(&*db);
-    // if let Err::<Vec<Account>, _>(_) = accounts {
-    //     return Err(StatusCode::INTERNAL_SERVER_ERROR);
-    // }
-
-    // Ok(Json(accounts.unwrap()))
-    todo!()
+    let result = sqlx::query_as!(
+        Account,
+        r#"SELECT name, account_type as "account_type: _" FROM accounts"#
+    )
+        .fetch_all(&db)
+        .await
+        .map_err(|e| {
+            event!(Level::ERROR, "{:?}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+    Ok(Json(result))
 }
 
 ///////////////////////////////////////////////////////////////////////////////

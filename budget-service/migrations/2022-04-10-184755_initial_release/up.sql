@@ -1,9 +1,7 @@
 CREATE TYPE AccountType AS ENUM('checking', 'saving', 'credit', 'loan');
 CREATE TABLE accounts (
        name TEXT NOT NULL UNIQUE PRIMARY KEY,
-       account_type AccountType,
-       apr DOUBLE PRECISION,
-       accruing_start_date TIMESTAMP
+       account_type AccountType NOT NULL
 );
 
 CREATE TABLE periodic_budgets (

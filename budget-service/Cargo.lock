@@ -124,8 +124,9 @@ dependencies = [
 name = "budget-models"
 version = "0.1.0"
 dependencies = [
- "chrono",
+ "chrono 0.4.20-beta.1",
  "serde",
+ "sqlx",
  "strum",
  "strum_macros",
 ]
@@ -173,6 +174,18 @@ name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
+
+[[package]]
+name = "chrono"
+version = "0.4.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "670ad68c9088c2a963aaa298cb369688cf3f9465ce5e2d4ca10e6e0098a1ce73"
+dependencies = [
+ "libc",
+ "num-integer",
+ "num-traits",
+ "winapi",
+]
 
 [[package]]
 name = "chrono"
@@ -1188,6 +1201,7 @@ dependencies = [
  "bitflags",
  "byteorder",
  "bytes",
+ "chrono 0.4.19",
  "crc",
  "crossbeam-queue",
  "dirs",
