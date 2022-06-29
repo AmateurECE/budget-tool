@@ -2,3 +2,4 @@ Cargo.lock
 /target/
 /frontend/dist/
 /frontend/target/
+/budget-models/target/
