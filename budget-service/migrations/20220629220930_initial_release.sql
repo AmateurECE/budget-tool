@@ -6,8 +6,8 @@ CREATE TABLE accounts (
 
 CREATE TABLE periodic_budgets (
        id SERIAL PRIMARY KEY,
-       start_date TIMESTAMP,
-       end_date TIMESTAMP
+       start_date timestamp NOT NULL,
+       end_date timestamp NOT NULL
 );
 
 CREATE TABLE one_time_budgets (
