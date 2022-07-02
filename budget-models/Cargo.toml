@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-chrono = { git = "https://github.com/chronotope/chrono#39ac80a6", features = ["serde"] }
+chrono = { git = "https://github.com/chronotope/chrono", rev = "b1d74aef", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 sqlx = { version = "0.5", features = ["chrono"], optional = true }
 strum = "0.24"
