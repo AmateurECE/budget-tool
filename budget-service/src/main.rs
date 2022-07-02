@@ -11,6 +11,7 @@
 ////
 
 use std::env;
+use budget_models::{models, entities};
 use sqlx::PgPool;
 use tower_http::trace::TraceLayer;
 use tracing::{event, Level};
@@ -19,23 +20,15 @@ use axum::{
     extract::Path, http::StatusCode, routing::{get, post}, Router, Json,
 };
 
-use budget_models::{
-    models::{
-        Account, InitialBalance, NewInitialBalance, PeriodicBudget,
-        NewTransaction, Transaction,
-    },
-    entities::PeriodicBudgetEndpoint,
-};
-
 ///////////////////////////////////////////////////////////////////////////////
 // Accounts Endpoints
 ////
 
 async fn list_accounts(db: PgPool) ->
-    Result<Json<Vec<Account>>, StatusCode>
+    Result<Json<Vec<models::Account>>, StatusCode>
 {
     let result = sqlx::query_as!(
-        Account,
+        models::Account,
         r#"SELECT name, account_type as "account_type: _" FROM accounts"#
     )
         .fetch_all(&db)
@@ -51,22 +44,24 @@ async fn list_accounts(db: PgPool) ->
 // Budget Endpoints
 ////
 
-async fn list_budgets(_db: PgPool) ->
-    Result<Json<Vec<PeriodicBudget>>, StatusCode>
+async fn list_budgets(db: PgPool) ->
+    Result<Json<Vec<models::PeriodicBudget>>, StatusCode>
 {
-    // let db = db.lock().unwrap();
-    // let budgets = periodic_budgets::dsl::periodic_budgets
-    //     .load::<PeriodicBudget>(&*db);
-    // if let Err::<Vec<PeriodicBudget>, _>(_) = budgets {
-    //     return Err(StatusCode::INTERNAL_SERVER_ERROR);
-    // }
-
-    // Ok(Json(budgets.unwrap()))
-    todo!()
+    let result = sqlx::query_as!(
+        models::PeriodicBudget,
+        r#"SELECT * FROM periodic_budgets"#
+    )
+        .fetch_all(&db)
+        .await
+        .map_err(|e| {
+            event!(Level::ERROR, "{:?}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+    Ok(Json(result))
 }
 
 async fn detailed_budget(Path(_id): Path<i32>, _db: PgPool) ->
-    Result<Json<PeriodicBudgetEndpoint>, StatusCode>
+    Result<Json<entities::PeriodicBudgetEndpoint>, StatusCode>
 {
     // // Lock the database connection Mutex
     // let db = db.lock().unwrap();
@@ -131,7 +126,7 @@ async fn detailed_budget(Path(_id): Path<i32>, _db: PgPool) ->
 ////
 
 async fn list_initial_balances(_db: PgPool) ->
-    Result<Json<Vec<InitialBalance>>, StatusCode>
+    Result<Json<Vec<models::InitialBalance>>, StatusCode>
 {
     // let db = db.lock().unwrap();
     // let initial_balances = initial_balances::dsl::initial_balances
@@ -145,10 +140,10 @@ async fn list_initial_balances(_db: PgPool) ->
 }
 
 async fn post_initial_balance(
-    Json(_initial_balance): Json<NewInitialBalance>,
+    Json(_initial_balance): Json<models::NewInitialBalance>,
     _db: PgPool,
 ) ->
-    Result<Json<InitialBalance>, StatusCode>
+    Result<Json<models::InitialBalance>, StatusCode>
 {
     // let db = db.lock().unwrap();
     // let initial_balance = diesel::insert_into(initial_balances::table)
@@ -167,10 +162,10 @@ async fn post_initial_balance(
 ////
 
 async fn create_transaction (
-    Json(_new_transaction): Json<NewTransaction>,
+    Json(_new_transaction): Json<models::NewTransaction>,
     _db: PgPool,
 ) ->
-    Result<Json<Transaction>, StatusCode>
+    Result<Json<models::Transaction>, StatusCode>
 {
     // let db = db.lock().unwrap();
     // event!(Level::INFO, "{:?}", &new_transaction);
