@@ -58,10 +58,10 @@ CREATE TABLE transactions (
 -- ensure integrity of the calculation.
 CREATE TABLE initial_balances (
        id SERIAL PRIMARY KEY,
-       account TEXT,
-       budget INTEGER,
-       balance BIGINT,
-       last_updated TIMESTAMP
+       account TEXT NOT NULL,
+       budget INTEGER NOT NULL,
+       balance BIGINT NOT NULL,
+       last_updated TIMESTAMP NOT NULL
 );
 
 -- A trigger to automatically update the last_updated timestamp column in the
