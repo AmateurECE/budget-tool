@@ -11,22 +11,39 @@
 ////
 
 use std::env;
-use budget_models::{models, entities};
-use sea_orm::{Database, DatabaseConnection};
+use budget_models::models;
+use sea_orm::{Database, DatabaseConnection, EntityTrait};
 use tower_http::trace::TraceLayer;
+use tracing::{Level, event};
 
 use axum::{
     extract::Path, http::StatusCode, routing::{get, post}, Router, Json,
 };
 
+mod conversions;
+mod entities;
+
+use entities::*;
+use entities::prelude::*;
+
 ///////////////////////////////////////////////////////////////////////////////
 // Accounts Endpoints
 ////
 
-async fn list_accounts(_db: DatabaseConnection) ->
+async fn list_accounts(db: DatabaseConnection) ->
     Result<Json<Vec<models::Account>>, StatusCode>
 {
-    todo!()
+    let accounts: Vec<accounts::Model> = Accounts::find().all(&db)
+        .await
+        .map_err(|e| {
+            event!(Level::ERROR, "{:?}", &e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+    Ok(Json(
+        accounts.into_iter()
+            .map(|account| account.into())
+            .collect()
+    ))
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -40,7 +57,7 @@ async fn list_budgets(_db: DatabaseConnection) ->
 }
 
 async fn detailed_budget(Path(_id): Path<i32>, _db: DatabaseConnection) ->
-    Result<Json<entities::PeriodicBudgetEndpoint>, StatusCode>
+    Result<Json<models::PeriodicBudgetSummary>, StatusCode>
 {
     // // Lock the database connection Mutex
     // let db = db.lock().unwrap();

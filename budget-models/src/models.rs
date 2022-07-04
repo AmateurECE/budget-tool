@@ -225,3 +225,23 @@ pub struct NewInitialBalance {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// PeriodicBudgetSummary
+////
+
+/// This struct enables the Periodic Budget view with a single model.
+#[derive(Serialize, Deserialize)]
+pub struct PeriodicBudgetSummary {
+    /// This PeriodicBudget.
+    pub budget: PeriodicBudget,
+
+    /// List of BudgetItems for this PeriodicBudget
+    pub items: Vec<BudgetItem>,
+
+    /// Initial balances for all of the accounts affected by this budget.
+    pub initial_balances: Vec<InitialBalance>,
+
+    /// Transactions mapped to this budget's BudgetItems
+    pub transactions: Vec<Transaction>,
+}
+
+///////////////////////////////////////////////////////////////////////////////
