@@ -92,20 +92,6 @@ async fn detailed_budget(Path(_id): Path<i32>, _db: DatabaseConnection) ->
 // Initial Balance Endpoints
 ////
 
-async fn list_initial_balances(_db: DatabaseConnection) ->
-    Result<Json<Vec<models::InitialBalance>>, StatusCode>
-{
-    // let db = db.lock().unwrap();
-    // let initial_balances = initial_balances::dsl::initial_balances
-    //     .load::<InitialBalance>(&*db);
-    // if let Err::<Vec<InitialBalance>, _>(e) = initial_balances {
-    //     event!(Level::ERROR, "{}", e);
-    //     return Err(StatusCode::INTERNAL_SERVER_ERROR);
-    // }
-    // Ok(Json(initial_balances.unwrap()))
-    todo!()
-}
-
 async fn post_initial_balance(
     Json(_initial_balance): Json<models::NewInitialBalance>,
     _db: DatabaseConnection,
@@ -166,7 +152,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/initial_balances",
                get({
                    let db = connection.clone();
-                   move || list_initial_balances(db)
+                   move || endpoints::initial_balances::list(db)
                })
                .post({
                    let db = connection.clone();

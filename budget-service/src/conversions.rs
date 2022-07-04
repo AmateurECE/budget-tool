@@ -44,4 +44,16 @@ impl Into<models::PeriodicBudget> for periodic_budgets::Model {
     }
 }
 
+impl Into<models::InitialBalance> for initial_balances::Model {
+    fn into(self) -> models::InitialBalance {
+        models::InitialBalance {
+            id: self.id,
+            account: self.account,
+            budget: self.budget,
+            balance: self.balance,
+            last_updated: self.last_updated.into(),
+        }
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
