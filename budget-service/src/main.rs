@@ -12,61 +12,20 @@
 
 use std::env;
 use budget_models::models;
-use sea_orm::{Database, DatabaseConnection, EntityTrait};
+use sea_orm::{Database, DatabaseConnection};
 use tower_http::trace::TraceLayer;
-use tracing::{Level, event};
 
 use axum::{
     extract::Path, http::StatusCode, routing::{get, post}, Router, Json,
 };
 
 mod conversions;
+mod endpoints;
 mod entities;
-
-use entities::*;
-use entities::prelude::*;
-
-///////////////////////////////////////////////////////////////////////////////
-// Accounts Endpoints
-////
-
-async fn list_accounts(db: DatabaseConnection) ->
-    Result<Json<Vec<models::Account>>, StatusCode>
-{
-    let accounts: Vec<accounts::Model> = Accounts::find()
-        .all(&db)
-        .await
-        .map_err(|e| {
-            event!(Level::ERROR, "{:?}", &e);
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
-    Ok(Json(
-        accounts.into_iter()
-            .map(|account| account.into())
-            .collect()
-    ))
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Budget Endpoints
 ////
-
-async fn list_budgets(db: DatabaseConnection) ->
-    Result<Json<Vec<models::PeriodicBudget>>, StatusCode>
-{
-    let budgets: Vec<periodic_budgets::Model> = PeriodicBudgets::find()
-        .all(&db)
-        .await
-        .map_err(|e| {
-            event!(Level::ERROR, "{:?}", &e);
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
-    Ok(Json(
-        budgets.into_iter()
-            .map(|budget| budget.into())
-            .collect()
-    ))
-}
 
 async fn detailed_budget(Path(_id): Path<i32>, _db: DatabaseConnection) ->
     Result<Json<models::PeriodicBudgetSummary>, StatusCode>
@@ -193,7 +152,10 @@ async fn main() -> anyhow::Result<()> {
 
     let app = Router::new()
         .route("/api/periodic_budgets",
-               get({ let db = connection.clone(); move || list_budgets(db) })
+               get({
+                   let db = connection.clone();
+                   move || endpoints::periodic_budgets::list(db)
+               })
         )
         .route("/api/periodic_budgets/:id",
                get({
@@ -212,7 +174,10 @@ async fn main() -> anyhow::Result<()> {
                })
         )
         .route("/api/accounts",
-               get({ let db = connection.clone(); move || list_accounts(db) })
+               get({
+                   let db = connection.clone();
+                   move || endpoints::accounts::list(db)
+               })
         )
         .route("/api/transactions",
                post({
