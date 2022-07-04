@@ -47,8 +47,8 @@ CREATE TABLE transactions (
        receiving_entity TEXT,
        amount BIGINT NOT NULL,
        tags TEXT[],
-       send_date TIMESTAMP NOT NULL,
-       receive_date TIMESTAMP,
+       send_date timestamp with TIME ZONE NOT NULL,
+       receive_date timestamp with TIME ZONE,
        corrects INTEGER[],
        periodic_budget INTEGER NOT NULL
 );
@@ -61,7 +61,7 @@ CREATE TABLE initial_balances (
        account TEXT NOT NULL,
        budget INTEGER NOT NULL,
        balance BIGINT NOT NULL,
-       last_updated TIMESTAMP NOT NULL
+       last_updated timestamp with TIME ZONE NOT NULL
 );
 
 -- A trigger to automatically update the last_updated timestamp column in the

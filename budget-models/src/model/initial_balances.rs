@@ -11,7 +11,7 @@ pub struct Model {
     pub account: String,
     pub budget: i32,
     pub balance: i64,
-    pub last_updated: DateTimeUtc,
+    pub last_updated: DateTimeWithTimeZone,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter)]

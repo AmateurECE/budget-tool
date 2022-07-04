@@ -22,8 +22,8 @@ pub struct Model {
     pub amount: i64,
     #[sea_orm(column_type = "Custom(\"array\".to_owned())", nullable)]
     pub tags: Option<String>,
-    pub send_date: DateTimeUtc,
-    pub receive_date: Option<DateTimeUtc>,
+    pub send_date: DateTimeWithTimeZone,
+    pub receive_date: Option<DateTimeWithTimeZone>,
     #[sea_orm(column_type = "Custom(\"array\".to_owned())", nullable)]
     pub corrects: Option<String>,
     pub periodic_budget: i32,
