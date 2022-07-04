@@ -14,24 +14,15 @@ use std::convert::TryFrom;
 use chrono::{DateTime, offset::Utc};
 use serde::{Serialize, Deserialize};
 
-#[cfg(feature = "sea-orm")]
-use sea_orm::{sea_query, entity::prelude::*};
-
 ///////////////////////////////////////////////////////////////////////////////
 // AccountType
 ////
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-#[cfg_attr(feature = "sea-orm", derive(DeriveActiveEnum, EnumIter, Iden))]
-#[cfg_attr(feature = "sea-orm", sea_orm(rs_type = "String", db_type = "Enum"))]
 pub enum AccountType {
-    #[cfg_attr(feature = "sea-orm", sea_orm(string_value = "checking"))]
     Checking,
-    #[cfg_attr(feature = "sea-orm", sea_orm(string_value = "saving"))]
     Saving,
-    #[cfg_attr(feature = "sea-orm", sea_orm(string_value = "credit"))]
     Credit,
-    #[cfg_attr(feature = "sea-orm", sea_orm(string_value = "loan"))]
     Loan,
 }
 
