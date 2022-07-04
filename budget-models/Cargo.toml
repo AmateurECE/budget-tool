@@ -5,10 +5,10 @@ edition = "2021"
 
 [dependencies]
 chrono = { version = "0.4.19", features = ["serde"] }
+sea-orm = { version = "0.8.0", features = ["chrono"], optional = true }
 serde = { version = "1.0", features = ["derive"] }
-sqlx = { version = "0.5", features = ["chrono"], optional = true }
 strum = "0.24"
 strum_macros = "0.24"
 
 [features]
-sqlx = ["dep:sqlx"]
+sea-orm = ["dep:sea-orm"]

@@ -7,26 +7,38 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     06/29/2022
+// LAST EDITED:     07/04/2022
 ////
 
 use std::convert::TryFrom;
 use chrono::{DateTime, offset::Utc};
 use serde::{Serialize, Deserialize};
-use strum_macros::EnumIter;
+
+#[cfg(feature = "sea-orm")]
+use sea_orm::{sea_query, entity::prelude::*};
 
 ///////////////////////////////////////////////////////////////////////////////
 // AccountType
 ////
 
-#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
-#[cfg_attr(feature = "sqlx", derive(sqlx::Type))]
-#[cfg_attr(feature = "sqlx", sqlx(rename_all = "lowercase"))]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[cfg_attr(feature = "sea-orm", derive(DeriveActiveEnum, EnumIter, Iden))]
+#[cfg_attr(feature = "sea-orm", sea_orm(rs_type = "String", db_type = "Enum"))]
 pub enum AccountType {
+    #[cfg_attr(feature = "sea-orm", sea_orm(string_value = "checking"))]
     Checking,
+    #[cfg_attr(feature = "sea-orm", sea_orm(string_value = "saving"))]
     Saving,
+    #[cfg_attr(feature = "sea-orm", sea_orm(string_value = "credit"))]
     Credit,
+    #[cfg_attr(feature = "sea-orm", sea_orm(string_value = "loan"))]
     Loan,
+}
+
+impl ToString for AccountType {
+    fn to_string(&self) -> String {
+        format!("{:?}", &self)
+    }
 }
 
 #[derive(Debug)]
@@ -108,7 +120,7 @@ pub struct BudgetItem {
 // TransactionType
 ////
 
-#[derive(Clone, Copy, Serialize, Deserialize, PartialEq, Debug, EnumIter)]
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq, Debug)]
 pub enum TransactionType {
     Expense,
     Income,
@@ -154,7 +166,7 @@ impl Default for TransactionType {
 // Transaction
 ////
 
-#[derive(Serialize, Deserialize, Clone, Default, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct Transaction {
     pub id: i32,
     pub description: String,
@@ -177,7 +189,7 @@ pub struct Transaction {
     pub periodic_budget: i32,
 }
 
-#[derive(Serialize, Deserialize, Clone, Default, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct NewTransaction {
     pub description: String,
     pub line_item: i32,

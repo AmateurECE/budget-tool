@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     06/29/2022
+// LAST EDITED:     07/02/2022
 ////
 
 use std::env;
@@ -167,17 +167,19 @@ async fn create_transaction (
 ) ->
     Result<Json<models::Transaction>, StatusCode>
 {
-    // let db = db.lock().unwrap();
-    // event!(Level::INFO, "{:?}", &new_transaction);
-    // let transaction = diesel::insert_into(transactions::table)
-    //     .values(&new_transaction)
-    //     .get_result(&*db);
-    // if let Err::<Transaction, _>(e) = transaction {
-    //     event!(Level::ERROR, "{}", e);
-    //     return Err(StatusCode::INTERNAL_SERVER_ERROR);
-    // }
-
-    // Ok(Json(transaction.unwrap()))
+    let result = sqlx::query_as!(
+        models::Transaction,
+        r#"
+INSERT INTO transactions ()
+"#
+    )
+        .fetch_all(&db)
+        .await
+        .map_err(|e| {
+            event!(Level::ERROR, "{:?}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+    Ok(Json(result))
     todo!()
 }
 

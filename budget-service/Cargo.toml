@@ -7,14 +7,11 @@ edition = "2021"
 anyhow = "1.0"
 axum = "0.5.1"
 budget-models = { path = "../budget-models", features = ["sqlx"] }
-sqlx = { version = "0.5", features = ["runtime-tokio-native-tls", "postgres", "chrono"] }
+sea-orm = { version = "0.8.0", features = ["sqlx-postgres", "runtime-tokio-native-tls", "chrono"] }
 tokio = { version = "1.17", features = ["full"] }
 tower-http = { version = "0.2", features = ["trace"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-
-# [patch.crates-io]
-# chrono = { version = "0.4.20-beta.1", git = "https://github.com/chronotope/chrono", rev = "39ac80a6" }
 
 [patch.crates-io]
 chrono = { git = "https://github.com/chronotope/chrono", rev = "b1d74aef" }
