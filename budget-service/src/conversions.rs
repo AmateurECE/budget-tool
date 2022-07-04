@@ -14,9 +14,23 @@
 use budget_models::models;
 use crate::entities::*;
 
+impl Into<models::AccountType> for sea_orm_active_enums::Accounttype {
+    fn into(self) -> models::AccountType {
+        match self {
+            Self::Checking => models::AccountType::Checking,
+            Self::Saving => models::AccountType::Saving,
+            Self::Credit => models::AccountType::Credit,
+            Self::Loan => models::AccountType::Loan,
+        }
+    }
+}
+
 impl Into<models::Account> for accounts::Model {
     fn into(self) -> models::Account {
-        todo!()
+        models::Account {
+            name: self.name,
+            account_type: self.account_type.into(),
+        }
     }
 }
 
