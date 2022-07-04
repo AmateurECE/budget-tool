@@ -7,14 +7,13 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     07/02/2022
+// LAST EDITED:     07/04/2022
 ////
 
 use std::env;
 use budget_models::{models, entities};
-use sqlx::PgPool;
+use sea_orm::{Database, DatabaseConnection};
 use tower_http::trace::TraceLayer;
-use tracing::{event, Level};
 
 use axum::{
     extract::Path, http::StatusCode, routing::{get, post}, Router, Json,
@@ -24,43 +23,23 @@ use axum::{
 // Accounts Endpoints
 ////
 
-async fn list_accounts(db: PgPool) ->
+async fn list_accounts(_db: DatabaseConnection) ->
     Result<Json<Vec<models::Account>>, StatusCode>
 {
-    let result = sqlx::query_as!(
-        models::Account,
-        r#"SELECT name, account_type as "account_type: _" FROM accounts"#
-    )
-        .fetch_all(&db)
-        .await
-        .map_err(|e| {
-            event!(Level::ERROR, "{:?}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
-    Ok(Json(result))
+    todo!()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Budget Endpoints
 ////
 
-async fn list_budgets(db: PgPool) ->
+async fn list_budgets(_db: DatabaseConnection) ->
     Result<Json<Vec<models::PeriodicBudget>>, StatusCode>
 {
-    let result = sqlx::query_as!(
-        models::PeriodicBudget,
-        r#"SELECT * FROM periodic_budgets"#
-    )
-        .fetch_all(&db)
-        .await
-        .map_err(|e| {
-            event!(Level::ERROR, "{:?}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
-    Ok(Json(result))
+    todo!()
 }
 
-async fn detailed_budget(Path(_id): Path<i32>, _db: PgPool) ->
+async fn detailed_budget(Path(_id): Path<i32>, _db: DatabaseConnection) ->
     Result<Json<entities::PeriodicBudgetEndpoint>, StatusCode>
 {
     // // Lock the database connection Mutex
@@ -125,7 +104,7 @@ async fn detailed_budget(Path(_id): Path<i32>, _db: PgPool) ->
 // Initial Balance Endpoints
 ////
 
-async fn list_initial_balances(_db: PgPool) ->
+async fn list_initial_balances(_db: DatabaseConnection) ->
     Result<Json<Vec<models::InitialBalance>>, StatusCode>
 {
     // let db = db.lock().unwrap();
@@ -141,7 +120,7 @@ async fn list_initial_balances(_db: PgPool) ->
 
 async fn post_initial_balance(
     Json(_initial_balance): Json<models::NewInitialBalance>,
-    _db: PgPool,
+    _db: DatabaseConnection,
 ) ->
     Result<Json<models::InitialBalance>, StatusCode>
 {
@@ -163,23 +142,10 @@ async fn post_initial_balance(
 
 async fn create_transaction (
     Json(_new_transaction): Json<models::NewTransaction>,
-    _db: PgPool,
+    _db: DatabaseConnection,
 ) ->
     Result<Json<models::Transaction>, StatusCode>
 {
-    let result = sqlx::query_as!(
-        models::Transaction,
-        r#"
-INSERT INTO transactions ()
-"#
-    )
-        .fetch_all(&db)
-        .await
-        .map_err(|e| {
-            event!(Level::ERROR, "{:?}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
-    Ok(Json(result))
     todo!()
 }
 
@@ -194,7 +160,7 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     let url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    let connection = PgPool::connect(&url).await?;
+    let connection = Database::connect(&url).await?;
 
     let app = Router::new()
         .route("/api/periodic_budgets",

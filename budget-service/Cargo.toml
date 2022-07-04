@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0"
 axum = "0.5.1"
-budget-models = { path = "../budget-models", features = ["sqlx"] }
+budget-models = { path = "../budget-models" }
 sea-orm = { version = "0.8.0", features = ["sqlx-postgres", "runtime-tokio-native-tls", "chrono"] }
 tokio = { version = "1.17", features = ["full"] }
 tower-http = { version = "0.2", features = ["trace"] }
