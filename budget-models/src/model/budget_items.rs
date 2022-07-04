@@ -12,13 +12,13 @@ pub struct Model {
     pub description: String,
     #[sea_orm(column_type = "Text")]
     pub category: String,
-    pub budgeted: Option<i64>,
-    pub transaction_type: Option<Transactiontype>,
+    pub budgeted: i64,
+    pub transaction_type: Transactiontype,
     #[sea_orm(column_type = "Text", nullable)]
     pub from_account: Option<String>,
     #[sea_orm(column_type = "Text", nullable)]
     pub to_account: Option<String>,
-    pub periodic_budget: Option<i32>,
+    pub periodic_budget: i32,
     pub one_time_budget: Option<i32>,
 }
 

@@ -28,11 +28,11 @@ CREATE TABLE budget_items (
        id SERIAL PRIMARY KEY,
        description TEXT NOT NULL,
        category TEXT NOT NULL,
-       budgeted BIGINT,
-       transaction_type TransactionType,
+       budgeted BIGINT NOT NULL,
+       transaction_type TransactionType NOT NULL,
        from_account TEXT,
        to_account TEXT,
-       periodic_budget INTEGER,
+       periodic_budget INTEGER NOT NULL,
        one_time_budget INTEGER
 );
 
