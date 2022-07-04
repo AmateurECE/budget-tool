@@ -38,19 +38,19 @@ CREATE TABLE budget_items (
 
 CREATE TABLE transactions (
        id SERIAL PRIMARY KEY,
-       description TEXT,
+       description TEXT NOT NULL,
        line_item INTEGER NOT NULL,
-       transaction_type TransactionType,
+       transaction_type TransactionType NOT NULL,
        sending_account TEXT,
        receiving_account TEXT,
        transfer_fees BIGINT,
        receiving_entity TEXT,
-       amount BIGINT,
+       amount BIGINT NOT NULL,
        tags TEXT[],
-       send_date TIMESTAMP,
+       send_date TIMESTAMP NOT NULL,
        receive_date TIMESTAMP,
        corrects INTEGER[],
-       periodic_budget INTEGER
+       periodic_budget INTEGER NOT NULL
 );
 
 -- Table to hold a snapshot of initial balances for a single budget for a

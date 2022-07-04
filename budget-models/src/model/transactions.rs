@@ -8,10 +8,10 @@ use sea_orm::entity::prelude::*;
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub description: Option<String>,
+    #[sea_orm(column_type = "Text")]
+    pub description: String,
     pub line_item: i32,
-    pub transaction_type: Option<Transactiontype>,
+    pub transaction_type: Transactiontype,
     #[sea_orm(column_type = "Text", nullable)]
     pub sending_account: Option<String>,
     #[sea_orm(column_type = "Text", nullable)]
@@ -19,14 +19,14 @@ pub struct Model {
     pub transfer_fees: Option<i64>,
     #[sea_orm(column_type = "Text", nullable)]
     pub receiving_entity: Option<String>,
-    pub amount: Option<i64>,
+    pub amount: i64,
     #[sea_orm(column_type = "Custom(\"array\".to_owned())", nullable)]
     pub tags: Option<String>,
-    pub send_date: Option<DateTimeUtc>,
+    pub send_date: DateTimeUtc,
     pub receive_date: Option<DateTimeUtc>,
     #[sea_orm(column_type = "Custom(\"array\".to_owned())", nullable)]
     pub corrects: Option<String>,
-    pub periodic_budget: Option<i32>,
+    pub periodic_budget: i32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter)]
