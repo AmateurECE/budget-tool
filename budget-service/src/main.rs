@@ -33,7 +33,8 @@ use entities::prelude::*;
 async fn list_accounts(db: DatabaseConnection) ->
     Result<Json<Vec<models::Account>>, StatusCode>
 {
-    let accounts: Vec<accounts::Model> = Accounts::find().all(&db)
+    let accounts: Vec<accounts::Model> = Accounts::find()
+        .all(&db)
         .await
         .map_err(|e| {
             event!(Level::ERROR, "{:?}", &e);
@@ -50,10 +51,21 @@ async fn list_accounts(db: DatabaseConnection) ->
 // Budget Endpoints
 ////
 
-async fn list_budgets(_db: DatabaseConnection) ->
+async fn list_budgets(db: DatabaseConnection) ->
     Result<Json<Vec<models::PeriodicBudget>>, StatusCode>
 {
-    todo!()
+    let budgets: Vec<periodic_budgets::Model> = PeriodicBudgets::find()
+        .all(&db)
+        .await
+        .map_err(|e| {
+            event!(Level::ERROR, "{:?}", &e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+    Ok(Json(
+        budgets.into_iter()
+            .map(|budget| budget.into())
+            .collect()
+    ))
 }
 
 async fn detailed_budget(Path(_id): Path<i32>, _db: DatabaseConnection) ->

@@ -34,4 +34,14 @@ impl Into<models::Account> for accounts::Model {
     }
 }
 
+impl Into<models::PeriodicBudget> for periodic_budgets::Model {
+    fn into(self) -> models::PeriodicBudget {
+        models::PeriodicBudget {
+            id: self.id,
+            start_date: self.start_date.into(),
+            end_date: self.end_date.into(),
+        }
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
