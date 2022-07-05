@@ -7,86 +7,18 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     07/04/2022
+// LAST EDITED:     07/05/2022
 ////
 
 use std::env;
+use axum::{http::StatusCode, routing::{get, post}, Router, Json};
 use budget_models::models;
 use sea_orm::{Database, DatabaseConnection};
 use tower_http::trace::TraceLayer;
 
-use axum::{
-    extract::Path, http::StatusCode, routing::{get, post}, Router, Json,
-};
-
 mod conversions;
 mod endpoints;
 mod entities;
-
-///////////////////////////////////////////////////////////////////////////////
-// Budget Endpoints
-////
-
-async fn detailed_budget(Path(_id): Path<i32>, _db: DatabaseConnection) ->
-    Result<Json<models::PeriodicBudgetSummary>, StatusCode>
-{
-    // // Lock the database connection Mutex
-    // let db = db.lock().unwrap();
-
-    // // Get the budget requested by `id'
-    // let budget: Result<PeriodicBudget, _> =
-    //     periodic_budgets::dsl::periodic_budgets
-    //     .find(id)
-    //     .first(&*db);
-    // if let Err::<PeriodicBudget, _>(NotFound) = budget {
-    //     return Err(StatusCode::NOT_FOUND);
-    // } else if let Err::<PeriodicBudget, _>(e) = budget {
-    //     event!(Level::ERROR, "{}", e);
-    //     return Err(StatusCode::INTERNAL_SERVER_ERROR);
-    // }
-
-    // let budget = budget.unwrap();
-
-    // // Locate all the budget items for this budget
-    // let items: Result<Vec<BudgetItem>, _> = budget_items::dsl::budget_items
-    //     .filter(budget_items::periodic_budget.eq(budget.id))
-    //     .load::<BudgetItem>(&*db);
-    // if let Err::<Vec<BudgetItem>, _>(e) = items {
-    //     event!(Level::ERROR, "{}", e);
-    //     return Err(StatusCode::INTERNAL_SERVER_ERROR);
-    // }
-
-    // let items = items.unwrap();
-
-    // // Collect all initial balances for the time period corresponding to this
-    // // budget.
-    // let initial_balances: Result<Vec<InitialBalance>, _> =
-    //     initial_balances::dsl::initial_balances
-    //     .filter(initial_balances::budget.eq(budget.id))
-    //     .load::<InitialBalance>(&*db);
-    // if let Err::<Vec<InitialBalance>, _>(e) = initial_balances {
-    //     event!(Level::ERROR, "{}", e);
-    //     return Err(StatusCode::INTERNAL_SERVER_ERROR);
-    // }
-    // let initial_balances = initial_balances.unwrap();
-
-    // // Collect all the transactions for the time period corresponding to this
-    // // budget.
-    // let transactions: Result<Vec<Transaction>, _> =
-    //     transactions::dsl::transactions
-    //     .filter(transactions::periodic_budget.eq(budget.id))
-    //     .load::<Transaction>(&*db);
-    // if let Err::<Vec<Transaction>, _>(e) = transactions {
-    //     event!(Level::ERROR, "{}", e);
-    //     return Err(StatusCode::INTERNAL_SERVER_ERROR);
-    // }
-    // let transactions = transactions.unwrap();
-
-    // Ok(Json(PeriodicBudgetEndpoint {
-    //     budget, items, initial_balances, transactions,
-    // }))
-    todo!()
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Initial Balance Endpoints
@@ -146,7 +78,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/periodic_budgets/:id",
                get({
                    let db = connection.clone();
-                   move |id| detailed_budget(id, db)
+                   move |id| endpoints::periodic_budgets::detailed(id, db)
                })
         )
         .route("/api/initial_balances",
