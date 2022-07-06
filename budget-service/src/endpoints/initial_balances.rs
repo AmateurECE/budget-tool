@@ -7,15 +7,15 @@
 //
 // CREATED:         07/04/2022
 //
-// LAST EDITED:     07/04/2022
+// LAST EDITED:     07/05/2022
 ////
 
 use axum::{http::StatusCode, Json};
 use budget_models::models;
 use sea_orm::{DatabaseConnection, EntityTrait};
-use tracing::{Level, event};
 
 use crate::entities::prelude::*;
+use crate::internal_server_error;
 
 pub async fn list(db: DatabaseConnection) ->
     Result<Json<Vec<models::InitialBalance>>, StatusCode>
@@ -23,10 +23,7 @@ pub async fn list(db: DatabaseConnection) ->
     let initial_balances = InitialBalances::find()
         .all(&db)
         .await
-        .map_err(|e| {
-            event!(Level::ERROR, "{:?}", &e);
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
+        .map_err(internal_server_error)?;
     Ok(Json(
         initial_balances.into_iter()
             .map(|balance| balance.into())

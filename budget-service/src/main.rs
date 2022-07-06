@@ -11,14 +11,25 @@
 ////
 
 use std::env;
+use std::fmt;
 use axum::{http::StatusCode, routing::{get, post}, Router, Json};
 use budget_models::models;
 use sea_orm::{Database, DatabaseConnection};
 use tower_http::trace::TraceLayer;
+use tracing::{Level, event};
 
 mod conversions;
 mod endpoints;
 mod entities;
+
+///////////////////////////////////////////////////////////////////////////////
+// internal_server_error Helper
+////
+
+pub(crate) fn internal_server_error<E: fmt::Debug>(e: E) -> StatusCode {
+    event!(Level::ERROR, "{:?}", &e);
+    StatusCode::INTERNAL_SERVER_ERROR
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Initial Balance Endpoints

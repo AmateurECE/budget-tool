@@ -13,10 +13,10 @@
 use axum::{extract::Path, http::StatusCode, Json};
 use budget_models::models;
 use sea_orm::{DatabaseConnection, EntityTrait, ModelTrait};
-use tracing::{Level, event};
 
 use crate::entities::*;
 use crate::entities::prelude::*;
+use crate::internal_server_error;
 
 pub async fn list(db: DatabaseConnection) ->
     Result<Json<Vec<models::PeriodicBudget>>, StatusCode>
@@ -24,10 +24,7 @@ pub async fn list(db: DatabaseConnection) ->
     let budgets: Vec<periodic_budgets::Model> = PeriodicBudgets::find()
         .all(&db)
         .await
-        .map_err(|e| {
-            event!(Level::ERROR, "{:?}", &e);
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
+        .map_err(internal_server_error)?;
     Ok(Json(
         budgets.into_iter()
             .map(|budget| budget.into())
@@ -42,10 +39,7 @@ pub async fn detailed(Path(id): Path<i32>, db: DatabaseConnection) ->
     let budget: periodic_budgets::Model = PeriodicBudgets::find_by_id(id)
         .one(&db)
         .await
-        .map_err(|e| {
-            event!(Level::ERROR, "{:?}", &e);
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?
+        .map_err(internal_server_error)?
         .ok_or(StatusCode::NOT_FOUND)?;
 
     // Locate all the budget items for this budget
@@ -57,10 +51,7 @@ pub async fn detailed(Path(id): Path<i32>, db: DatabaseConnection) ->
         .find_related(Transactions)
         .all(&db)
         .await
-        .map_err(|e| {
-            event!(Level::ERROR, "{:?}", &e);
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
+        .map_err(internal_server_error)?;
 
     // Ok(Json(PeriodicBudgetEndpoint {
     //     budget, items, initial_balances, transactions,
