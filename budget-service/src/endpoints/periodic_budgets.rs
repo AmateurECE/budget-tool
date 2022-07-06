@@ -43,6 +43,11 @@ pub async fn detailed(Path(id): Path<i32>, db: DatabaseConnection) ->
         .ok_or(StatusCode::NOT_FOUND)?;
 
     // Locate all the budget items for this budget
+    let _items: Vec<budget_items::Model> = budget
+        .find_related(BudgetItems)
+        .all(&db)
+        .await
+        .map_err(internal_server_error)?;
 
     // Collect all initial balances for the time period corresponding to this
 

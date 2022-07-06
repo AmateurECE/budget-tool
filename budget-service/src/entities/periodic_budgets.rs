@@ -23,12 +23,15 @@ pub struct Model {
 
 #[derive(Copy, Clone, Debug, EnumIter)]
 pub enum Relation {
+    BudgetItem,
     Transaction,
 }
 
 impl RelationTrait for Relation {
     fn def(&self) -> RelationDef {
         match self {
+            Self::BudgetItem => Entity::has_many(super::budget_items::Entity)
+                .into(),
             Self::Transaction => Entity::has_many(super::transactions::Entity)
                 .into(),
         }
@@ -38,6 +41,12 @@ impl RelationTrait for Relation {
 impl Related<super::transactions::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Transaction.def()
+    }
+}
+
+impl Related<super::budget_items::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::BudgetItem.def()
     }
 }
 
