@@ -40,11 +40,22 @@ pub struct Model {
 }
 
 #[derive(Copy, Clone, Debug, EnumIter)]
-pub enum Relation {}
+pub enum Relation {
+    PeriodicBudget,
+}
 
 impl RelationTrait for Relation {
     fn def(&self) -> RelationDef {
-        panic!("No RelationDef")
+        match self {
+            Self::PeriodicBudget => Entity::belongs_to(
+                super::periodic_budgets::Entity).into(),
+        }
+    }
+}
+
+impl Related<super::periodic_budgets::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PeriodicBudget.def()
     }
 }
 

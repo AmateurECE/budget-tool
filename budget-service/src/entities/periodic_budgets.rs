@@ -22,11 +22,22 @@ pub struct Model {
 }
 
 #[derive(Copy, Clone, Debug, EnumIter)]
-pub enum Relation {}
+pub enum Relation {
+    Transaction,
+}
 
 impl RelationTrait for Relation {
     fn def(&self) -> RelationDef {
-        panic!("No RelationDef")
+        match self {
+            Self::Transaction => Entity::has_many(super::transactions::Entity)
+                .into(),
+        }
+    }
+}
+
+impl Related<super::transactions::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Transaction.def()
     }
 }
 
