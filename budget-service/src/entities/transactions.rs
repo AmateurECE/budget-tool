@@ -7,7 +7,7 @@
 //
 // CREATED:         07/05/2022
 //
-// LAST EDITED:     07/05/2022
+// LAST EDITED:     07/06/2022
 ////
 
 use super::sea_orm_active_enums::Transactiontype;
@@ -30,11 +30,11 @@ pub struct Model {
     #[sea_orm(column_type = "Text", nullable)]
     pub receiving_entity: Option<String>,
     pub amount: i64,
-    #[sea_orm(column_type = "Custom(\"array\".to_owned())", nullable)]
+    #[sea_orm(column_type = "Text", nullable)]
     pub tags: Option<String>,
     pub send_date: DateTimeWithTimeZone,
     pub receive_date: Option<DateTimeWithTimeZone>,
-    #[sea_orm(column_type = "Custom(\"array\".to_owned())", nullable)]
+    #[sea_orm(column_type = "Text", nullable)]
     pub corrects: Option<String>,
     pub periodic_budget: i32,
 }
