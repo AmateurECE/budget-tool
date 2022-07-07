@@ -7,14 +7,13 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     07/05/2022
+// LAST EDITED:     07/06/2022
 ////
 
 use std::env;
 use std::fmt;
-use axum::{http::StatusCode, routing::{get, post}, Router, Json};
-use budget_models::models;
-use sea_orm::{Database, DatabaseConnection};
+use axum::{http::StatusCode, routing::{get, post}, Router};
+use sea_orm::Database;
 use tower_http::trace::TraceLayer;
 use tracing::{Level, event};
 
@@ -29,41 +28,6 @@ mod entities;
 pub(crate) fn internal_server_error<E: fmt::Debug>(e: E) -> StatusCode {
     event!(Level::ERROR, "{:?}", &e);
     StatusCode::INTERNAL_SERVER_ERROR
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Initial Balance Endpoints
-////
-
-async fn post_initial_balance(
-    Json(_initial_balance): Json<models::NewInitialBalance>,
-    _db: DatabaseConnection,
-) ->
-    Result<Json<models::InitialBalance>, StatusCode>
-{
-    // let db = db.lock().unwrap();
-    // let initial_balance = diesel::insert_into(initial_balances::table)
-    //     .values(&initial_balance)
-    //     .get_result(&*db);
-    // if let Err::<InitialBalance, _>(_) = initial_balance {
-    //     return Err(StatusCode::INTERNAL_SERVER_ERROR);
-    // }
-
-    // Ok(Json(initial_balance.unwrap()))
-    todo!()
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Transactions
-////
-
-async fn create_transaction (
-    Json(_new_transaction): Json<models::NewTransaction>,
-    _db: DatabaseConnection,
-) ->
-    Result<Json<models::Transaction>, StatusCode>
-{
-    todo!()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -86,32 +50,33 @@ async fn main() -> anyhow::Result<()> {
                    move || endpoints::periodic_budgets::list(db)
                })
         )
+
         .route("/api/periodic_budgets/:id",
                get({
                    let db = connection.clone();
                    move |id| endpoints::periodic_budgets::detailed(id, db)
                })
         )
+
         .route("/api/initial_balances",
                get({
                    let db = connection.clone();
                    move || endpoints::initial_balances::list(db)
                })
-               .post({
-                   let db = connection.clone();
-                   move |balance| post_initial_balance(balance, db)
-               })
         )
+
         .route("/api/accounts",
                get({
                    let db = connection.clone();
                    move || endpoints::accounts::list(db)
                })
         )
+
         .route("/api/transactions",
                post({
                    let db = connection.clone();
-                   move |transaction| create_transaction(transaction, db)
+                   move |transaction| endpoints::transactions::create(
+                       transaction, db)
                })
         )
         .layer(TraceLayer::new_for_http());

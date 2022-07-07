@@ -8,11 +8,12 @@
 //
 // CREATED:         07/04/2022
 //
-// LAST EDITED:     07/06/2022
+// LAST EDITED:     07/07/2022
 ////
 
 use std::convert::TryInto;
 use budget_models::models;
+use sea_orm::Set;
 use crate::entities::*;
 
 impl Into<models::AccountType> for sea_orm_active_enums::Accounttype {
@@ -68,6 +69,17 @@ impl Into<models::TransactionType> for sea_orm_active_enums::Transactiontype {
     }
 }
 
+impl From<models::TransactionType> for sea_orm_active_enums::Transactiontype {
+    fn from(value: models::TransactionType) -> Self {
+        match value {
+            models::TransactionType::Expense => Self::Expense,
+            models::TransactionType::Income => Self::Income,
+            models::TransactionType::Transfer => Self::Transfer,
+            models::TransactionType::Payment => Self::Payment,
+        }
+    }
+}
+
 impl TryInto<models::Transaction> for transactions::Model {
     type Error = serde_json::Error;
     fn try_into(self) -> Result<models::Transaction, Self::Error> {
@@ -92,6 +104,34 @@ impl TryInto<models::Transaction> for transactions::Model {
             receive_date: self.receive_date.map(|date| date.into()),
             corrects,
             periodic_budget: self.periodic_budget,
+        })
+    }
+}
+
+impl TryFrom<models::NewTransaction> for transactions::ActiveModel {
+    type Error = serde_json::Error;
+    fn try_from(value: models::NewTransaction) -> Result<Self, Self::Error> {
+        let tags = value.tags
+            .map(|tags| serde_json::to_string(&tags))
+            .transpose()?;
+        let corrects = value.corrects
+            .map(|corrects| serde_json::to_string(&corrects))
+            .transpose()?;
+        Ok(Self {
+            description: Set(value.description),
+            line_item: Set(value.line_item),
+            transaction_type: Set(value.transaction_type.into()),
+            sending_account: Set(value.sending_account),
+            receiving_account: Set(value.receiving_account),
+            transfer_fees: Set(value.transfer_fees),
+            receiving_entity: Set(value.receiving_entity),
+            amount: Set(value.amount),
+            tags: Set(tags),
+            send_date: Set(value.send_date.into()),
+            receive_date: Set(value.receive_date.map(|date| date.into())),
+            corrects: Set(corrects),
+            periodic_budget: Set(value.periodic_budget),
+            ..Default::default()
         })
     }
 }
