@@ -7,7 +7,7 @@
 //
 // CREATED:         07/05/2022
 //
-// LAST EDITED:     07/05/2022
+// LAST EDITED:     07/06/2022
 ////
 
 use sea_orm::entity::prelude::*;
@@ -24,16 +24,19 @@ pub struct Model {
 #[derive(Copy, Clone, Debug, EnumIter)]
 pub enum Relation {
     BudgetItem,
+    InitialBalance,
     Transaction,
 }
 
 impl RelationTrait for Relation {
     fn def(&self) -> RelationDef {
         match self {
-            Self::BudgetItem => Entity::has_many(super::budget_items::Entity)
-                .into(),
-            Self::Transaction => Entity::has_many(super::transactions::Entity)
-                .into(),
+            Self::BudgetItem =>
+                Entity::has_many(super::budget_items::Entity).into(),
+            Self::InitialBalance =>
+                Entity::has_many(super::initial_balances::Entity).into(),
+            Self::Transaction =>
+                Entity::has_many(super::transactions::Entity).into(),
         }
     }
 }
@@ -41,6 +44,12 @@ impl RelationTrait for Relation {
 impl Related<super::transactions::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Transaction.def()
+    }
+}
+
+impl Related<super::initial_balances::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::InitialBalance.def()
     }
 }
 

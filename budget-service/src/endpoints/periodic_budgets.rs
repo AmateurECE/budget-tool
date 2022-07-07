@@ -7,7 +7,7 @@
 //
 // CREATED:         07/04/2022
 //
-// LAST EDITED:     07/05/2022
+// LAST EDITED:     07/06/2022
 ////
 
 use axum::{extract::Path, http::StatusCode, Json};
@@ -40,28 +40,43 @@ pub async fn detailed(Path(id): Path<i32>, db: DatabaseConnection) ->
         .one(&db)
         .await
         .map_err(internal_server_error)?
-        .ok_or(StatusCode::NOT_FOUND)?;
+        .ok_or(StatusCode::NOT_FOUND)?
+        .into();
 
     // Locate all the budget items for this budget
-    let _items: Vec<budget_items::Model> = budget
+    let items = budget
         .find_related(BudgetItems)
         .all(&db)
         .await
-        .map_err(internal_server_error)?;
+        .map_err(internal_server_error)?
+        .into_iter()
+        .map(|item| item.into())
+        .collect::<Vec<models::BudgetItem>>();
 
     // Collect all initial balances for the time period corresponding to this
+    let initial_balances = budget
+        .find_related(InitialBalances)
+        .all(&db)
+        .await
+        .map_err(internal_server_error)?
+        .into_iter()
+        .map(|balance| balance.into())
+        .collect::<Vec<models::InitialBalance>>();
 
     // Collect all the transactions for the time period corresponding to this
-    let _transactions: Vec<transactions::Model> = budget
+    let transactions: Vec<models::Transaction> = budget
         .find_related(Transactions)
         .all(&db)
         .await
+        .map_err(internal_server_error)?
+        .into_iter()
+        .map(|transaction| transaction.try_into())
+        .collect::<Result<Vec<models::Transaction>, _>>()
         .map_err(internal_server_error)?;
 
-    // Ok(Json(PeriodicBudgetEndpoint {
-    //     budget, items, initial_balances, transactions,
-    // }))
-    todo!()
+    Ok(Json(models::PeriodicBudgetSummary {
+        budget: budget.into(), items, initial_balances, transactions,
+    }))
 }
 
 ///////////////////////////////////////////////////////////////////////////////

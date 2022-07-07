@@ -7,7 +7,7 @@
 //
 // CREATED:         07/05/2022
 //
-// LAST EDITED:     07/05/2022
+// LAST EDITED:     07/06/2022
 ////
 
 use sea_orm::entity::prelude::*;
@@ -25,11 +25,31 @@ pub struct Model {
 }
 
 #[derive(Copy, Clone, Debug, EnumIter)]
-pub enum Relation {}
+pub enum Relation {
+    Account,
+    PeriodicBudget,
+}
 
 impl RelationTrait for Relation {
     fn def(&self) -> RelationDef {
-        panic!("No RelationDef")
+        match self {
+            Self::Account =>
+                Entity::belongs_to(super::accounts::Entity).into(),
+            Self::PeriodicBudget =>
+                Entity::belongs_to(super::periodic_budgets::Entity).into(),
+        }
+    }
+}
+
+impl Related<super::accounts::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Account.def()
+    }
+}
+
+impl Related<super::periodic_budgets::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PeriodicBudget.def()
     }
 }
 
