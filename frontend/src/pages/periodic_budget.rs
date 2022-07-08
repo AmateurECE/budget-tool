@@ -7,7 +7,7 @@
 //
 // CREATED:         04/20/2022
 //
-// LAST EDITED:     07/07/2022
+// LAST EDITED:     07/08/2022
 ////
 
 use std::collections::HashMap;
@@ -40,7 +40,8 @@ impl From<TrackedBudgetItem> for BudgetItemView {
 impl Render for BudgetItemView {
     fn render(&self) -> Html {
         let budgeted = format!("{:.2}", (self.0.item.budgeted as f64) / 100.0);
-        let spent = format!("{:.2}", (self.0.spent as f64) / 100.0);
+        let spent = format!("{:.2}",
+                            (self.0.spent.get_total() as f64) / 100.0);
         html! { <tr><td data-label="Description">{
             &self.0.item.description
         }</td><td data-label="Transaction Type">{

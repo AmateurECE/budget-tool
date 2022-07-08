@@ -7,37 +7,28 @@
 //
 // CREATED:         04/30/2022
 //
-// LAST EDITED:     05/09/2022
+// LAST EDITED:     07/08/2022
 ////
 
 use std::collections::HashMap;
 
-use budget_models::{
-    models::{
-        Account,
-        PeriodicBudget,
-        BudgetItem,
-        InitialBalance,
-        Transaction,
-        TransactionType,
-    },
-};
+use budget_models::{models, total::{self, IncrementalApplication}};
 
 ///////////////////////////////////////////////////////////////////////////////
-// ProgressizeBudgetItem
+// TrackedBudgetItem
 ////
 
 #[derive(Debug)]
 pub struct TrackedBudgetItem {
-    pub item: BudgetItem,
-    pub spent: i64,
+    pub item: models::BudgetItem,
+    pub spent: total::BurnUpTotal,
 }
 
-impl From<BudgetItem> for TrackedBudgetItem {
-    fn from(item: BudgetItem) -> Self {
+impl From<models::BudgetItem> for TrackedBudgetItem {
+    fn from(item: models::BudgetItem) -> Self {
         Self {
             item,
-            spent: 0
+            spent: total::BurnUpTotal::new(),
         }
     }
 }
@@ -48,14 +39,14 @@ impl From<BudgetItem> for TrackedBudgetItem {
 
 #[derive(Clone, Debug)]
 pub struct TrackedAccount {
-    pub account: Account,
+    pub account: models::Account,
     pub initial_balance: i64,
     pub expected_end_balance: i64,
     pub current_balance: i64,
 }
 
-impl From<Account> for TrackedAccount {
-    fn from(account: Account) -> Self {
+impl From<models::Account> for TrackedAccount {
+    fn from(account: models::Account) -> Self {
         Self {
             account,
             initial_balance: 0,
@@ -66,8 +57,9 @@ impl From<Account> for TrackedAccount {
 }
 
 impl TrackedAccount {
-    pub fn with_balance(account: Account, initial_balance: &InitialBalance) ->
-        Self
+    pub fn with_balance(
+        account: models::Account, initial_balance: &models::InitialBalance
+    ) -> Self
     {
         Self {
             account,
@@ -83,11 +75,11 @@ impl TrackedAccount {
 ////
 
 pub struct Budgetizer {
-    periodic_budget: PeriodicBudget,
+    periodic_budget: models::PeriodicBudget,
 }
 
 impl Budgetizer {
-    pub fn new(periodic_budget: PeriodicBudget) -> Self {
+    pub fn new(periodic_budget: models::PeriodicBudget) -> Self {
         Budgetizer {
             periodic_budget,
         }
@@ -99,7 +91,7 @@ impl Budgetizer {
         accounts: &mut HashMap<String, TrackedAccount>,
         item: &TrackedBudgetItem,
     ) {
-        use TransactionType::*;
+        use models::TransactionType::*;
         let transaction_type = item.item.transaction_type;
         let budgeted = item.item.budgeted;
         let from_account = &item.item.from_account;
@@ -125,9 +117,9 @@ impl Budgetizer {
         &self,
         items: &mut HashMap<i32, TrackedBudgetItem>,
         accounts: &mut HashMap<String, TrackedAccount>,
-        transaction: &Transaction
+        transaction: &models::Transaction
     ) {
-        use TransactionType::*;
+        use models::TransactionType::*;
 
         let item: &mut TrackedBudgetItem = items
             .get_mut(&transaction.line_item)
@@ -155,11 +147,7 @@ impl Budgetizer {
             }
         }
 
-        if Income == transaction_type {
-            item.spent += transaction.amount;
-        } else {
-            item.spent += -1 * transaction.amount;
-        }
+        item.spent.apply_transaction(&transaction);
     }
 }
 

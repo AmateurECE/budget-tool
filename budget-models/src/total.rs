@@ -24,6 +24,7 @@ pub trait IncrementalApplication {
 //  monotonically by the amount of each transaction.
 ////
 
+#[derive(Clone, Copy, Debug, Default)]
 pub struct BurnUpTotal(i64);
 
 impl BurnUpTotal {
