@@ -120,8 +120,9 @@ impl Component for TransactionForm {
         }
 
         else if let SubmitResponseReceived(transaction) = message {
+            self.response_message = "Successfully Added Transaction '"
+                .to_string() + &transaction.description + "'";
             self.budget_data.as_mut().unwrap().transactions.push(transaction);
-            self.response_message = "Transaction Created".to_string();
             true
         }
 
