@@ -12,9 +12,14 @@
 
 use crate::models::Transaction;
 use crate::models::TransactionType::*;
+use crate::money::Money;
 
 pub trait IncrementalApplication {
     fn apply_transaction(&mut self, transaction: &Transaction);
+}
+
+pub trait GetTotal {
+    fn get_total(&self) -> Money;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -25,14 +30,10 @@ pub trait IncrementalApplication {
 ////
 
 #[derive(Clone, Copy, Debug, Default)]
-pub struct BurnUpTotal(i64);
+pub struct BurnUpTotal(Money);
 
-impl BurnUpTotal {
-    pub fn new() -> Self {
-        Self(0 as i64)
-    }
-
-    pub fn get_total(&self) -> i64 {
+impl GetTotal for BurnUpTotal {
+    fn get_total(&self) -> Money {
         self.0
     }
 }
@@ -40,9 +41,9 @@ impl BurnUpTotal {
 impl IncrementalApplication for BurnUpTotal {
     fn apply_transaction(&mut self, transaction: &Transaction) {
         if Income == transaction.transaction_type {
-            self.0 += transaction.amount;
+            self.0.add(transaction.amount);
         } else {
-            self.0 += -1 * transaction.amount;
+            self.0.add(-1 * transaction.amount);
         }
     }
 }

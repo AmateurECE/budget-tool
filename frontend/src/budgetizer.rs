@@ -28,7 +28,7 @@ impl From<models::BudgetItem> for TrackedBudgetItem {
     fn from(item: models::BudgetItem) -> Self {
         Self {
             item,
-            spent: total::BurnUpTotal::new(),
+            spent: total::BurnUpTotal::default(),
         }
     }
 }
