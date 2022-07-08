@@ -7,23 +7,21 @@
 //
 // CREATED:         05/13/2022
 //
-// LAST EDITED:     05/31/2022
+// LAST EDITED:     07/07/2022
 ////
 
 use std::rc::Rc;
 use std::str::FromStr;
 
-use chrono::naive::NaiveDate;
+use chrono::{naive::NaiveDate, TimeZone, Utc};
 use strum::IntoEnumIterator;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::{HtmlInputElement, HtmlSelectElement};
 use yew::prelude::*;
 
-use budget_models::{
-    entities::PeriodicBudgetEndpoint,
-    models::{
-        Transaction, TransactionType, PeriodicBudget, NewTransaction,
-    }
+use budget_models::models::{
+    Transaction, TransactionType, PeriodicBudget, NewTransaction,
+    PeriodicBudgetSummary,
 };
 
 use crate::network::fetch;
@@ -41,7 +39,7 @@ pub struct TransactionFormProperties {
 pub enum TransactionFormMessage {
     BudgetSelected(String),
     ReceivedBudgets(Vec<PeriodicBudget>),
-    ReceivedOneBudget(PeriodicBudgetEndpoint),
+    ReceivedOneBudget(PeriodicBudgetSummary),
     Submitted,
     SubmitResponseReceived(Transaction),
     DateUpdated(String),
@@ -50,7 +48,7 @@ pub enum TransactionFormMessage {
 
 #[derive(Default)]
 pub struct TransactionForm {
-    budget_data: Option<PeriodicBudgetEndpoint>,
+    budget_data: Option<PeriodicBudgetSummary>,
     budgets: Option<Vec<PeriodicBudget>>,
     response_message: String,
     date_mirror: String,
@@ -404,16 +402,21 @@ impl TransactionForm {
             };
 
         const DATE_FORMAT: &'static str = "%Y-%m-%d";
-        let send_date = NaiveDate::parse_from_str(
-            &self.send_date.cast::<HtmlInputElement>().unwrap().value(),
-            DATE_FORMAT
-        ).unwrap().and_hms(0, 0, 0);
+        let send_date = Utc.from_utc_datetime(
+            &NaiveDate::parse_from_str(
+                &self.send_date.cast::<HtmlInputElement>().unwrap().value(),
+                DATE_FORMAT
+            ).unwrap().and_hms(0, 0, 0)
+        );
         let receive_date = match self.receive_date
             .cast::<HtmlInputElement>().unwrap().value().as_str() {
                 "" => None,
                 value => Some(
-                    NaiveDate::parse_from_str(&value, DATE_FORMAT).unwrap()
-                        .and_hms(0, 0, 0)
+                    Utc.from_utc_datetime(
+                        &NaiveDate::parse_from_str(&value, DATE_FORMAT)
+                            .unwrap()
+                            .and_hms(0, 0, 0)
+                    )
                 ),
             };
         let corrects = match self.corrects
@@ -453,13 +456,13 @@ impl TransactionForm {
 
         use TransactionFormMessage::*;
         let link = context.link().callback(
-            |budget: PeriodicBudgetEndpoint| ReceivedOneBudget(budget)
+            |budget: PeriodicBudgetSummary| ReceivedOneBudget(budget)
         );
         let id = id.to_string();
         spawn_local(async move {
             let url = PERIODIC_BUDGETS_PATH.to_string() + "/" + &id;
             let request = web_sys::Request::new_with_str(&url).unwrap();
-            let budget: PeriodicBudgetEndpoint = fetch(request).await.unwrap();
+            let budget: PeriodicBudgetSummary = fetch(request).await.unwrap();
             link.emit(budget);
         })
     }

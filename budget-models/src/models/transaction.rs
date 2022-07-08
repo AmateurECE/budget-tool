@@ -7,14 +7,14 @@
 //
 // CREATED:         07/05/2022
 //
-// LAST EDITED:     07/05/2022
+// LAST EDITED:     07/07/2022
 ////
 
 use chrono::{DateTime, offset::Utc};
 use serde::{Serialize, Deserialize};
 use super::TransactionType;
 
-#[derive(Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Clone, Default, Deserialize, PartialEq, Serialize)]
 pub struct Transaction {
     pub id: i32,
     pub description: String,

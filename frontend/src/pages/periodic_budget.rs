@@ -7,15 +7,12 @@
 //
 // CREATED:         04/20/2022
 //
-// LAST EDITED:     05/09/2022
+// LAST EDITED:     07/07/2022
 ////
 
 use std::collections::HashMap;
 
-use budget_models::{
-    entities::PeriodicBudgetEndpoint,
-    models::{Account, PeriodicBudget},
-};
+use budget_models::models::{Account, PeriodicBudget, PeriodicBudgetSummary};
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 
@@ -238,7 +235,7 @@ mod data_transformations {
 
 // Data needed for rendering this view
 pub struct PeriodicBudgetViewContext {
-    pub budget: PeriodicBudgetEndpoint,
+    pub budget: PeriodicBudgetSummary,
     pub accounts: Vec<Account>,
     pub balancer: BalanceSynchronizer,
 }
@@ -312,7 +309,7 @@ impl PeriodicBudgetView {
             let url = PERIODIC_BUDGETS_PATH.to_string() + "/" + &id;
             let request = web_sys::Request::new_with_str(&url)
                 .unwrap();
-            let budget: PeriodicBudgetEndpoint = fetch(request).await
+            let budget: PeriodicBudgetSummary = fetch(request).await
                 .unwrap();
 
             // Get the account view
@@ -329,7 +326,7 @@ impl PeriodicBudgetView {
         });
     }
 
-    // Convert PeriodicBudgetEndpoint to ResolvedBudgetView using a Budgetizer
+    // Convert PeriodicBudgetSummary to ResolvedBudgetView using a Budgetizer
     fn budgetize(&self, data: PeriodicBudgetViewContext) -> ResolvedBudgetView
     {
         use data_transformations::*;

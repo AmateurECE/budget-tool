@@ -7,16 +7,12 @@
 //
 // CREATED:         05/10/2022
 //
-// LAST EDITED:     06/01/2022
+// LAST EDITED:     07/07/2022
 ////
 
 use std::collections::HashMap;
-use budget_models::{
-    models::{
-        Transaction,
-        TransactionType,
-    },
-    entities::PeriodicBudgetEndpoint,
+use budget_models::models::{
+    Transaction, TransactionType, PeriodicBudgetSummary
 };
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
@@ -132,7 +128,7 @@ pub struct TransactionViewProperties {
 }
 
 pub struct TransactionViewContext {
-    pub budget: PeriodicBudgetEndpoint,
+    pub budget: PeriodicBudgetSummary,
 }
 
 pub enum TransactionViewMessage {
@@ -202,7 +198,7 @@ impl TransactionView {
             let url = PERIODIC_BUDGETS_PATH.to_string() + "/" + &id;
             let request = web_sys::Request::new_with_str(&url)
                 .unwrap();
-            let budget: PeriodicBudgetEndpoint = fetch(request).await
+            let budget: PeriodicBudgetSummary = fetch(request).await
                 .unwrap();
             link.emit(TransactionViewContext {
                 budget

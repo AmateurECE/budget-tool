@@ -4,21 +4,20 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-yew = { git = "https://github.com/yewstack/yew/", features = ["csr"] }
-yew-router = { git = "https://github.com/yewstack/yew/" }
-budget-models = { path = "../models" }
-wasm-logger = "0.2"
-log = "0.4"
+budget-models = { path = "../budget-models" }
+chrono = { version = "0.4.19", features = ["serde"] }
+console_error_panic_hook = "0.1"
 js-sys = "0.3"
-web-sys = { version = "0.3", features = [
-    "Request", "Window", "HtmlSelectElement"] }
+log = "0.4"
+serde = { version = "1.0" }
+serde_json = { version = "1.0" }
+strum = "0.24"
 wasm-bindgen = { version = "0.2" }
 wasm-bindgen-futures = { version = "0.4" }
-serde = { version = "1.0" }
-console_error_panic_hook = "0.1"
-strum = "0.24"
-chrono = "*"
-serde_json = { version = "1.0" }
+wasm-logger = "0.2"
+web-sys = { version = "0.3", features = ["Request", "Window", "HtmlSelectElement"] }
+yew = { git = "https://github.com/yewstack/yew", rev = "5570710c", features = ["csr"] }
+yew-router = { git = "https://github.com/yewstack/yew", rev = "5570710c" }
 
 [patch.crates-io]
-chrono = { git = "https://github.com/chronotope/chrono" }
+chrono = { git = "https://github.com/chronotope/chrono", rev = "b1d74aef" }

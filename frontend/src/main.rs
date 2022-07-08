@@ -7,7 +7,7 @@
 //
 // CREATED:         04/14/2022
 //
-// LAST EDITED:     05/17/2022
+// LAST EDITED:     07/07/2022
 ////
 
 use std::str::FromStr;
@@ -116,8 +116,7 @@ impl BudgetApp {
             <BrowserRouter>
                 { self.view_nav(context) }
                 <main>
-                    <Switch<Route>
-                        render={Switch::render(BudgetApp::switch)} />
+                    <Switch<Route> render={BudgetApp::switch} />
                 </main>
             </BrowserRouter>
         }
@@ -163,7 +162,7 @@ impl BudgetApp {
         }
     }
 
-    fn switch(routes: &Route) -> Html {
+    fn switch(routes: Route) -> Html {
         match routes.clone() {
             Route::Home => {
                 html! { "" }

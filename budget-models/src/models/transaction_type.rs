@@ -7,12 +7,13 @@
 //
 // CREATED:         07/05/2022
 //
-// LAST EDITED:     07/05/2022
+// LAST EDITED:     07/07/2022
 ////
 
 use serde::{Serialize, Deserialize};
+use strum_macros::EnumIter;
 
-#[derive(Clone, Copy, Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Clone, Copy, Debug, Deserialize, EnumIter, PartialEq, Serialize)]
 pub enum TransactionType {
     Expense,
     Income,
