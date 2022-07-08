@@ -7,7 +7,7 @@
 //
 // CREATED:         07/05/2022
 //
-// LAST EDITED:     07/05/2022
+// LAST EDITED:     07/07/2022
 ////
 
 use super::sea_orm_active_enums::Transactiontype;
@@ -41,7 +41,10 @@ impl RelationTrait for Relation {
     fn def(&self) -> RelationDef {
         match self {
             Self::PeriodicBudget => Entity::belongs_to(
-                super::periodic_budgets::Entity).into(),
+                super::periodic_budgets::Entity)
+                .from(Column::PeriodicBudget)
+                .to(super::periodic_budgets::Column::Id)
+                .into(),
         }
     }
 }

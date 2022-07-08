@@ -138,7 +138,17 @@ impl TryFrom<models::NewTransaction> for transactions::ActiveModel {
 
 impl Into<models::BudgetItem> for budget_items::Model {
     fn into(self) -> models::BudgetItem {
-        todo!()
+        models::BudgetItem {
+            id: self.id,
+            description: self.description,
+            category: self.category,
+            budgeted: self.budgeted,
+            transaction_type: self.transaction_type.into(),
+            from_account: self.from_account,
+            to_account: self.to_account,
+            periodic_budget: self.periodic_budget,
+            one_time_budget: self.one_time_budget,
+        }
     }
 }
 

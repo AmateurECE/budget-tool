@@ -7,7 +7,7 @@
 //
 // CREATED:         07/05/2022
 //
-// LAST EDITED:     07/06/2022
+// LAST EDITED:     07/07/2022
 ////
 
 use sea_orm::entity::prelude::*;
@@ -33,10 +33,15 @@ pub enum Relation {
 impl RelationTrait for Relation {
     fn def(&self) -> RelationDef {
         match self {
-            Self::Account =>
-                Entity::belongs_to(super::accounts::Entity).into(),
+            Self::Account => Entity::belongs_to(super::accounts::Entity)
+                .from(Column::Account)
+                .to(super::accounts::Column::Name)
+                .into(),
             Self::PeriodicBudget =>
-                Entity::belongs_to(super::periodic_budgets::Entity).into(),
+                Entity::belongs_to(super::periodic_budgets::Entity)
+                .from(Column::Budget)
+                .to(super::periodic_budgets::Column::Id)
+                .into(),
         }
     }
 }
