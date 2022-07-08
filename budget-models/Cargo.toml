@@ -8,3 +8,6 @@ chrono = { version = "0.4.19", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 strum = "0.24"
 strum_macros = "0.24"
+
+[features]
+business-logic = []
