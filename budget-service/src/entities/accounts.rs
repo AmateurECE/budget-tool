@@ -7,7 +7,7 @@
 //
 // CREATED:         07/05/2022
 //
-// LAST EDITED:     07/05/2022
+// LAST EDITED:     07/09/2022
 ////
 
 use super::sea_orm_active_enums::Accounttype;
@@ -19,6 +19,8 @@ pub struct Model {
     #[sea_orm(primary_key, auto_increment = false, column_type = "Text")]
     pub name: String,
     pub account_type: Accounttype,
+    pub date_opened: DateTimeWithTimeZone,
+    pub date_closed: Option<DateTimeWithTimeZone>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter)]

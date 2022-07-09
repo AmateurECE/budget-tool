@@ -1,7 +1,9 @@
 CREATE TYPE AccountType AS ENUM('checking', 'saving', 'credit', 'loan');
 CREATE TABLE accounts (
        name TEXT NOT NULL UNIQUE PRIMARY KEY,
-       account_type AccountType NOT NULL
+       account_type AccountType NOT NULL,
+       date_opened timestamp with TIME ZONE NOT NULL,
+       date_closed timestamp with TIME ZONE
 );
 
 CREATE TABLE periodic_budgets (

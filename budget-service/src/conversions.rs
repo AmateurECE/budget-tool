@@ -8,7 +8,7 @@
 //
 // CREATED:         07/04/2022
 //
-// LAST EDITED:     07/07/2022
+// LAST EDITED:     07/09/2022
 ////
 
 use std::convert::TryInto;
@@ -32,6 +32,8 @@ impl Into<models::Account> for accounts::Model {
         models::Account {
             name: self.name,
             account_type: self.account_type.into(),
+            date_opened: self.date_opened.into(),
+            date_closed: self.date_closed.map(|date| date.into()),
         }
     }
 }
