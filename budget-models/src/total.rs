@@ -40,11 +40,7 @@ impl GetTotal for BurnUpTotal {
 
 impl IncrementalApplication for BurnUpTotal {
     fn apply_transaction(&mut self, transaction: &Transaction) {
-        if Income == transaction.transaction_type {
-            self.0.add(transaction.amount);
-        } else {
-            self.0.add(-1 * transaction.amount);
-        }
+        self.0.add(transaction.amount);
     }
 }
 
