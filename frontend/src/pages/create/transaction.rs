@@ -7,7 +7,7 @@
 //
 // CREATED:         07/07/2022
 //
-// LAST EDITED:     07/07/2022
+// LAST EDITED:     07/10/2022
 ////
 
 use std::str::FromStr;
@@ -58,7 +58,6 @@ pub struct TransactionForm {
     transfer_fees: NodeRef,
     receiving_entity: NodeRef,
     amount: NodeRef,
-    tags: NodeRef,
     send_date: NodeRef,
     receive_date: NodeRef,
     corrects: NodeRef,
@@ -288,12 +287,6 @@ impl Component for TransactionForm {
                 </div>
 
                 <div class="input-group">
-                    <label for="tags">{ "Tags" }</label>
-                    <input type="text" id="tags"
-                     ref={self.tags.clone()} />
-                </div>
-
-                <div class="input-group">
                     <label for="send-date">{ "Send Date" }</label>
                     <input type="date" id="send-date"
                      ref={self.send_date.clone()}
@@ -388,14 +381,6 @@ impl TransactionForm {
 
         let amount = (self.amount.cast::<HtmlInputElement>().unwrap().value()
                       .parse::<f32>().unwrap() * 100.0) as i64;
-        let tags = match self.tags
-            .cast::<HtmlInputElement>().unwrap().value().as_str() {
-                "" => None,
-                value => Some(
-                    value.split(",").map(|s| s.to_string())
-                        .collect::<Vec<String>>()
-                ),
-            };
 
         const DATE_FORMAT: &'static str = "%Y-%m-%d";
         let send_date = Utc.from_utc_datetime(
@@ -427,7 +412,7 @@ impl TransactionForm {
         NewTransaction {
             periodic_budget, description, line_item, transaction_type,
             sending_account, receiving_account, transfer_fees,
-            receiving_entity, amount, tags, send_date, receive_date, corrects,
+            receiving_entity, amount, send_date, receive_date, corrects,
         }
     }
 

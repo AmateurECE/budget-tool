@@ -7,7 +7,7 @@
 //
 // CREATED:         07/05/2022
 //
-// LAST EDITED:     07/07/2022
+// LAST EDITED:     07/10/2022
 ////
 
 use super::sea_orm_active_enums::Transactiontype;
@@ -30,8 +30,6 @@ pub struct Model {
     #[sea_orm(column_type = "Text", nullable)]
     pub receiving_entity: Option<String>,
     pub amount: i64,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub tags: Option<String>,
     pub send_date: DateTimeWithTimeZone,
     pub receive_date: Option<DateTimeWithTimeZone>,
     #[sea_orm(column_type = "Text", nullable)]

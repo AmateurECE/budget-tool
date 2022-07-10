@@ -8,7 +8,7 @@
 //
 // CREATED:         07/04/2022
 //
-// LAST EDITED:     07/09/2022
+// LAST EDITED:     07/10/2022
 ////
 
 use std::convert::TryInto;
@@ -85,9 +85,6 @@ impl From<models::TransactionType> for sea_orm_active_enums::Transactiontype {
 impl TryInto<models::Transaction> for transactions::Model {
     type Error = serde_json::Error;
     fn try_into(self) -> Result<models::Transaction, Self::Error> {
-        let tags = self.tags
-            .map(|tags| serde_json::from_str::<Vec<String>>(&tags))
-            .transpose()?;
         let corrects = self.corrects
             .map(|corrects| serde_json::from_str::<Vec<i32>>(&corrects))
             .transpose()?;
@@ -101,7 +98,6 @@ impl TryInto<models::Transaction> for transactions::Model {
             transfer_fees: self.transfer_fees,
             receiving_entity: self.receiving_entity,
             amount: self.amount,
-            tags,
             send_date: self.send_date.into(),
             receive_date: self.receive_date.map(|date| date.into()),
             corrects,
@@ -113,9 +109,6 @@ impl TryInto<models::Transaction> for transactions::Model {
 impl TryFrom<models::NewTransaction> for transactions::ActiveModel {
     type Error = serde_json::Error;
     fn try_from(value: models::NewTransaction) -> Result<Self, Self::Error> {
-        let tags = value.tags
-            .map(|tags| serde_json::to_string(&tags))
-            .transpose()?;
         let corrects = value.corrects
             .map(|corrects| serde_json::to_string(&corrects))
             .transpose()?;
@@ -128,7 +121,6 @@ impl TryFrom<models::NewTransaction> for transactions::ActiveModel {
             transfer_fees: Set(value.transfer_fees),
             receiving_entity: Set(value.receiving_entity),
             amount: Set(value.amount),
-            tags: Set(tags),
             send_date: Set(value.send_date.into()),
             receive_date: Set(value.receive_date.map(|date| date.into())),
             corrects: Set(corrects),

@@ -7,7 +7,7 @@
 //
 // CREATED:         07/05/2022
 //
-// LAST EDITED:     07/07/2022
+// LAST EDITED:     07/10/2022
 ////
 
 use chrono::{DateTime, offset::Utc};
@@ -25,7 +25,6 @@ pub struct Transaction {
     pub transfer_fees: Option<i64>,
     pub receiving_entity: Option<String>,
     pub amount: i64,
-    pub tags: Option<Vec<String>>,
 
     #[serde(with = "chrono::serde::ts_milliseconds")]
     pub send_date: DateTime<Utc>,
@@ -47,7 +46,6 @@ pub struct NewTransaction {
     pub transfer_fees: Option<i64>,
     pub receiving_entity: Option<String>,
     pub amount: i64,
-    pub tags: Option<Vec<String>>,
 
     #[serde(with = "chrono::serde::ts_milliseconds")]
     pub send_date: DateTime<Utc>,

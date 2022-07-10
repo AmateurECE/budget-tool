@@ -48,7 +48,6 @@ CREATE TABLE transactions (
        transfer_fees BIGINT,
        receiving_entity TEXT,
        amount BIGINT NOT NULL,
-       tags TEXT,
        send_date timestamp with TIME ZONE NOT NULL,
        receive_date timestamp with TIME ZONE,
        corrects TEXT,
