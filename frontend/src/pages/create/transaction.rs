@@ -122,6 +122,10 @@ impl Component for TransactionForm {
             self.response_message = "Successfully Added Transaction '"
                 .to_string() + &transaction.description + "'";
             self.budget_data.as_mut().unwrap().transactions.push(transaction);
+
+            // Re-focus the first element in the form upon submit
+            self.description.cast::<HtmlInputElement>().unwrap().focus()
+                .unwrap();
             true
         }
 
