@@ -7,7 +7,7 @@
 //
 // CREATED:         07/05/2022
 //
-// LAST EDITED:     07/05/2022
+// LAST EDITED:     07/10/2022
 ////
 
 use serde::{Serialize, Deserialize};
@@ -15,6 +15,7 @@ use serde::{Serialize, Deserialize};
 #[derive(Serialize, Deserialize)]
 pub struct Category {
     pub name: String,
+    pub parent: Option<String>,
 }
 
 ///////////////////////////////////////////////////////////////////////////////

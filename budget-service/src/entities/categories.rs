@@ -7,7 +7,7 @@
 //
 // CREATED:         07/05/2022
 //
-// LAST EDITED:     07/05/2022
+// LAST EDITED:     07/10/2022
 ////
 
 use sea_orm::entity::prelude::*;
@@ -17,6 +17,7 @@ use sea_orm::entity::prelude::*;
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false, column_type = "Text")]
     pub name: String,
+    pub parent: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter)]

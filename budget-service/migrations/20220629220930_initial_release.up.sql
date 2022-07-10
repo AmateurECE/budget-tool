@@ -17,7 +17,10 @@ CREATE TABLE one_time_budgets (
        description TEXT NOT NULL
 );
 
-CREATE TABLE categories (name TEXT UNIQUE PRIMARY KEY);
+CREATE TABLE categories (
+       name TEXT UNIQUE PRIMARY KEY,
+       parent TEXT
+);
 
 CREATE TYPE TransactionType AS ENUM (
        'expense',
