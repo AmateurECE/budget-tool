@@ -182,6 +182,7 @@ dependencies = [
 name = "budget-models"
 version = "0.1.0"
 dependencies = [
+ "cfg-if",
  "chrono",
  "serde",
  "strum",
