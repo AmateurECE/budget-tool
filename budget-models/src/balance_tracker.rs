@@ -7,15 +7,16 @@
 //
 // CREATED:         07/14/2022
 //
-// LAST EDITED:     07/14/2022
+// LAST EDITED:     07/15/2022
 ////
 
 use std::collections::HashMap;
 use crate::calculation::Calculation;
+use crate::models;
 use crate::money::Money;
 use crate::transaction_breakdown::{
-    AtomicTransaction, TransactionBreakdown::{self, *},
-    AtomicTransactionDirection::*,
+    AtomicTransaction, AtomicTransactionDirection::*, Breakdown,
+    TransactionBreakdown::*,
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -41,6 +42,7 @@ impl TrackedAccount {
 // BalanceTracker
 ////
 
+// Track account balances as transactions are applied to them.
 pub struct BalanceTracker(HashMap<String, TrackedAccount>);
 
 impl BalanceTracker {
@@ -59,11 +61,12 @@ impl BalanceTracker {
 }
 
 impl Calculation for BalanceTracker {
-    type Input = TransactionBreakdown;
+    type Input = models::Transaction;
     type Result = HashMap<String, TrackedAccount>;
 
-    fn apply(&mut self, input: &Self::Input) {
-        match &input {
+    fn apply(&mut self, input: Self::Input) {
+        let breakdown = input.break_down();
+        match &breakdown {
             Single(one) => {
                 self.apply_transaction(&one);
             },

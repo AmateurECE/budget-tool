@@ -8,14 +8,15 @@
 //
 // CREATED:         07/14/2022
 //
-// LAST EDITED:     07/14/2022
+// LAST EDITED:     07/15/2022
 ////
 
 use std::collections::HashMap;
 
 use crate::calculation::Calculation;
+use crate::models;
 use crate::total::BurnUpTotal;
-use crate::transaction_breakdown::TransactionBreakdown::{self, *};
+use crate::transaction_breakdown::{Breakdown, TransactionBreakdown::*};
 
 ///////////////////////////////////////////////////////////////////////////////
 // BudgetTracker
@@ -24,19 +25,20 @@ use crate::transaction_breakdown::TransactionBreakdown::{self, *};
 pub struct BudgetTracker(HashMap<i32, BurnUpTotal>);
 
 impl Calculation for BudgetTracker {
-    type Input = TransactionBreakdown;
+    type Input = models::Transaction;
     type Result = HashMap<i32, BurnUpTotal>;
 
     // Apply a transaction to the budget tracker. Ensure that a compound
     // transaction only applies to a budget item one time.
-    fn apply(&mut self, input: &Self::Input) {
-        let transaction = match &input {
+    fn apply(&mut self, input: Self::Input) {
+        let breakdown = input.break_down();
+        let transaction = match &breakdown {
             Single(one) => one,
             Double(one, _) => one,
         };
 
         if let Some(item) = self.0.get_mut(&transaction.owning_id) {
-            item.apply(&transaction.amount);
+            item.apply(transaction.amount);
         }
     }
 

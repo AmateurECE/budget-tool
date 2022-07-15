@@ -9,34 +9,31 @@
 //
 // CREATED:         07/12/2022
 //
-// LAST EDITED:     07/14/2022
+// LAST EDITED:     07/15/2022
 ////
 
-use crate::models::{Transaction, TransactionType};
+use crate::models::{BudgetItem, Transaction, TransactionType};
 use crate::money::Money;
 
 #[derive(Clone, Copy, Debug)]
-pub enum AtomicTransactionDirection {
+pub(crate) enum AtomicTransactionDirection {
     Entering,
     Leaving,
 }
 
-#[derive(Clone, Debug)]
-pub struct AtomicTransaction {
+pub(crate) struct AtomicTransaction {
     pub owning_id: i32,
-    pub line_item: i32,
     pub amount: Money,
     pub account: String,
     pub direction: AtomicTransactionDirection,
 }
 
-#[derive(Clone, Debug)]
-pub enum TransactionBreakdown {
+pub(crate) enum TransactionBreakdown {
     Single(AtomicTransaction),
     Double(AtomicTransaction, AtomicTransaction),
 }
 
-pub trait Breakdown {
+pub(crate) trait Breakdown {
     fn break_down(self) -> TransactionBreakdown;
 }
 
@@ -46,7 +43,6 @@ impl Breakdown for Transaction {
             TransactionType::Income => {
                 TransactionBreakdown::Single(AtomicTransaction {
                     owning_id: self.id,
-                    line_item: self.line_item,
                     amount: self.amount.into(),
                     account: self.receiving_account.unwrap(),
                     direction: AtomicTransactionDirection::Entering,
@@ -56,7 +52,6 @@ impl Breakdown for Transaction {
             TransactionType::Expense => {
                 TransactionBreakdown::Single(AtomicTransaction {
                     owning_id: self.id,
-                    line_item: self.line_item,
                     amount: self.amount.into(),
                     account: self.sending_account.unwrap(),
                     direction: AtomicTransactionDirection::Leaving,
@@ -67,7 +62,6 @@ impl Breakdown for Transaction {
                 TransactionBreakdown::Double(
                     AtomicTransaction {
                         owning_id: self.id,
-                        line_item: self.line_item,
                         amount: self.amount.into(),
                         account: self.sending_account.unwrap(),
                         direction: AtomicTransactionDirection::Leaving,
@@ -75,7 +69,6 @@ impl Breakdown for Transaction {
 
                     AtomicTransaction {
                         owning_id: self.id,
-                        line_item: self.line_item,
                         amount: self.amount.into(),
                         account: self.receiving_account.unwrap(),
                         direction: AtomicTransactionDirection::Entering,
@@ -87,7 +80,6 @@ impl Breakdown for Transaction {
                 TransactionBreakdown::Double(
                     AtomicTransaction {
                         owning_id: self.id,
-                        line_item: self.line_item,
                         amount: self.amount.into(),
                         account: self.sending_account.unwrap(),
                         direction: AtomicTransactionDirection::Leaving,
@@ -95,9 +87,68 @@ impl Breakdown for Transaction {
 
                     AtomicTransaction {
                         owning_id: self.id,
-                        line_item: self.line_item,
                         amount: self.amount.into(),
                         account: self.receiving_account.unwrap(),
+                        direction: AtomicTransactionDirection::Entering,
+                    }
+                )
+            },
+        }
+    }
+}
+
+impl Breakdown for BudgetItem {
+    fn break_down(self) -> TransactionBreakdown {
+        match self.transaction_type {
+            TransactionType::Income => {
+                TransactionBreakdown::Single(AtomicTransaction {
+                    owning_id: self.id,
+                    amount: self.budgeted.into(),
+                    account: self.to_account.unwrap(),
+                    direction: AtomicTransactionDirection::Entering,
+                })
+            },
+
+            TransactionType::Expense => {
+                TransactionBreakdown::Single(AtomicTransaction {
+                    owning_id: self.id,
+                    amount: self.budgeted.into(),
+                    account: self.from_account.unwrap(),
+                    direction: AtomicTransactionDirection::Leaving,
+                })
+            },
+
+            TransactionType::Transfer => {
+                TransactionBreakdown::Double(
+                    AtomicTransaction {
+                        owning_id: self.id,
+                        amount: self.budgeted.into(),
+                        account: self.from_account.unwrap(),
+                        direction: AtomicTransactionDirection::Leaving,
+                    },
+
+                    AtomicTransaction {
+                        owning_id: self.id,
+                        amount: self.budgeted.into(),
+                        account: self.to_account.unwrap(),
+                        direction: AtomicTransactionDirection::Entering,
+                    }
+                )
+            },
+
+            TransactionType::Payment => {
+                TransactionBreakdown::Double(
+                    AtomicTransaction {
+                        owning_id: self.id,
+                        amount: self.budgeted.into(),
+                        account: self.from_account.unwrap(),
+                        direction: AtomicTransactionDirection::Leaving,
+                    },
+
+                    AtomicTransaction {
+                        owning_id: self.id,
+                        amount: self.budgeted.into(),
+                        account: self.to_account.unwrap(),
                         direction: AtomicTransactionDirection::Entering,
                     }
                 )

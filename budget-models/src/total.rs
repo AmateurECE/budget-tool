@@ -7,7 +7,7 @@
 //
 // CREATED:         07/07/2022
 //
-// LAST EDITED:     07/14/2022
+// LAST EDITED:     07/15/2022
 ////
 
 use crate::calculation::Calculation;
@@ -26,9 +26,8 @@ pub struct BurnUpTotal(Money);
 impl Calculation for BurnUpTotal {
     type Input = Money;
     type Result = Money;
-    fn apply(&mut self, input: &Self::Input) {
-        let amount: Money = *input;
-        self.0.add(amount.into());
+    fn apply(&mut self, input: Self::Input) {
+        self.0.add(input);
     }
 
     fn calculate(&self) -> &Money {
