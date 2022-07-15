@@ -17,6 +17,7 @@ extern crate cfg_if;
 
 cfg_if! {
     if #[cfg(feature = "business-logic")] {
+        pub mod balance_tracker;
         pub mod budget_tracker;
         pub mod calculation;
         pub mod money;

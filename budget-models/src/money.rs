@@ -19,8 +19,12 @@
 pub struct Money(i64);
 
 impl Money {
-    pub fn add(&mut self, value: i64) {
-        self.0 += value;
+    pub fn add(&mut self, value: Money) {
+        self.0 += value.0;
+    }
+
+    pub fn subtract(&mut self, value: Money) {
+        self.0 -= value.0;
     }
 }
 
