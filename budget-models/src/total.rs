@@ -7,20 +7,11 @@
 //
 // CREATED:         07/07/2022
 //
-// LAST EDITED:     07/08/2022
+// LAST EDITED:     07/14/2022
 ////
 
-use crate::models::Transaction;
-use crate::models::TransactionType::*;
+use crate::calculation::Calculation;
 use crate::money::Money;
-
-pub trait IncrementalApplication {
-    fn apply_transaction(&mut self, transaction: &Transaction);
-}
-
-pub trait GetTotal {
-    fn get_total(&self) -> Money;
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // BurnUpTotal
@@ -32,15 +23,16 @@ pub trait GetTotal {
 #[derive(Clone, Copy, Debug, Default)]
 pub struct BurnUpTotal(Money);
 
-impl GetTotal for BurnUpTotal {
-    fn get_total(&self) -> Money {
-        self.0
+impl Calculation for BurnUpTotal {
+    type Input = Money;
+    type Result = Money;
+    fn apply(&mut self, input: &Self::Input) {
+        let amount: Money = *input;
+        self.0.add(amount.into());
     }
-}
 
-impl IncrementalApplication for BurnUpTotal {
-    fn apply_transaction(&mut self, transaction: &Transaction) {
-        self.0.add(transaction.amount);
+    fn calculate(&self) -> &Money {
+        &self.0
     }
 }
 

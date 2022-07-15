@@ -7,7 +7,7 @@
 //
 // CREATED:         07/08/2022
 //
-// LAST EDITED:     07/08/2022
+// LAST EDITED:     07/14/2022
 ////
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -27,6 +27,18 @@ impl Money {
 impl Into<f64> for Money {
     fn into(self) -> f64 {
         self.0 as f64 / 100.0
+    }
+}
+
+impl From<i64> for Money {
+    fn from(value: i64) -> Self {
+        Self(value)
+    }
+}
+
+impl Into<i64> for Money {
+    fn into(self) -> i64 {
+        self.0
     }
 }
 
