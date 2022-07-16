@@ -7,7 +7,7 @@
 //
 // CREATED:         04/14/2022
 //
-// LAST EDITED:     07/07/2022
+// LAST EDITED:     07/15/2022
 ////
 
 use std::str::FromStr;
@@ -18,9 +18,6 @@ use web_sys::HtmlSelectElement;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
-// mod forms;
-mod balance_synchronizer;
-mod budgetizer;
 mod network;
 mod pages;
 mod render;

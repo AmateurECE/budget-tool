@@ -1,19 +1,19 @@
 ///////////////////////////////////////////////////////////////////////////////
-// NAME:            periodic_budget.rs
+// NAME:            presenter.rs
 //
 // AUTHOR:          Ethan D. Twardy <ethan.twardy@gmail.com>
 //
-// DESCRIPTION:     View/Presenter related to the periodic budget view.
+// DESCRIPTION:     Presenter for the periodic budget view.
 //
-// CREATED:         07/15/2022
+// CREATED:         04/30/2022
 //
 // LAST EDITED:     07/15/2022
 ////
 
-mod presenter;
-mod view;
+///////////////////////////////////////////////////////////////////////////////
+// Presenter
+////
 
-pub use presenter::Presenter as PeriodicBudgetPresenter;
-pub use view::View as PeriodicBudgetView;
+pub struct Presenter;
 
 ///////////////////////////////////////////////////////////////////////////////
