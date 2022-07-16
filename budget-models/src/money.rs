@@ -7,7 +7,7 @@
 //
 // CREATED:         07/08/2022
 //
-// LAST EDITED:     07/14/2022
+// LAST EDITED:     07/16/2022
 ////
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -43,6 +43,13 @@ impl From<i64> for Money {
 impl Into<i64> for Money {
     fn into(self) -> i64 {
         self.0
+    }
+}
+
+impl ToString for Money {
+    fn to_string(&self) -> String {
+        let amount: f64 = (*self).into();
+        format!("{:.2}", amount)
     }
 }
 

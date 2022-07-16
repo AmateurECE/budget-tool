@@ -45,7 +45,8 @@ impl DataView {
                 |_| "Failed to fetch Periodic Budget Summary".into()
             )?;
 
-        // link.emit(Self {budget.budget, accounts});
+        // link.emit(Self {
+        // });
         // Ok(())
         todo!()
     }
