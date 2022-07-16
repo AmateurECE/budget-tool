@@ -7,15 +7,14 @@
 //
 // CREATED:         07/15/2022
 //
-// LAST EDITED:     07/15/2022
+// LAST EDITED:     07/16/2022
 ////
 
 mod account;
 mod budget_item;
-mod presenter;
+mod data;
 mod view;
 
-pub use presenter::Presenter as PeriodicBudgetPresenter;
 pub use view::View as PeriodicBudgetView;
 
 ///////////////////////////////////////////////////////////////////////////////

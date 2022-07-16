@@ -7,7 +7,7 @@
 //
 // CREATED:         04/14/2022
 //
-// LAST EDITED:     07/15/2022
+// LAST EDITED:     07/16/2022
 ////
 
 use std::str::FromStr;
@@ -26,8 +26,6 @@ use network::fetch;
 use pages::{CreateView, PeriodicBudgetView, TransactionView, NotFoundView};
 
 pub(crate) const PERIODIC_BUDGETS_PATH: &'static str = "/api/periodic_budgets";
-pub(crate) const ACCOUNTS_PATH: &'static str = "/api/accounts";
-pub(crate) const INITIAL_BALANCES_PATH: &'static str = "/api/initial_balances";
 pub(crate) const TRANSACTIONS_PATH: &'static str = "/api/transactions";
 
 // The Different routes we support
