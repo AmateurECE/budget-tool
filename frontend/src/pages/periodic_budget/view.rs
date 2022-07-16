@@ -18,106 +18,12 @@ use crate::{ACCOUNTS_PATH, PERIODIC_BUDGETS_PATH};
 use crate::render::{Render, RenderTable};
 
 ///////////////////////////////////////////////////////////////////////////////
-// BudgetItemView
+// DataView
 ////
 
-pub struct BudgetItemView;
+pub struct DataView;
 
-impl Render for BudgetItemView {
-    fn render(&self) -> Html {
-        // let budgeted = format!("{:.2}", (self.0.item.budgeted as f64) / 100.0);
-        // let spent: f64 = self.0.spent.get_total().into();
-        // html! { <tr><td data-label="Description">{
-        //     &self.0.item.description
-        // }</td><td data-label="Transaction Type">{
-        //     &self.0.item.transaction_type.to_string()
-        // }</td><td data-label="From">{
-        //     match &self.0.item.from_account {
-        //         Some(account) => account,
-        //         None => "",
-        //     }
-        // }</td><td data-label="To">{
-        //     match &self.0.item.to_account {
-        //         Some(account) => account,
-        //         None => "",
-        //     }
-        // }</td><td data-label="Budgeted">{
-        //     budgeted
-        // }</td><td data-label="Spent">{
-        //     format!("{:.2}", &spent)
-        // }</td></tr>}
-        todo!()
-    }
-}
-
-impl RenderTable for BudgetItemView {
-    fn header() -> Html {
-        // html! {<tr><th>{
-        //     "Description"
-        // }</th><th>{
-        //     "Transaction Type"
-        // }</th><th>{
-        //     "From"
-        // }</th><th>{
-        //     "To"
-        // }</th><th>{
-        //     "Budgeted"
-        // }</th><th>{
-        //     "Spent"
-        // }</th></tr>}
-        todo!()
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// AccountView
-////
-
-pub struct AccountView;
-
-impl Render for AccountView {
-    fn render(&self) -> Html {
-        // let initial = format!(
-        //     "{:.2}", (self.0.initial_balance as f64) / 100.0);
-        // let current = format!(
-        //     "{:.2}", (self.0.current_balance as f64) / 100.0);
-        // let expected_end = format!(
-        //     "{:.2}", (self.0.expected_end_balance as f64) / 100.0);
-        // html! {<tr><td data-label="Name">{
-        //     &self.0.account.name
-        // }</td><td data-label="Initial Balance">{
-        //     initial
-        // }</td><td data-label="Current Balance">{
-        //     current
-        // }</td><td data-label="Expected End Balance">{
-        //     expected_end
-        // }</td></tr>}
-        todo!()
-    }
-}
-
-impl RenderTable for AccountView {
-    fn header() -> Html {
-        // html! {<tr><th>{
-        //     "Name"
-        // }</th><th>{
-        //     "Initial Balance"
-        // }</th><th>{
-        //     "Current Balance"
-        // }</th><th>{
-        //     "Expected End Balance"
-        // }</th></tr>}
-        todo!()
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// ViewContext
-////
-
-pub struct ViewContext;
-
-impl ViewContext {
+impl DataView {
     fn render(&self) -> Html {
         // html! {<div><h1>{
         //     &self.budget.start_date
@@ -154,7 +60,7 @@ pub struct ViewProperties {
 
 // Component for this view
 #[derive(Default)]
-pub struct View(Option<ViewContext>);
+pub struct View(Option<DataView>);
 
 impl Component for View {
     type Message = ();
@@ -191,7 +97,7 @@ impl View {
 
         // use ViewMessage::*;
         // let link = context.link().callback(
-        //     |budget: ViewContext| Received(budget)
+        //     |budget: DataView| Received(budget)
         // );
         // let id = context.props().id.to_string();
         // spawn_local(async move {
@@ -210,7 +116,7 @@ impl View {
 
         //     // Get initial balances for all accounts
         //     let balancer = BalanceSynchronizer::new().await.unwrap();
-        //     link.emit(ViewContext {
+        //     link.emit(DataView {
         //         budget, accounts, balancer,
         //     });
         // });
