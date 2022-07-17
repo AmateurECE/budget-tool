@@ -11,7 +11,10 @@
 ////
 
 use std::collections::HashMap;
-use budget_models::models::{PeriodicBudget, PeriodicBudgetSummary};
+use budget_models::{
+    balance_tracker::BalanceTracker,
+    models::{PeriodicBudget, PeriodicBudgetSummary},
+};
 use wasm_bindgen::JsValue;
 use yew::prelude::*;
 
@@ -45,10 +48,32 @@ impl DataView {
                 |_| "Failed to fetch Periodic Budget Summary".into()
             )?;
 
-        // link.emit(Self {
-        // });
-        // Ok(())
+        link.emit(budget.into());
+        Ok(())
+    }
+
+    fn get_account_views(summary: &PeriodicBudgetSummary) -> Vec<AccountView> {
+        let balance_estimator = BalanceTracker::from_initial_balances(
+            summary.initial_balances.iter());
+        let balance_tracker = BalanceTracker::from_initial_balances(
+            summary.initial_balances.iter());
         todo!()
+    }
+
+    fn get_item_views(summary: &PeriodicBudgetSummary) ->
+        HashMap<String, Vec<BudgetItemView>>
+    {
+        todo!()
+    }
+}
+
+impl From<PeriodicBudgetSummary> for DataView {
+    fn from(value: PeriodicBudgetSummary) -> Self {
+        Self {
+            accounts: DataView::get_account_views(&value),
+            items: DataView::get_item_views(&value),
+            budget: value.budget,
+        }
     }
 }
 

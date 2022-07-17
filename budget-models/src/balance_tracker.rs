@@ -7,7 +7,7 @@
 //
 // CREATED:         07/14/2022
 //
-// LAST EDITED:     07/15/2022
+// LAST EDITED:     07/16/2022
 ////
 
 use std::collections::HashMap;
@@ -20,49 +20,34 @@ use crate::transaction_breakdown::{
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// TrackedAccount
-////
-
-#[derive(Clone, Debug, Default)]
-pub struct TrackedAccount {
-    pub initial: Money,
-    pub current: Money,
-}
-
-impl TrackedAccount {
-    pub fn new(initial_balance: Money) -> Self {
-        Self {
-            initial: initial_balance,
-            current: initial_balance,
-        }
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // BalanceTracker
 ////
 
 // Track account balances as transactions are applied to them.
-pub struct BalanceTracker(HashMap<String, TrackedAccount>);
+pub struct BalanceTracker(HashMap<String, Money>);
 
 impl BalanceTracker {
+    pub fn from_initial_balances<'a>(
+        balances: impl Iterator<Item = &'a models::InitialBalance>
+    ) -> Self {
+        Self(balances
+             .map(|item| (item.account.clone(), item.balance.into()))
+             .collect::<HashMap<String, Money>>()
+        )
+    }
+
     fn apply_transaction(&mut self, input: &AtomicTransaction) {
         let account = self.0.get_mut(&input.account).unwrap();
         match input.direction {
-            Entering => {
-                account.current.add(input.amount);
-            },
-
-            Leaving => {
-                account.current.subtract(input.amount);
-            },
+            Entering => account.add(input.amount),
+            Leaving => account.subtract(input.amount),
         }
     }
 }
 
 impl Calculation for BalanceTracker {
     type Input = models::Transaction;
-    type Result = HashMap<String, TrackedAccount>;
+    type Result = HashMap<String, Money>;
 
     fn apply(&mut self, input: Self::Input) {
         let breakdown = input.break_down();
