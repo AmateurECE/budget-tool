@@ -8,7 +8,7 @@
 //
 // CREATED:         07/14/2022
 //
-// LAST EDITED:     07/15/2022
+// LAST EDITED:     07/17/2022
 ////
 
 use std::collections::HashMap;
@@ -23,6 +23,17 @@ use crate::transaction_breakdown::{Breakdown, TransactionBreakdown::*};
 ////
 
 pub struct BudgetTracker(HashMap<i32, BurnUpTotal>);
+
+impl BudgetTracker {
+    pub fn with_items<'a>(
+        items: impl Iterator<Item = &'a models::BudgetItem>
+    ) -> Self {
+        Self(items
+             .map(|item| (item.id, BurnUpTotal::default()))
+             .collect::<HashMap<i32, BurnUpTotal>>()
+        )
+    }
+}
 
 impl Calculation for BudgetTracker {
     type Input = models::Transaction;

@@ -24,6 +24,12 @@ pub(super) struct BudgetItemView {
     spent: Money,
 }
 
+impl BudgetItemView {
+    pub fn new(item: BudgetItem, spent: Money) -> Self {
+        Self {item, spent}
+    }
+}
+
 impl Render for BudgetItemView {
     fn render(&self) -> Html {
         let budgeted: Money = self.item.budgeted.into();

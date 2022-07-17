@@ -7,12 +7,13 @@
 //
 // CREATED:         04/30/2022
 //
-// LAST EDITED:     07/16/2022
+// LAST EDITED:     07/17/2022
 ////
 
 use std::collections::HashMap;
 use budget_models::{
     balance_tracker::BalanceTracker,
+    budget_tracker::BudgetTracker,
     calculation::Calculation,
     models::{PeriodicBudget, PeriodicBudgetSummary},
     policy::TransactionReceivedPolicy,
@@ -81,10 +82,35 @@ impl DataView {
             }).collect::<Vec<AccountView>>()
     }
 
-    fn get_item_views(_summary: &PeriodicBudgetSummary) ->
+    fn get_item_views(summary: &PeriodicBudgetSummary) ->
         HashMap<String, Vec<BudgetItemView>>
     {
-        todo!()
+        // Extract the categories to organize by category.
+        let mut categories = summary.items.iter()
+            .map(|item| item.category.clone())
+            .collect::<Vec<String>>();
+        categories.sort();
+        categories.dedup();
+        let mut categories = categories.into_iter()
+            .map(|name| (name, Vec::new()))
+            .collect::<HashMap<String, Vec<BudgetItemView>>>();
+
+        // Apply each transaction to a budget tracker
+        let mut budget_tracker = BudgetTracker::with_items(
+            summary.items.iter());
+        summary.transactions.iter().for_each(|transaction| {
+            budget_tracker.apply(transaction.clone());
+        });
+
+        // Construct the list of views for each category.
+        summary.items.iter().for_each(|item| {
+            let spent = budget_tracker.calculate().get(&item.id).unwrap()
+                .calculate();
+            categories.get_mut(&item.category).unwrap()
+                .push(BudgetItemView::new(item.clone(), *spent));
+        });
+
+        categories
     }
 }
 
