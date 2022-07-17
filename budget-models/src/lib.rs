@@ -21,6 +21,7 @@ cfg_if! {
         pub mod budget_tracker;
         pub mod calculation;
         pub mod money;
+        pub mod policy;
         pub mod total;
         pub(crate) mod transaction_breakdown;
     }

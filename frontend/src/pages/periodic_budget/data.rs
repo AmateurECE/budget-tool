@@ -13,7 +13,9 @@
 use std::collections::HashMap;
 use budget_models::{
     balance_tracker::BalanceTracker,
+    calculation::Calculation,
     models::{PeriodicBudget, PeriodicBudgetSummary},
+    policy::TransactionReceivedPolicy,
 };
 use wasm_bindgen::JsValue;
 use yew::prelude::*;
@@ -52,15 +54,34 @@ impl DataView {
         Ok(())
     }
 
-    fn get_account_views(summary: &PeriodicBudgetSummary) -> Vec<AccountView> {
-        let balance_estimator = BalanceTracker::from_initial_balances(
+    fn get_account_views(
+        summary: &PeriodicBudgetSummary, policy: TransactionReceivedPolicy
+    ) -> Vec<AccountView> {
+        let mut balance_estimator = BalanceTracker::from_initial_balances(
             summary.initial_balances.iter());
-        let balance_tracker = BalanceTracker::from_initial_balances(
+        let mut balance_tracker = BalanceTracker::from_initial_balances(
             summary.initial_balances.iter());
-        todo!()
+
+        summary.transactions.iter().for_each(|transaction| {
+            balance_estimator.apply(transaction.clone());
+            if policy.is_received(&transaction) {
+                balance_tracker.apply(transaction.clone());
+            }
+        });
+
+        summary.initial_balances.iter()
+            .map(|balance| {
+                let current = balance_tracker.calculate()
+                    .get(&balance.account)
+                    .unwrap();
+                let end = balance_estimator.calculate()
+                    .get(&balance.account)
+                    .unwrap();
+                AccountView::new(&balance, *current, *end)
+            }).collect::<Vec<AccountView>>()
     }
 
-    fn get_item_views(summary: &PeriodicBudgetSummary) ->
+    fn get_item_views(_summary: &PeriodicBudgetSummary) ->
         HashMap<String, Vec<BudgetItemView>>
     {
         todo!()
@@ -69,8 +90,9 @@ impl DataView {
 
 impl From<PeriodicBudgetSummary> for DataView {
     fn from(value: PeriodicBudgetSummary) -> Self {
+        let policy = TransactionReceivedPolicy::new();
         Self {
-            accounts: DataView::get_account_views(&value),
+            accounts: DataView::get_account_views(&value, policy),
             items: DataView::get_item_views(&value),
             budget: value.budget,
         }

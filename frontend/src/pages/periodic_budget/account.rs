@@ -11,7 +11,7 @@
 // LAST EDITED:     07/16/2022
 ////
 
-use budget_models::money::Money;
+use budget_models::{models::InitialBalance, money::Money};
 use yew::prelude::*;
 use crate::render::{Render, RenderTable};
 
@@ -24,6 +24,17 @@ pub(super) struct AccountView {
     current_balance: Money,
     expected_end_balance: Money,
     account_name: String,
+}
+
+impl AccountView {
+    pub fn new(initial: &InitialBalance, current: Money, end: Money) -> Self {
+        Self {
+            initial_balance: initial.balance.into(),
+            current_balance: current,
+            expected_end_balance: end,
+            account_name: initial.account.clone(),
+        }
+    }
 }
 
 impl Render for AccountView {
