@@ -10,8 +10,9 @@
 // LAST EDITED:     07/17/2022
 ////
 
-mod view;
+mod data;
 mod transactions;
+mod view;
 
 pub use view::View as TransactionView;
 

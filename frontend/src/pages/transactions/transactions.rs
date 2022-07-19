@@ -10,7 +10,7 @@
 // LAST EDITED:     07/17/2022
 ////
 
-use budget_models::models;
+use budget_models::{models, money::Money};
 use yew::prelude::*;
 use crate::render::{Render, RenderTable};
 
@@ -19,72 +19,66 @@ use crate::render::{Render, RenderTable};
 ////
 
 pub struct TransactionView {
-    pub transaction: models::Transaction,
-    pub sending_new_balance: i64,
-    pub receiving_new_balance: i64,
-    pub line_item_name: String,
+    transaction: models::Transaction,
+    sending_new_balance: Money,
+    receiving_new_balance: Money,
+    line_item_name: String,
 }
 
-impl From<models::Transaction> for TransactionView {
-    fn from(transaction: models::Transaction) -> Self {
+impl TransactionView {
+    pub fn new(
+        transaction: models::Transaction, sending_new_balance: Money,
+        receiving_new_balance: Money, line_item_name: String,
+    ) -> Self {
         Self {
             transaction,
-            sending_new_balance: 0,
-            receiving_new_balance: 0,
-            line_item_name: String::new(),
+            sending_new_balance,
+            receiving_new_balance,
+            line_item_name,
         }
     }
 }
 
 impl Render for TransactionView {
     fn render(&self) -> Html {
-        let receiving = match self.transaction.receiving_account.as_ref() {
-            Some(account) => {
-                format!("{} / {:.2}", account.clone(),
-                        (self.receiving_new_balance as f64) / 100.0)
-            },
-            None => "".to_string(),
-        };
-
-        let sending = match self.transaction.sending_account.as_ref() {
-            Some(account) => {
-                format!("{} / {:.2}", account.clone(),
-                        (self.sending_new_balance as f64) / 100.0)
-            },
-            None => "".to_string(),
-        };
-
-        let transfer_fees = match &self.transaction.transfer_fees {
-            Some(fees) => format!("{}", fees),
-            None => "".to_string(),
-        };
-        let corrects = match &self.transaction.corrects {
-            Some(correction) => format!("{:?}", correction),
-            None => "".to_string(),
-        };
-
-        let send_date = self.transaction.send_date.format("%m-%d")
-            .to_string();
-
-        let amount = format!(
-            "{:.2}", (self.transaction.amount as f64) / 100.0);
-
         html! {<tr><td>{
-            &send_date
+            self.transaction.id
+        }</td><td>{
+            &self.transaction.send_date.format("%m-%d").to_string()
         }</td><td>{
             &self.transaction.description
         }</td><td>{
             &self.line_item_name
         }</td><td>{
-            &sending
+            self.transaction.sending_account.as_ref()
+                .map(|account|
+                     format!("{} / {}", account.as_str(),
+                             self.sending_new_balance)
+                ).as_ref()
+                .map(|account| account.as_str())
+                .unwrap_or("")
         }</td><td>{
-            &receiving
+            self.transaction.receiving_account.as_ref()
+                .map(|account|
+                     format!("{} / {}", account.as_str(),
+                             self.receiving_new_balance)
+                ).as_ref()
+                .map(|account| account.as_str())
+                .unwrap_or("")
         }</td><td>{
-            &amount
+            &Money::from(self.transaction.amount).to_string()
         }</td><td>{
-            &transfer_fees
+            self.transaction.transfer_fees
+                .map(|fees| Money::from(fees).to_string())
+                .as_ref()
+                .map(|fees| fees.as_str())
+                .unwrap_or("")
         }</td><td>{
-            &corrects
+            self.transaction.corrects.as_ref()
+                .map(|corrects| format!("{:?}", corrects))
+                .as_ref()
+                .map(|corrects| corrects.as_str())
+                .unwrap_or("")
         }</td></tr>}
     }
 }

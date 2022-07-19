@@ -7,8 +7,10 @@
 //
 // CREATED:         07/08/2022
 //
-// LAST EDITED:     07/16/2022
+// LAST EDITED:     07/17/2022
 ////
+
+use std::fmt;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Money
@@ -46,10 +48,10 @@ impl Into<i64> for Money {
     }
 }
 
-impl ToString for Money {
-    fn to_string(&self) -> String {
+impl fmt::Display for Money {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let amount: f64 = (*self).into();
-        format!("{:.2}", amount)
+        write!(f, "{:.2}", amount)
     }
 }
 
