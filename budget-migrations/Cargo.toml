@@ -1,0 +1,11 @@
+[package]
+name = "budget-migrations"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0"
+budget-backend-lib = { path = "../budget-backend-lib" }
+clap = { version = "3.2.22", features = ["derive"] }
+sqlx = { version = "0.5.13", features = ["postgres", "runtime-tokio-native-tls"] }
+tokio = { version = "1.17", features = ["full"] }

@@ -7,12 +7,12 @@ edition = "2021"
 anyhow = "1.0"
 axum = "0.5.1"
 budget-models = { path = "../budget-models" }
+budget-backend-lib = { path = "../budget-backend-lib" }
 clap = { version = "3.2.22", features = ["derive"] }
 futures = "0.3.21"
 sea-orm = { version = "0.8.0", features = ["sqlx-postgres", "runtime-tokio-native-tls", "chrono"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-sqlx = { version = "0.5.13", features = ["runtime-tokio-native-tls"] }
 tokio = { version = "1.17", features = ["full"] }
 tower-http = { version = "0.2", features = ["trace"] }
 tracing = "0.1"

@@ -17,17 +17,15 @@ use axum::{
 };
 use clap::Parser;
 use sea_orm::Database;
-use secret::SecretManager;
+use budget_backend_lib::SecretManager;
 use std::env;
 use std::fmt;
-use sqlx::PgPool;
 use tower_http::trace::TraceLayer;
 use tracing::{event, Level};
 
 mod conversions;
 mod endpoints;
 mod entities;
-mod secret;
 
 ///////////////////////////////////////////////////////////////////////////////
 // internal_server_error Helper
@@ -66,12 +64,6 @@ async fn main() -> anyhow::Result<()> {
         env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let secret_manager = SecretManager::new(args.secret_file);
     let url = secret_manager.with_url(url_template.parse()?)?;
-
-    // Run database migrations
-    let pool = PgPool::connect(&url).await?;
-    sqlx::migrate!("./migrations")
-        .run(&pool)
-        .await?;
 
     // Open a connection to the database for SeaOrm.
     let connection = Database::connect(&url).await?;

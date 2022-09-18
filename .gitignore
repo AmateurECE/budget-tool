@@ -3,3 +3,5 @@
 /budget-service/target/
 /frontend/dist/
 /frontend/target/
+/budget-migrations/Cargo.lock
+/budget-migrations/target/
