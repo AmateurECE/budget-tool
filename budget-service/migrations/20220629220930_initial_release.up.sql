@@ -43,7 +43,7 @@ CREATE TABLE budget_items (
 
 CREATE TABLE tags (
        id SERIAL PRIMARY KEY,
-       tag TEXT NOT NULL,
+       tag TEXT NOT NULL
 )
 
 CREATE TABLE transactions (
