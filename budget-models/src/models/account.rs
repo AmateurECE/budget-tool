@@ -10,9 +10,9 @@
 // LAST EDITED:     07/09/2022
 ////
 
-use chrono::{DateTime, Utc};
-use serde::{Serialize, Deserialize};
 use super::AccountType;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Account {

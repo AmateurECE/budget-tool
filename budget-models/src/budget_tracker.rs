@@ -26,11 +26,12 @@ pub struct BudgetTracker(HashMap<i32, BurnUpTotal>);
 
 impl BudgetTracker {
     pub fn with_items<'a>(
-        items: impl Iterator<Item = &'a models::BudgetItem>
+        items: impl Iterator<Item = &'a models::BudgetItem>,
     ) -> Self {
-        Self(items
-             .map(|item| (item.id, BurnUpTotal::default()))
-             .collect::<HashMap<i32, BurnUpTotal>>()
+        Self(
+            items
+                .map(|item| (item.id, BurnUpTotal::default()))
+                .collect::<HashMap<i32, BurnUpTotal>>(),
         )
     }
 }

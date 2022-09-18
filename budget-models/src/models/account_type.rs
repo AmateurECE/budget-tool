@@ -10,7 +10,7 @@
 // LAST EDITED:     07/05/2022
 ////
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum AccountType {

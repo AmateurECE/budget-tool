@@ -10,8 +10,8 @@
 // LAST EDITED:     07/05/2022
 ////
 
-use chrono::{DateTime, offset::Utc};
-use serde::{Serialize, Deserialize};
+use chrono::{offset::Utc, DateTime};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct InitialBalance {

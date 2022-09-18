@@ -19,7 +19,7 @@ pub mod initial_balances;
 pub mod one_time_budgets;
 pub mod periodic_budgets;
 pub mod sea_orm_active_enums;
-pub mod transactions;
 pub mod tags;
+pub mod transactions;
 
 ///////////////////////////////////////////////////////////////////////////////

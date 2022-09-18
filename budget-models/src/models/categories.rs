@@ -10,7 +10,7 @@
 // LAST EDITED:     07/10/2022
 ////
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct Category {

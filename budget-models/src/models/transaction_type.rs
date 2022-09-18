@@ -10,7 +10,7 @@
 // LAST EDITED:     07/07/2022
 ////
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use strum_macros::EnumIter;
 
 #[derive(Clone, Copy, Debug, Deserialize, EnumIter, PartialEq, Serialize)]

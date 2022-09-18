@@ -11,7 +11,7 @@
 // LAST EDITED:     09/17/2022
 ////
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct Tag {

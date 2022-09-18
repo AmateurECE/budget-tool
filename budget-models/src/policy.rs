@@ -10,8 +10,8 @@
 // LAST EDITED:     07/16/2022
 ////
 
-use chrono::{DateTime, offset::Utc};
 use crate::models;
+use chrono::{offset::Utc, DateTime};
 
 pub struct TransactionReceivedPolicy(DateTime<Utc>);
 
@@ -21,7 +21,10 @@ impl TransactionReceivedPolicy {
     }
 
     pub fn is_received(&self, transaction: &models::Transaction) -> bool {
-        transaction.receive_date.map(|date| date < self.0).unwrap_or(false)
+        transaction
+            .receive_date
+            .map(|date| date < self.0)
+            .unwrap_or(false)
     }
 }
 

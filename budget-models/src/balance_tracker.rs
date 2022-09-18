@@ -10,7 +10,6 @@
 // LAST EDITED:     07/16/2022
 ////
 
-use std::collections::HashMap;
 use crate::calculation::Calculation;
 use crate::models;
 use crate::money::Money;
@@ -18,6 +17,7 @@ use crate::transaction_breakdown::{
     AtomicTransaction, AtomicTransactionDirection::*, Breakdown,
     TransactionBreakdown::*,
 };
+use std::collections::HashMap;
 
 ///////////////////////////////////////////////////////////////////////////////
 // BalanceTracker
@@ -28,11 +28,12 @@ pub struct BalanceTracker(HashMap<String, Money>);
 
 impl BalanceTracker {
     pub fn from_initial_balances<'a>(
-        balances: impl Iterator<Item = &'a models::InitialBalance>
+        balances: impl Iterator<Item = &'a models::InitialBalance>,
     ) -> Self {
-        Self(balances
-             .map(|item| (item.account.clone(), item.balance.into()))
-             .collect::<HashMap<String, Money>>()
+        Self(
+            balances
+                .map(|item| (item.account.clone(), item.balance.into()))
+                .collect::<HashMap<String, Money>>(),
         )
     }
 
@@ -54,12 +55,12 @@ impl Calculation for BalanceTracker {
         match &breakdown {
             Single(one) => {
                 self.apply_transaction(&one);
-            },
+            }
 
             Double(from, into) => {
                 self.apply_transaction(&from);
                 self.apply_transaction(&into);
-            },
+            }
         }
     }
 

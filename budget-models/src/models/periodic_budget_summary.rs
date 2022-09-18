@@ -10,8 +10,8 @@
 // LAST EDITED:     07/05/2022
 ////
 
-use serde::{Serialize, Deserialize};
-use super::{PeriodicBudget, BudgetItem, InitialBalance, Transaction};
+use super::{BudgetItem, InitialBalance, PeriodicBudget, Transaction};
+use serde::{Deserialize, Serialize};
 
 /// This struct enables the Periodic Budget view with a single model.
 #[derive(Serialize, Deserialize)]

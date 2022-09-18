@@ -18,9 +18,9 @@ mod initial_balance;
 mod one_time_budget;
 mod periodic_budget;
 mod periodic_budget_summary;
+mod tag;
 mod transaction;
 mod transaction_type;
-mod tag;
 
 pub use account::*;
 pub use account_type::*;
@@ -30,8 +30,8 @@ pub use initial_balance::*;
 pub use one_time_budget::*;
 pub use periodic_budget::*;
 pub use periodic_budget_summary::*;
+pub use tag::*;
 pub use transaction::*;
 pub use transaction_type::*;
-pub use tag::*;
 
 ///////////////////////////////////////////////////////////////////////////////

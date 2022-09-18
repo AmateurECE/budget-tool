@@ -10,9 +10,9 @@
 // LAST EDITED:     09/17/2022
 ////
 
-use chrono::{DateTime, offset::Utc};
-use serde::{Serialize, Deserialize};
 use super::TransactionType;
+use chrono::{offset::Utc, DateTime};
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Deserialize, PartialEq, Serialize)]
 pub struct Transaction {

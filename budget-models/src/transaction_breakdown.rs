@@ -47,7 +47,7 @@ impl Breakdown for Transaction {
                     account: self.receiving_account.unwrap(),
                     direction: AtomicTransactionDirection::Entering,
                 })
-            },
+            }
 
             TransactionType::Expense => {
                 TransactionBreakdown::Single(AtomicTransaction {
@@ -56,43 +56,37 @@ impl Breakdown for Transaction {
                     account: self.sending_account.unwrap(),
                     direction: AtomicTransactionDirection::Leaving,
                 })
-            },
+            }
 
-            TransactionType::Transfer => {
-                TransactionBreakdown::Double(
-                    AtomicTransaction {
-                        owning_id: self.id,
-                        amount: self.amount.into(),
-                        account: self.sending_account.unwrap(),
-                        direction: AtomicTransactionDirection::Leaving,
-                    },
+            TransactionType::Transfer => TransactionBreakdown::Double(
+                AtomicTransaction {
+                    owning_id: self.id,
+                    amount: self.amount.into(),
+                    account: self.sending_account.unwrap(),
+                    direction: AtomicTransactionDirection::Leaving,
+                },
+                AtomicTransaction {
+                    owning_id: self.id,
+                    amount: self.amount.into(),
+                    account: self.receiving_account.unwrap(),
+                    direction: AtomicTransactionDirection::Entering,
+                },
+            ),
 
-                    AtomicTransaction {
-                        owning_id: self.id,
-                        amount: self.amount.into(),
-                        account: self.receiving_account.unwrap(),
-                        direction: AtomicTransactionDirection::Entering,
-                    }
-                )
-            },
-
-            TransactionType::Payment => {
-                TransactionBreakdown::Double(
-                    AtomicTransaction {
-                        owning_id: self.id,
-                        amount: self.amount.into(),
-                        account: self.sending_account.unwrap(),
-                        direction: AtomicTransactionDirection::Leaving,
-                    },
-
-                    AtomicTransaction {
-                        owning_id: self.id,
-                        amount: self.amount.into(),
-                        account: self.receiving_account.unwrap(),
-                        direction: AtomicTransactionDirection::Entering,
-                    }
-                )
-            },
+            TransactionType::Payment => TransactionBreakdown::Double(
+                AtomicTransaction {
+                    owning_id: self.id,
+                    amount: self.amount.into(),
+                    account: self.sending_account.unwrap(),
+                    direction: AtomicTransactionDirection::Leaving,
+                },
+                AtomicTransaction {
+                    owning_id: self.id,
+                    amount: self.amount.into(),
+                    account: self.receiving_account.unwrap(),
+                    direction: AtomicTransactionDirection::Entering,
+                },
+            ),
         }
     }
 }
@@ -107,7 +101,7 @@ impl Breakdown for BudgetItem {
                     account: self.to_account.unwrap(),
                     direction: AtomicTransactionDirection::Entering,
                 })
-            },
+            }
 
             TransactionType::Expense => {
                 TransactionBreakdown::Single(AtomicTransaction {
@@ -116,43 +110,37 @@ impl Breakdown for BudgetItem {
                     account: self.from_account.unwrap(),
                     direction: AtomicTransactionDirection::Leaving,
                 })
-            },
+            }
 
-            TransactionType::Transfer => {
-                TransactionBreakdown::Double(
-                    AtomicTransaction {
-                        owning_id: self.id,
-                        amount: self.budgeted.into(),
-                        account: self.from_account.unwrap(),
-                        direction: AtomicTransactionDirection::Leaving,
-                    },
+            TransactionType::Transfer => TransactionBreakdown::Double(
+                AtomicTransaction {
+                    owning_id: self.id,
+                    amount: self.budgeted.into(),
+                    account: self.from_account.unwrap(),
+                    direction: AtomicTransactionDirection::Leaving,
+                },
+                AtomicTransaction {
+                    owning_id: self.id,
+                    amount: self.budgeted.into(),
+                    account: self.to_account.unwrap(),
+                    direction: AtomicTransactionDirection::Entering,
+                },
+            ),
 
-                    AtomicTransaction {
-                        owning_id: self.id,
-                        amount: self.budgeted.into(),
-                        account: self.to_account.unwrap(),
-                        direction: AtomicTransactionDirection::Entering,
-                    }
-                )
-            },
-
-            TransactionType::Payment => {
-                TransactionBreakdown::Double(
-                    AtomicTransaction {
-                        owning_id: self.id,
-                        amount: self.budgeted.into(),
-                        account: self.from_account.unwrap(),
-                        direction: AtomicTransactionDirection::Leaving,
-                    },
-
-                    AtomicTransaction {
-                        owning_id: self.id,
-                        amount: self.budgeted.into(),
-                        account: self.to_account.unwrap(),
-                        direction: AtomicTransactionDirection::Entering,
-                    }
-                )
-            },
+            TransactionType::Payment => TransactionBreakdown::Double(
+                AtomicTransaction {
+                    owning_id: self.id,
+                    amount: self.budgeted.into(),
+                    account: self.from_account.unwrap(),
+                    direction: AtomicTransactionDirection::Leaving,
+                },
+                AtomicTransaction {
+                    owning_id: self.id,
+                    amount: self.budgeted.into(),
+                    account: self.to_account.unwrap(),
+                    direction: AtomicTransactionDirection::Entering,
+                },
+            ),
         }
     }
 }
