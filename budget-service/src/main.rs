@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     09/17/2022
+// LAST EDITED:     09/18/2022
 ////
 
 use axum::{
@@ -20,6 +20,7 @@ use sea_orm::Database;
 use secret::SecretManager;
 use std::env;
 use std::fmt;
+use sqlx::PgPool;
 use tower_http::trace::TraceLayer;
 use tracing::{event, Level};
 
@@ -65,6 +66,14 @@ async fn main() -> anyhow::Result<()> {
         env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let secret_manager = SecretManager::new(args.secret_file);
     let url = secret_manager.with_url(url_template.parse()?)?;
+
+    // Run database migrations
+    let pool = PgPool::connect(&url).await?;
+    sqlx::migrate!("./migrations")
+        .run(&pool)
+        .await?;
+
+    // Open a connection to the database for SeaOrm.
     let connection = Database::connect(&url).await?;
 
     let app = Router::new()
