@@ -7,7 +7,7 @@
 //
 // CREATED:         07/05/2022
 //
-// LAST EDITED:     07/05/2022
+// LAST EDITED:     09/17/2022
 ////
 
 pub mod prelude;
@@ -20,5 +20,6 @@ pub mod one_time_budgets;
 pub mod periodic_budgets;
 pub mod sea_orm_active_enums;
 pub mod transactions;
+pub mod tags;
 
 ///////////////////////////////////////////////////////////////////////////////

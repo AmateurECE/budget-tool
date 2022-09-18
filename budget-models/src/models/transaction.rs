@@ -7,7 +7,7 @@
 //
 // CREATED:         07/05/2022
 //
-// LAST EDITED:     07/12/2022
+// LAST EDITED:     09/17/2022
 ////
 
 use chrono::{DateTime, offset::Utc};
@@ -33,6 +33,7 @@ pub struct Transaction {
     pub receive_date: Option<DateTime<Utc>>,
 
     pub corrects: Option<Vec<i32>>,
+    pub tags: Option<Vec<i32>>,
     pub periodic_budget: i32,
 }
 
@@ -54,6 +55,7 @@ pub struct NewTransaction {
     pub receive_date: Option<DateTime<Utc>>,
 
     pub corrects: Option<Vec<i32>>,
+    pub tags: Option<Vec<i32>>,
     pub periodic_budget: i32,
 }
 

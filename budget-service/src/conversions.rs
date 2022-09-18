@@ -8,7 +8,7 @@
 //
 // CREATED:         07/04/2022
 //
-// LAST EDITED:     07/10/2022
+// LAST EDITED:     09/17/2022
 ////
 
 use crate::entities::*;
@@ -89,6 +89,11 @@ impl TryInto<models::Transaction> for transactions::Model {
             .corrects
             .map(|corrects| serde_json::from_str::<Vec<i32>>(&corrects))
             .transpose()?;
+        let tags = self
+            .tags
+            .map(|tags| serde_json::from_str::<Vec<i32>>(&tags))
+            .transpose()?;
+
         Ok(models::Transaction {
             id: self.id,
             description: self.description,
@@ -102,6 +107,7 @@ impl TryInto<models::Transaction> for transactions::Model {
             send_date: self.send_date.into(),
             receive_date: self.receive_date.map(|date| date.into()),
             corrects,
+            tags,
             periodic_budget: self.periodic_budget,
         })
     }
@@ -114,6 +120,11 @@ impl TryFrom<models::NewTransaction> for transactions::ActiveModel {
             .corrects
             .map(|corrects| serde_json::to_string(&corrects))
             .transpose()?;
+        let tags = value
+            .tags
+            .map(|tags| serde_json::to_string(&tags))
+            .transpose()?;
+
         Ok(Self {
             description: Set(value.description),
             line_item: Set(value.line_item),
@@ -126,6 +137,7 @@ impl TryFrom<models::NewTransaction> for transactions::ActiveModel {
             send_date: Set(value.send_date.into()),
             receive_date: Set(value.receive_date.map(|date| date.into())),
             corrects: Set(corrects),
+            tags: Set(tags),
             periodic_budget: Set(value.periodic_budget),
             ..Default::default()
         })

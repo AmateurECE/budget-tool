@@ -7,7 +7,7 @@
 //
 // CREATED:         07/05/2022
 //
-// LAST EDITED:     07/05/2022
+// LAST EDITED:     09/17/2022
 ////
 
 pub use super::accounts::Entity as Accounts;
@@ -16,6 +16,7 @@ pub use super::categories::Entity as Categories;
 pub use super::initial_balances::Entity as InitialBalances;
 pub use super::one_time_budgets::Entity as OneTimeBudgets;
 pub use super::periodic_budgets::Entity as PeriodicBudgets;
+pub use super::tags::Entity as Tags;
 pub use super::transactions::Entity as Transactions;
 
 ///////////////////////////////////////////////////////////////////////////////

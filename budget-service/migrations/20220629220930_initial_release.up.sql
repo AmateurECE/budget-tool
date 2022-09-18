@@ -41,6 +41,11 @@ CREATE TABLE budget_items (
        one_time_budget INTEGER
 );
 
+CREATE TABLE tags (
+       id SERIAL PRIMARY KEY,
+       tag TEXT NOT NULL,
+)
+
 CREATE TABLE transactions (
        id SERIAL PRIMARY KEY,
        description TEXT NOT NULL,
@@ -53,7 +58,10 @@ CREATE TABLE transactions (
        amount BIGINT NOT NULL,
        send_date timestamp with TIME ZONE NOT NULL,
        receive_date timestamp with TIME ZONE,
+       -- TODO: sea-orm currently doesn't support postgres arrays. See:
+       -- https://github.com/SeaQL/sea-orm/issues/576
        corrects TEXT,
+       tags TEXT,
        periodic_budget INTEGER NOT NULL
 );
 

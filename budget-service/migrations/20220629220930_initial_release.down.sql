@@ -4,6 +4,7 @@ DROP TABLE periodic_budgets;
 DROP TABLE one_time_budgets;
 DROP TABLE categories;
 DROP TABLE budget_items;
+DROP TABLE tags;
 DROP TABLE transactions;
 DROP TYPE TransactionType;
 DROP TABLE initial_balances;

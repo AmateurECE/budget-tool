@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     07/05/2022
+// LAST EDITED:     09/17/2022
 ////
 
 mod account;
@@ -20,6 +20,7 @@ mod periodic_budget;
 mod periodic_budget_summary;
 mod transaction;
 mod transaction_type;
+mod tag;
 
 pub use account::*;
 pub use account_type::*;
@@ -31,5 +32,6 @@ pub use periodic_budget::*;
 pub use periodic_budget_summary::*;
 pub use transaction::*;
 pub use transaction_type::*;
+pub use tag::*;
 
 ///////////////////////////////////////////////////////////////////////////////
