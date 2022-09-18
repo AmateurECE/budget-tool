@@ -45,11 +45,12 @@ pub enum Relation {
 impl RelationTrait for Relation {
     fn def(&self) -> RelationDef {
         match self {
-            Self::PeriodicBudget => Entity::belongs_to(
-                super::periodic_budgets::Entity)
-                .from(Column::PeriodicBudget)
-                .to(super::periodic_budgets::Column::Id)
-                .into(),
+            Self::PeriodicBudget => {
+                Entity::belongs_to(super::periodic_budgets::Entity)
+                    .from(Column::PeriodicBudget)
+                    .to(super::periodic_budgets::Column::Id)
+                    .into()
+            }
         }
     }
 }

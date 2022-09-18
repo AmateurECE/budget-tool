@@ -31,12 +31,15 @@ pub enum Relation {
 impl RelationTrait for Relation {
     fn def(&self) -> RelationDef {
         match self {
-            Self::BudgetItem =>
-                Entity::has_many(super::budget_items::Entity).into(),
-            Self::InitialBalance =>
-                Entity::has_many(super::initial_balances::Entity).into(),
-            Self::Transaction =>
-                Entity::has_many(super::transactions::Entity).into(),
+            Self::BudgetItem => {
+                Entity::has_many(super::budget_items::Entity).into()
+            }
+            Self::InitialBalance => {
+                Entity::has_many(super::initial_balances::Entity).into()
+            }
+            Self::Transaction => {
+                Entity::has_many(super::transactions::Entity).into()
+            }
         }
     }
 }

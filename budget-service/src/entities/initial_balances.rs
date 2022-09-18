@@ -37,11 +37,12 @@ impl RelationTrait for Relation {
                 .from(Column::Account)
                 .to(super::accounts::Column::Name)
                 .into(),
-            Self::PeriodicBudget =>
+            Self::PeriodicBudget => {
                 Entity::belongs_to(super::periodic_budgets::Entity)
-                .from(Column::Budget)
-                .to(super::periodic_budgets::Column::Id)
-                .into(),
+                    .from(Column::Budget)
+                    .to(super::periodic_budgets::Column::Id)
+                    .into()
+            }
         }
     }
 }

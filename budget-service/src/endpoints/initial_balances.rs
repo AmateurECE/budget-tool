@@ -17,17 +17,18 @@ use sea_orm::{DatabaseConnection, EntityTrait};
 use crate::entities::prelude::*;
 use crate::internal_server_error;
 
-pub async fn list(db: DatabaseConnection) ->
-    Result<Json<Vec<models::InitialBalance>>, StatusCode>
-{
+pub async fn list(
+    db: DatabaseConnection,
+) -> Result<Json<Vec<models::InitialBalance>>, StatusCode> {
     let initial_balances = InitialBalances::find()
         .all(&db)
         .await
         .map_err(internal_server_error)?;
     Ok(Json(
-        initial_balances.into_iter()
+        initial_balances
+            .into_iter()
             .map(|balance| balance.into())
-            .collect()
+            .collect(),
     ))
 }
 

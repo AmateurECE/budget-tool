@@ -10,14 +10,18 @@
 // LAST EDITED:     09/17/2022
 ////
 
+use axum::{
+    http::StatusCode,
+    routing::{get, post},
+    Router,
+};
+use clap::Parser;
+use sea_orm::Database;
+use secret::SecretManager;
 use std::env;
 use std::fmt;
-use axum::{http::StatusCode, routing::{get, post}, Router};
-use sea_orm::Database;
 use tower_http::trace::TraceLayer;
-use tracing::{Level, event};
-use secret::SecretManager;
-use clap::Parser;
+use tracing::{event, Level};
 
 mod conversions;
 mod endpoints;
@@ -57,47 +61,49 @@ async fn main() -> anyhow::Result<()> {
 
     let args = Args::parse();
 
-    let url_template = env::var("DATABASE_URL")
-        .expect("DATABASE_URL must be set");
+    let url_template =
+        env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let secret_manager = SecretManager::new(args.secret_file);
     let url = secret_manager.with_url(url_template.parse()?)?;
     let connection = Database::connect(&url).await?;
 
     let app = Router::new()
-        .route("/api/periodic_budgets",
-               get({
-                   let db = connection.clone();
-                   move || endpoints::periodic_budgets::list(db)
-               })
+        .route(
+            "/api/periodic_budgets",
+            get({
+                let db = connection.clone();
+                move || endpoints::periodic_budgets::list(db)
+            }),
         )
-
-        .route("/api/periodic_budgets/:id",
-               get({
-                   let db = connection.clone();
-                   move |id| endpoints::periodic_budgets::detailed(id, db)
-               })
+        .route(
+            "/api/periodic_budgets/:id",
+            get({
+                let db = connection.clone();
+                move |id| endpoints::periodic_budgets::detailed(id, db)
+            }),
         )
-
-        .route("/api/initial_balances",
-               get({
-                   let db = connection.clone();
-                   move || endpoints::initial_balances::list(db)
-               })
+        .route(
+            "/api/initial_balances",
+            get({
+                let db = connection.clone();
+                move || endpoints::initial_balances::list(db)
+            }),
         )
-
-        .route("/api/accounts",
-               get({
-                   let db = connection.clone();
-                   move || endpoints::accounts::list(db)
-               })
+        .route(
+            "/api/accounts",
+            get({
+                let db = connection.clone();
+                move || endpoints::accounts::list(db)
+            }),
         )
-
-        .route("/api/transactions",
-               post({
-                   let db = connection.clone();
-                   move |transaction| endpoints::transactions::create(
-                       transaction, db)
-               })
+        .route(
+            "/api/transactions",
+            post({
+                let db = connection.clone();
+                move |transaction| {
+                    endpoints::transactions::create(transaction, db)
+                }
+            }),
         )
         .layer(TraceLayer::new_for_http());
 

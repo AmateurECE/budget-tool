@@ -14,21 +14,19 @@ use axum::{http::StatusCode, Json};
 use budget_models::models;
 use sea_orm::{DatabaseConnection, EntityTrait};
 
-use crate::entities::*;
 use crate::entities::prelude::*;
+use crate::entities::*;
 use crate::internal_server_error;
 
-pub async fn list(db: DatabaseConnection) ->
-    Result<Json<Vec<models::Account>>, StatusCode>
-{
+pub async fn list(
+    db: DatabaseConnection,
+) -> Result<Json<Vec<models::Account>>, StatusCode> {
     let accounts: Vec<accounts::Model> = Accounts::find()
         .all(&db)
         .await
         .map_err(internal_server_error)?;
     Ok(Json(
-        accounts.into_iter()
-            .map(|account| account.into())
-            .collect()
+        accounts.into_iter().map(|account| account.into()).collect(),
     ))
 }
 

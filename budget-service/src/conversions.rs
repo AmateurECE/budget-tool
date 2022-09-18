@@ -11,10 +11,10 @@
 // LAST EDITED:     07/10/2022
 ////
 
-use std::convert::TryInto;
+use crate::entities::*;
 use budget_models::models;
 use sea_orm::Set;
-use crate::entities::*;
+use std::convert::TryInto;
 
 impl Into<models::AccountType> for sea_orm_active_enums::Accounttype {
     fn into(self) -> models::AccountType {
@@ -85,7 +85,8 @@ impl From<models::TransactionType> for sea_orm_active_enums::Transactiontype {
 impl TryInto<models::Transaction> for transactions::Model {
     type Error = serde_json::Error;
     fn try_into(self) -> Result<models::Transaction, Self::Error> {
-        let corrects = self.corrects
+        let corrects = self
+            .corrects
             .map(|corrects| serde_json::from_str::<Vec<i32>>(&corrects))
             .transpose()?;
         Ok(models::Transaction {
@@ -109,7 +110,8 @@ impl TryInto<models::Transaction> for transactions::Model {
 impl TryFrom<models::NewTransaction> for transactions::ActiveModel {
     type Error = serde_json::Error;
     fn try_from(value: models::NewTransaction) -> Result<Self, Self::Error> {
-        let corrects = value.corrects
+        let corrects = value
+            .corrects
             .map(|corrects| serde_json::to_string(&corrects))
             .transpose()?;
         Ok(Self {
