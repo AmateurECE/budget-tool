@@ -20,3 +20,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 [patch.crates-io]
 chrono = { git = "https://github.com/chronotope/chrono", rev = "b1d74aef" }
+
+[dependencies.openssl-sys]
+version = "0.9.74"
+features = ["vendored"]
