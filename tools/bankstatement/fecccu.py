@@ -16,13 +16,14 @@ import subprocess
 def header_row(input_file):
     """Locate the table header in the input stream"""
     for line in input_file:
-        if re.match(r'[\s]*Date[\s]*Transaction Type', line):
+        if re.match(r'^[\s]*Date[\s]*Transaction Type', line):
             return line
 
 def print_table(input_file):
     print(header_row(input_file), end='')
     for line in input_file:
-        if '' == line.strip():
+        if re.match(r'[\s0-9/]*\*\* Ending Balance \*\*', line):
+            print(line, end='')
             return
         else:
             print(line, end='')
@@ -30,7 +31,7 @@ def print_table(input_file):
 def extract_transactions(text_file: str):
     with open(text_file, 'r') as input_file:
         for line in input_file:
-            if re.match(r'^Transaction Detail', line):
+            if re.match(r'^[\s]*Transaction Detail', line):
                 print_table(input_file)
                 print()
 
