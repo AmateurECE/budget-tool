@@ -25,18 +25,17 @@ def header_row(input_file):
             if re.match(r'.*\*\* Check Recon \*\*$', line):
                 return line + input_file.readline()
             return line
+    return None
 
 def page_break(input_file):
     """Consume a page break from the input stream"""
     header_row(input_file) # Find the next header row
 
-def beginning_balance(line: str):
+def beginning_balance():
     """Consume a period-beginning balance record from the input stream"""
-    pass
 
-def ending_balance(line: str):
+def ending_balance():
     """Consume a period-end balance record from the input stream"""
-    pass
 
 def transaction_record(line: str, records):
     """Consume a transaction record from the input stream"""
@@ -56,10 +55,10 @@ def parse_table(input_file):
     records = []
     for line in input_file:
         if re.match(r'[\s0-9/]*\*\* Ending Balance \*\*', line):
-            ending_balance(line)
+            ending_balance()
             return records
-        elif re.match(r'[\s0-9/]*\* Beginning Balance \*', line):
-            beginning_balance(line)
+        if re.match(r'[\s0-9/]*\* Beginning Balance \*', line):
+            beginning_balance()
         elif re.match(r'.*Page [0-9] of [0-9]$', line):
             page_break(input_file)
         elif not re.match(r'^[0-9/]+', line.strip()):
@@ -69,7 +68,7 @@ def parse_table(input_file):
     return records
 
 def extract_transactions(text_file: str):
-    with open(text_file, 'r') as input_file:
+    with open(text_file, 'r', encoding='utf-8') as input_file:
         for line in input_file:
             if re.match(r'^[\s]*Transaction Detail', line):
                 records = parse_table(input_file)
@@ -78,7 +77,7 @@ def extract_transactions(text_file: str):
 
 def convert_to_text(input_file: str) -> str:
     """Convert the PDF file with path <input_file> to a text file"""
-    subprocess.run("pdftotext -layout {}".format(input_file), check=True,
+    subprocess.run(f'pdftotext -layout {input_file}', check=True,
                    shell=True)
     return input_file.split('.')[0] + '.txt'
 

@@ -7,11 +7,11 @@
 #
 # CREATED:          09/20/2022
 #
-# LAST EDITED:      09/20/2022
+# LAST EDITED:      09/22/2022
 ###
 
 import argparse
-import fecccu
+from . import fecccu
 
 def main():
     parser = argparse.ArgumentParser(description='Convert bank statements')
