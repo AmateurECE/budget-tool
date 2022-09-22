@@ -13,6 +13,11 @@
 import re
 import subprocess
 
+# Columns
+DATE = 0
+DESCRIPTION = 1
+DIFFERENCE = -2
+
 def header_row(input_file):
     """Locate the table header in the input stream"""
     for line in input_file:
@@ -25,22 +30,50 @@ def page_break(input_file):
     """Consume a page break from the input stream"""
     header_row(input_file) # Find the next header row
 
-def print_table(input_file):
-    print(header_row(input_file), end='')
+def beginning_balance(line: str):
+    """Consume a period-beginning balance record from the input stream"""
+    pass
+
+def ending_balance(line: str):
+    """Consume a period-end balance record from the input stream"""
+    pass
+
+def transaction_record(line: str, records):
+    """Consume a transaction record from the input stream"""
+    parts = re.split(r'\s{2,}', line.strip())
+    records.append({
+        'date': parts[DATE],
+        'description': parts[DESCRIPTION],
+        'difference': parts[DIFFERENCE],
+    })
+
+def transaction_record_continuation(line: str, records):
+    """line is a continuation of the last transaction record"""
+    records[-1]['description'] += ' ' + line.strip()
+
+def parse_table(input_file):
+    header_row(input_file)
+    records = []
     for line in input_file:
         if re.match(r'[\s0-9/]*\*\* Ending Balance \*\*', line):
-            print(line, end='')
-            return
+            ending_balance(line)
+            return records
+        elif re.match(r'[\s0-9/]*\* Beginning Balance \*', line):
+            beginning_balance(line)
         elif re.match(r'.*Page [0-9] of [0-9]$', line):
             page_break(input_file)
+        elif not re.match(r'^[0-9/]+', line.strip()):
+            transaction_record_continuation(line, records)
         else:
-            print(line, end='')
+            transaction_record(line, records)
+    return records
 
 def extract_transactions(text_file: str):
     with open(text_file, 'r') as input_file:
         for line in input_file:
             if re.match(r'^[\s]*Transaction Detail', line):
-                print_table(input_file)
+                records = parse_table(input_file)
+                print(records)
                 print()
 
 def convert_to_text(input_file: str) -> str:
