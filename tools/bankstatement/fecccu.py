@@ -10,8 +10,10 @@
 # LAST EDITED:      09/22/2022
 ###
 
+import csv
 import re
 import subprocess
+from typing import BinaryIO
 
 # Columns
 DATE = 0
@@ -100,6 +102,7 @@ def transform_transaction(record: dict):
     return record
 
 def parse(input_file: str):
+    """Parse a series of records from the input file"""
     text_file = convert_to_text(input_file)
 
     # Get a number of tables for each account
@@ -108,5 +111,14 @@ def parse(input_file: str):
     # Filter on each account to remove duplicate transactions
     records = list(filter(filter_transaction, records))
     return list(map(transform_transaction, records))
+
+def write(input_file: str, output_file: BinaryIO):
+    """Write the series of records to the output file"""
+    records = sorted(parse(input_file), key=lambda x: x['date'])
+    writer = csv.writer(output_file)
+    writer.writerow(['date', 'description', 'amount'])
+    for record in records:
+        writer.writerow([record['date'], record['description'],
+                         record['amount']])
 
 ###############################################################################

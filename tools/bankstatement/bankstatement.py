@@ -11,7 +11,7 @@
 ###
 
 import argparse
-import json
+import sys
 import fecccu
 
 def main():
@@ -24,15 +24,11 @@ def main():
 
     # Parse records from input statement
     if 'FECCCU' == args.statement_format:
-        records = fecccu.parse(args.statement)
-
-    # Write records in JSON format to output
-    json_records = json.dumps(records)
-    if args.output:
-        with open(args.output, 'w', encoding='utf-8') as output:
-            output.write(json_records)
-    else:
-        print(json_records)
+        if args.output:
+            with open(args.output, 'w', encoding='utf-8') as output_file:
+                fecccu.write(args.statement, output_file)
+        else:
+            fecccu.write(args.statement, sys.stdout)
 
 if __name__ == '__main__':
     main()
