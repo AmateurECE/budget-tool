@@ -16,7 +16,7 @@ import subprocess
 # Columns
 DATE = 0
 DESCRIPTION = 1
-DIFFERENCE = -2
+AMOUNT = -2
 
 def header_row(input_file) -> str:
     """Locate the table header in the input stream"""
@@ -43,7 +43,7 @@ def transaction_record(line: str, records):
     records.append({
         'date': parts[DATE],
         'description': parts[DESCRIPTION],
-        'difference': parts[DIFFERENCE],
+        'amount': parts[AMOUNT],
     })
 
 def transaction_record_continuation(line: str, records):
@@ -83,8 +83,21 @@ def convert_to_text(input_file: str) -> str:
                    shell=True)
     return input_file.split('.')[0] + '.txt'
 
-def filter_transactions(records: list[dict]):
-    """Filter records to remove duplicates."""
+def filter_transaction(record: dict):
+    """Indicate whether a transaction is or is not valid based on some rules"""
+    return record['description'] not in (
+        'OVERDRAFT TRANSFER', 'PC CU TRANSFER')
+
+def transform_transaction(record: dict):
+    """Transform a single transaction from statement format to API format"""
+    amount = record['amount'][1:].replace(',', '')
+    if '\xad' == amount[-1]:
+        record['amount'] = -1 * float(amount[:-1])
+    else:
+        record['amount'] = float(amount)
+    record['description'] = re.sub(r'ACH/|(POS|DBT)/WDR[ #*][0-9]* ',
+                                   '', record['description'])
+    return record
 
 def parse(input_file: str):
     text_file = convert_to_text(input_file)
@@ -93,7 +106,7 @@ def parse(input_file: str):
     records = extract_transactions(text_file)
 
     # Filter on each account to remove duplicate transactions
-    filter_transactions(records)
-    return records
+    records = list(filter(filter_transaction, records))
+    return list(map(transform_transaction, records))
 
 ###############################################################################
