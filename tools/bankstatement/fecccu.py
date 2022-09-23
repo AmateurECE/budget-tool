@@ -115,10 +115,10 @@ def parse(input_file: str):
 def write(input_file: str, output_file: BinaryIO):
     """Write the series of records to the output file"""
     records = sorted(parse(input_file), key=lambda x: x['date'])
-    writer = csv.writer(output_file)
-    writer.writerow(['date', 'description', 'amount'])
+    fieldnames = ['date', 'description', 'amount']
+    writer = csv.DictWriter(output_file, fieldnames=fieldnames)
+    writer.writeheader()
     for record in records:
-        writer.writerow([record['date'], record['description'],
-                         record['amount']])
+        writer.writerow(record)
 
 ###############################################################################
