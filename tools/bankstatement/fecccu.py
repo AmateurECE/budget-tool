@@ -18,7 +18,7 @@ DATE = 0
 DESCRIPTION = 1
 DIFFERENCE = -2
 
-def header_row(input_file):
+def header_row(input_file) -> str:
     """Locate the table header in the input stream"""
     for line in input_file:
         if re.match(r'^[\s]*Date[\s]*Transaction Type', line):
@@ -50,7 +50,8 @@ def transaction_record_continuation(line: str, records):
     """line is a continuation of the last transaction record"""
     records[-1]['description'] += ' ' + line.strip()
 
-def parse_table(input_file):
+def parse_table(input_file) -> list[dict]:
+    """Parse a single table of transactions from the input stream"""
     header_row(input_file)
     records = []
     for line in input_file:
@@ -67,13 +68,14 @@ def parse_table(input_file):
             transaction_record(line, records)
     return records
 
-def extract_transactions(text_file: str):
+def extract_transactions(text_file: str) -> list[dict]:
+    """Extract all transactions from this statement"""
+    records = []
     with open(text_file, 'r', encoding='utf-8') as input_file:
         for line in input_file:
             if re.match(r'^[\s]*Transaction Detail', line):
-                records = parse_table(input_file)
-                print(records)
-                print()
+                records.extend(parse_table(input_file))
+    return records
 
 def convert_to_text(input_file: str) -> str:
     """Convert the PDF file with path <input_file> to a text file"""
@@ -81,12 +83,17 @@ def convert_to_text(input_file: str) -> str:
                    shell=True)
     return input_file.split('.')[0] + '.txt'
 
+def filter_transactions(records: list[dict]):
+    """Filter records to remove duplicates."""
+
 def parse(input_file: str):
     text_file = convert_to_text(input_file)
 
     # Get a number of tables for each account
-    extract_transactions(text_file)
+    records = extract_transactions(text_file)
 
-    # Filter on each account to remove erroneous transactions
+    # Filter on each account to remove duplicate transactions
+    filter_transactions(records)
+    return records
 
 ###############################################################################

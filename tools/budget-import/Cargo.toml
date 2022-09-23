@@ -1,0 +1,8 @@
+[package]
+name = "budget-import"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+budget-models = { path = "../../budget-models" }
+clap = { version = "3.2.22", features = ["derive"] }
