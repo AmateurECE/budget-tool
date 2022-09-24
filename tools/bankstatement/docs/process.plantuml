@@ -1,0 +1,18 @@
+@startuml
+(*) --> Log in to Provider Website
+If "Statement Origin" then
+        -->[Nicolet] Download transactions (CSV)
+        -->Condition CSV
+        -->python3 bankstatement.py -f csv transactions.csv
+Else
+        -->[FECCCU] Download statements (PDF)
+        -->python3 bankstatement.py -f fecccu statement.pdf
+        -->Condition CSV
+        -->python3 bankstatement.py -f csv transactions.csv
+Else
+        -->[Discover, Sallie Mae] Manually write CSV table
+        -->python3 bankstatement.py -f csv transactions.csv
+Endif
+-->budget-import -i transactions.json
+-->(*)
+@enduml
