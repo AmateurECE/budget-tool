@@ -16,6 +16,7 @@ pub trait Fields {
     fn fields() -> FieldSpec;
 }
 
+#[derive(PartialEq)]
 pub struct FieldSpec(Vec<String>);
 impl FieldSpec {
     pub fn iter<'a>(&'a self) -> impl Iterator<Item = &'a String> + 'a {
@@ -43,7 +44,6 @@ impl Component for SomeObject {
     type Message = ();
 
     fn create(_ctx: &Context<Self>) -> Self { Self }
-
     fn view(&self, context: &Context<Self>) -> Html {
         html! {
             <><td>{&context.props().foo}</td><td>{&context.props().bar}</td></>
@@ -61,6 +61,7 @@ where T: Fields + PartialEq + Component,
 {
     #[prop_or_default]
     pub children: ChildrenWithProps<T>,
+    pub fields: FieldSpec,
 }
 
 #[function_component]
@@ -69,7 +70,7 @@ where T: Fields + PartialEq + Component
 {
     html! {
         <table>
-            <th>{ for T::fields().iter().map(|header| html!{
+            <th>{ for props.fields.iter().map(|header| html!{
                 <td>{&header}</td>
             })}</th>{
                 for props.children.iter().map(|child| html! {
@@ -83,7 +84,7 @@ where T: Fields + PartialEq + Component
 #[function_component]
 fn App() -> Html {
     html! {
-        <Table<SomeObject>>
+        <Table<SomeObject> fields={SomeObject::fields()}>
             <SomeObject foo="a" bar="b" />
             <SomeObject foo="c" bar="d" />
         </Table<SomeObject>>
