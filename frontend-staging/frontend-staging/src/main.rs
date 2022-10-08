@@ -24,6 +24,12 @@ impl FieldSpec {
     }
 }
 
+impl FromIterator<String> for FieldSpec {
+    fn from_iter<I: IntoIterator<Item = String>>(iter: I) -> Self {
+        Self(iter.into_iter().collect::<Vec<String>>())
+    }
+}
+
 #[derive(PartialEq, Properties)]
 struct SomeObjectProps {
     pub foo: String,
