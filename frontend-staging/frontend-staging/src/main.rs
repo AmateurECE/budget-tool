@@ -12,22 +12,28 @@
 
 use yew::prelude::*;
 
+#[derive(Properties, PartialEq)]
+pub struct TableProps {
+    #[prop_or_default]
+    pub children: Children,
+}
+
+#[function_component]
+fn Table(props: &TableProps) -> Html {
+    html! {
+        <ul>{
+            for props.children.iter().map(|child| html! { <li>{ child }</li> })
+        }</ul>
+    }
+}
+
 #[function_component]
 fn App() -> Html {
-    let counter = use_state(|| 0);
-    let onclick = {
-        let counter = counter.clone();
-        move |_| {
-            let value = *counter + 1;
-            counter.set(value);
-        }
-    };
-
     html! {
-        <div>
-            <button {onclick}>{ "+1" }</button>
-            <p>{ *counter }</p>
-        </div>
+        <Table>
+            <p>{"Some text"}</p>
+            <p>{"Other text"}</p>
+        </Table>
     }
 }
 
