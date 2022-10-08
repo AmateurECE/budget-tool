@@ -12,8 +12,15 @@
 
 use yew::prelude::*;
 
-pub trait Tabular {
-    fn headers() -> Vec<String>;
+pub trait Fields {
+    fn fields() -> FieldSpec;
+}
+
+pub struct FieldSpec(Vec<String>);
+impl FieldSpec {
+    pub fn iter<'a>(&'a self) -> impl Iterator<Item = &'a String> + 'a {
+        self.0.iter()
+    }
 }
 
 #[derive(PartialEq, Properties)]
@@ -25,9 +32,11 @@ struct SomeObjectProps {
 #[derive(PartialEq)]
 struct SomeObject;
 
-// TODO: Implement iterator for this object, which allows us to iterate over
-// its fields. Then, the code to write all of this to a table is easy!
-struct SomeObjectIterator;
+impl Fields for SomeObject {
+    fn fields() -> FieldSpec {
+        FieldSpec(vec!["foo".to_string(), "bar".to_string()])
+    }
+}
 
 impl Component for SomeObject {
     type Properties = SomeObjectProps;
@@ -42,13 +51,13 @@ impl Component for SomeObject {
     }
 }
 
-impl Tabular for SomeObject {
-    fn headers() -> Vec<String> { vec!["foo".to_string(), "bar".to_string()] }
-}
+// TODO: Implement iterator for this object, which allows us to iterate over
+// its fields. Then, the code to write all of this to a table is easy!
+struct SomeObjectIterator;
 
 #[derive(Properties, PartialEq)]
 pub struct TableProps<T>
-where T: Tabular + PartialEq + Component
+where T: Fields + PartialEq + Component,
 {
     #[prop_or_default]
     pub children: ChildrenWithProps<T>,
@@ -56,11 +65,11 @@ where T: Tabular + PartialEq + Component
 
 #[function_component]
 fn Table<T>(props: &TableProps<T>) -> Html
-where T: Tabular + PartialEq + Component
+where T: Fields + PartialEq + Component
 {
     html! {
         <table>
-            <th>{ for T::headers().iter().map(|header| html!{
+            <th>{ for T::fields().iter().map(|header| html!{
                 <td>{&header}</td>
             })}</th>{
                 for props.children.iter().map(|child| html! {
