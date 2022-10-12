@@ -21,6 +21,7 @@ use yew_velcro::{
 
 #[derive(Clone, PartialEq, Properties, Fields, FieldNames)]
 struct SomeObject {
+    #[field_name(rename = "Foo")]
     pub foo: String,
     pub bar: String,
 }

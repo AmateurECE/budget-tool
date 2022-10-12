@@ -15,8 +15,8 @@ use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 use syn::spanned::Spanned;
 use syn::{
-    parse_macro_input, parse_quote, Data, DeriveInput, Fields, GenericParam,
-    Generics,
+    parse_macro_input, parse_quote, Data, DeriveInput, Field, Fields,
+    GenericParam, Generics, Lit, Meta, NestedMeta,
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -94,7 +94,7 @@ fn create_fields(data: &Data) -> TokenStream {
 // Fields
 ////
 
-#[proc_macro_derive(FieldNames)]
+#[proc_macro_derive(FieldNames, attributes(field_name))]
 pub fn derive_field_names(
     input: proc_macro::TokenStream,
 ) -> proc_macro::TokenStream {
@@ -118,6 +118,7 @@ pub fn derive_field_names(
     proc_macro::TokenStream::from(expanded)
 }
 
+// Create the expression that generates a FieldView for the impl
 fn create_field_names(data: &Data) -> TokenStream {
     match *data {
         Data::Struct(ref data) => match data.fields {
@@ -125,11 +126,7 @@ fn create_field_names(data: &Data) -> TokenStream {
                 // Expands to an expression like
                 //      vec!["x".to_string(), "y".to_string()].into()
                 let field_names = fields.named.iter().map(|f| {
-                    let name = f
-                        .ident
-                        .as_ref()
-                        .map(|i| i.to_string())
-                        .unwrap_or("".to_string());
+                    let name = get_field_name(&f).unwrap_or("".to_string());
                     quote_spanned! {
                         f.span() =>
                             ::std::string::ToString::to_string(#name)
@@ -145,6 +142,52 @@ fn create_field_names(data: &Data) -> TokenStream {
 
         Data::Enum(_) | Data::Union(_) => todo!(),
     }
+}
+
+// Obtain the field name, potentially parsing any present attributes
+fn get_field_name(field: &Field) -> Option<String> {
+    field
+        .attrs
+        .iter()
+        .find(|a| a.path.is_ident("field_name"))
+        .and_then(|a| {
+            let meta = a
+                .parse_meta()
+                .expect("Expected an attribute of the form 'name = value'");
+            if let Meta::List(ref list) = meta {
+                list.nested
+                    .iter()
+                    .filter_map(|nested| {
+                        if let NestedMeta::Meta(ref meta) = nested {
+                            if let Meta::NameValue(ref value) = meta {
+                                assert!(meta.path().is_ident("rename"));
+                                if let Lit::Str(string) = &value.lit {
+                                    Some(string.value())
+                                } else {
+                                    None
+                                }
+                            } else {
+                                panic!(
+                                    "\"field_name\" attribute requires a list \
+                                    of key/value pairs"
+                                )
+                            }
+                        } else {
+                            panic!(
+                                "\"field_name\" attribute requires a list of \
+                                key/value pairs"
+                            )
+                        }
+                    })
+                    .last()
+            } else {
+                panic!(
+                    "\"field_name\" attribute requires a list of key/value \
+                        pairs"
+                )
+            }
+        })
+        .or(field.ident.as_ref().map(|i| i.to_string()))
 }
 
 ///////////////////////////////////////////////////////////////////////////////
