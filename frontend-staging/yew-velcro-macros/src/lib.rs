@@ -16,11 +16,15 @@ use quote::{quote, quote_spanned};
 use syn::spanned::Spanned;
 use syn::{
     parse_macro_input, parse_quote, Data, DeriveInput, Fields, GenericParam,
-    Generics, Index,
+    Generics,
 };
 
+///////////////////////////////////////////////////////////////////////////////
+// Fields
+////
+
 #[proc_macro_derive(Fields)]
-pub fn derive_fields_names(
+pub fn derive_fields(
     input: proc_macro::TokenStream,
 ) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -62,7 +66,7 @@ fn create_fields(data: &Data) -> TokenStream {
         Data::Struct(ref data) => match data.fields {
             Fields::Named(ref fields) => {
                 // Expands to an expression like
-                //      vec![self.x.to_string(), self.y.to_string()]
+                //      vec![self.x.to_string(), self.y.to_string()].into()
                 // We take some care to use the span of each `syn::Field` as
                 // the span of the corresponding `to_string()` call. This way
                 // if one of the field types does not implement `ToString` then
@@ -79,26 +83,64 @@ fn create_fields(data: &Data) -> TokenStream {
                 }
             }
 
-            Fields::Unnamed(ref fields) => {
+            Fields::Unnamed(_) | Fields::Unit => unimplemented!(),
+        },
+
+        Data::Enum(_) | Data::Union(_) => todo!(),
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Fields
+////
+
+#[proc_macro_derive(FieldNames)]
+pub fn derive_field_names(
+    input: proc_macro::TokenStream,
+) -> proc_macro::TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let name = input.ident;
+    let (impl_generics, ty_generics, where_clause) =
+        input.generics.split_for_impl();
+
+    let field_creation = create_field_names(&input.data);
+    let expanded = quote! {
+        // The generated impl
+        impl #impl_generics ::yew_velcro::FieldNames for #name #ty_generics
+            #where_clause
+        {
+            fn field_names() -> FieldSpec {
+                #field_creation
+            }
+        }
+    };
+
+    proc_macro::TokenStream::from(expanded)
+}
+
+fn create_field_names(data: &Data) -> TokenStream {
+    match *data {
+        Data::Struct(ref data) => match data.fields {
+            Fields::Named(ref fields) => {
                 // Expands to an expression like
-                //      vec![self.0.to_string(), self.1.to_string()]
-                let field_views =
-                    fields.unnamed.iter().enumerate().map(|(i, f)| {
-                        let index = Index::from(i);
-                        quote_spanned! {
-                            f.span() =>
-                                ::std::string::ToString::to_string(
-                                    &self.#index)
-                        }
-                    });
+                //      vec!["x".to_string(), "y".to_string()].into()
+                let field_names = fields.named.iter().map(|f| {
+                    let name = f
+                        .ident
+                        .as_ref()
+                        .map(|i| i.to_string())
+                        .unwrap_or("".to_string());
+                    quote_spanned! {
+                        f.span() =>
+                            ::std::string::ToString::to_string(#name)
+                    }
+                });
                 quote! {
-                    vec![ #(#field_views ,)* ].into()
+                    vec![ #(#field_names ,)* ].into()
                 }
             }
 
-            Fields::Unit => {
-                unimplemented!()
-            }
+            Fields::Unnamed(_) | Fields::Unit => unimplemented!(),
         },
 
         Data::Enum(_) | Data::Union(_) => todo!(),

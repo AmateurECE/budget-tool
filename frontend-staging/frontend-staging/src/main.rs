@@ -12,31 +12,18 @@
 
 use yew::prelude::*;
 use yew_velcro::{
-    Fields,
-    fields::{FieldNames, FieldSpec, FieldView},
-    table::Table
+    Fields, FieldNames, fields::{FieldSpec, FieldView}, table::Table
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// Scratch - Example
+// Scratch
 ////
 
-#[derive(Clone, PartialEq, Properties, Fields)]
+#[derive(Clone, PartialEq, Properties, Fields, FieldNames)]
 struct SomeObject {
     pub foo: String,
     pub bar: String,
 }
-
-// TODO: This should be a derive macro
-impl FieldNames for SomeObject {
-    fn field_names() -> FieldSpec {
-        vec!["foo".to_string(), "bar".to_string()].into()
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Scratch - Calling Application
-////
 
 #[function_component]
 fn App() -> Html {

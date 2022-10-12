@@ -16,4 +16,7 @@ pub mod table;
 pub use fields::Fields;
 pub use yew_velcro_macros::Fields;
 
+pub use fields::FieldNames;
+pub use yew_velcro_macros::FieldNames;
+
 ///////////////////////////////////////////////////////////////////////////////
