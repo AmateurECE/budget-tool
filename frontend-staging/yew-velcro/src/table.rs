@@ -10,7 +10,7 @@
 // LAST EDITED:     10/12/2022
 ////
 
-use crate::fields::{FieldSpec, FieldView};
+use crate::fields::{Fields, FieldNames, FieldView};
 use yew::prelude::*;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -35,19 +35,24 @@ fn TableRow(props: &TableRowProps) -> Html {
 ////
 
 #[derive(Properties, PartialEq, Eq)]
-pub struct TableProps {
-    pub row_data: Vec<FieldView>,
-    pub column_names: FieldSpec,
+pub struct TableProps<T>
+where T: Fields + FieldNames + PartialEq,
+{
+    pub row_data: Vec<T>,
 }
 
 #[function_component]
-pub fn Table(props: &TableProps) -> Html {
+pub fn Table<T>(props: &TableProps<T>) -> Html
+where T: Fields + FieldNames + PartialEq,
+{
+    let field_views = props.row_data.iter().map(|object| object.fields())
+        .collect::<Vec<FieldView>>();
     html! {
         <table>
-            <th>{ for props.column_names.iter().map(|header| html!{
+            <th>{ for T::field_names().iter().map(|header| html!{
                 <td>{&header}</td>
             })}</th>{
-                for props.row_data.iter().map(|child| html! {
+                for field_views.iter().map(|child| html! {
                     <TableRow data={child.clone()} />
                 })
             }

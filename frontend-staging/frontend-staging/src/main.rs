@@ -33,11 +33,8 @@ fn App() -> Html {
         SomeObject { foo: "c".to_string(), bar: "d".to_string() },
     ];
 
-    let field_spec = SomeObject::field_names();
-    let field_views = objects.iter().map(|object| object.fields())
-        .collect::<Vec<FieldView>>();
     html! {
-        <Table column_names={field_spec} row_data={field_views} />
+        <Table<SomeObject> row_data={objects} />
     }
 }
 
