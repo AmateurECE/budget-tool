@@ -36,7 +36,7 @@ fn App() -> Html {
     let field_views = objects.iter().map(|object| object.fields())
         .collect::<Vec<FieldView>>();
     html! {
-        <Table field_names={field_spec} fields={field_views} />
+        <Table column_names={field_spec} row_data={field_views} />
     }
 }
 

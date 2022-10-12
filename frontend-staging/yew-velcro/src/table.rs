@@ -36,18 +36,18 @@ fn TableRow(props: &TableRowProps) -> Html {
 
 #[derive(Properties, PartialEq)]
 pub struct TableProps {
-    pub fields: Vec<FieldView>,
-    pub field_names: FieldSpec,
+    pub row_data: Vec<FieldView>,
+    pub column_names: FieldSpec,
 }
 
 #[function_component]
 pub fn Table(props: &TableProps) -> Html {
     html! {
         <table>
-            <th>{ for props.field_names.iter().map(|header| html!{
+            <th>{ for props.column_names.iter().map(|header| html!{
                 <td>{&header}</td>
             })}</th>{
-                for props.fields.iter().map(|child| html! {
+                for props.row_data.iter().map(|child| html! {
                     <TableRow data={child.clone()} />
                 })
             }
