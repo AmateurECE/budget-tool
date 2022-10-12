@@ -40,7 +40,7 @@ pub fn derive_fields(
         impl #impl_generics ::yew_velcro::Fields for #name #ty_generics
             #where_clause
         {
-            fn fields(&self) -> FieldView {
+            fn fields(&self) -> ::yew_velcro::fields::FieldView {
                 #field_creation
             }
         }
@@ -109,7 +109,7 @@ pub fn derive_field_names(
         impl #impl_generics ::yew_velcro::FieldNames for #name #ty_generics
             #where_clause
         {
-            fn field_names() -> FieldSpec {
+            fn field_names() -> ::yew_velcro::fields::FieldSpec {
                 #field_creation
             }
         }

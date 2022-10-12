@@ -11,9 +11,7 @@
 ////
 
 use yew::prelude::*;
-use yew_velcro::{
-    Fields, FieldNames, fields::{FieldSpec, FieldView}, table::Table
-};
+use yew_velcro::{Fields, FieldNames, table::Table};
 
 ///////////////////////////////////////////////////////////////////////////////
 // Scratch
