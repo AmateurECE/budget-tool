@@ -15,10 +15,10 @@
 // FieldSpec
 ////
 
-#[derive(Clone, Default, PartialEq)]
+#[derive(Clone, Default, PartialEq, Eq)]
 pub struct FieldSpec(Vec<String>);
 impl FieldSpec {
-    pub fn iter<'a>(&'a self) -> impl Iterator<Item = &'a String> + 'a {
+    pub fn iter(&self) -> impl Iterator<Item = &'_ String> + '_ {
         self.0.iter()
     }
 }
@@ -39,10 +39,10 @@ impl From<Vec<String>> for FieldSpec {
 // FieldView
 ////
 
-#[derive(Clone, Default, PartialEq)]
+#[derive(Clone, Default, PartialEq, Eq)]
 pub struct FieldView(Vec<String>);
 impl FieldView {
-    pub fn iter<'a>(&'a self) -> impl Iterator<Item = &'a String> + 'a {
+    pub fn iter(&self) -> impl Iterator<Item = &'_ String> + '_ {
         self.0.iter()
     }
 }

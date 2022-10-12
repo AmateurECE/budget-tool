@@ -34,7 +34,7 @@ fn TableRow(props: &TableRowProps) -> Html {
 // Table
 ////
 
-#[derive(Properties, PartialEq)]
+#[derive(Properties, PartialEq, Eq)]
 pub struct TableProps {
     pub row_data: Vec<FieldView>,
     pub column_names: FieldSpec,
