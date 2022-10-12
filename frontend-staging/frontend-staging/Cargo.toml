@@ -5,5 +5,6 @@ edition = "2021"
 
 [dependencies]
 models = { path = "../models" }
+yew-velcro = { path = "../yew-velcro" }
 yew = { git = "https://github.com/yewstack/yew/", features = ["csr"] }
 yew-router = { git = "https://github.com/yewstack/yew/" }

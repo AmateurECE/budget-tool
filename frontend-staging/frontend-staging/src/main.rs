@@ -11,102 +11,17 @@
 ////
 
 use yew::prelude::*;
-
-///////////////////////////////////////////////////////////////////////////////
-// FieldSpec
-////
-
-#[derive(Clone, Default, PartialEq)]
-pub struct FieldSpec(Vec<String>);
-impl FieldSpec {
-    pub fn iter<'a>(&'a self) -> impl Iterator<Item = &'a String> + 'a {
-        self.0.iter()
-    }
-}
-
-impl FromIterator<String> for FieldSpec {
-    fn from_iter<I: IntoIterator<Item = String>>(iter: I) -> Self {
-        Self(iter.into_iter().collect::<Vec<String>>())
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// FieldView
-////
-
-#[derive(Clone, Default, PartialEq)]
-pub struct FieldView(Vec<String>);
-impl FieldView {
-    pub fn iter<'a>(&'a self) -> impl Iterator<Item = &'a String> + 'a {
-        self.0.iter()
-    }
-}
-
-impl FromIterator<String> for FieldView {
-    fn from_iter<I: IntoIterator<Item = String>>(iter: I) -> Self {
-        Self(iter.into_iter().collect::<Vec<String>>())
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Traits
-////
-
-pub trait FieldNames {
-    fn field_names() -> FieldSpec;
-}
-
-pub trait Fields {
-    fn fields(&self) -> FieldView;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// TableRow
-////
-
-#[derive(Properties, PartialEq)]
-pub struct TableRowProps {
-    data: FieldView,
-}
-
-#[function_component]
-fn TableRow(props: &TableRowProps) -> Html {
-    html! {
-        <tr>{props.data.iter().map(|item| html! { <td>{&item}</td> })
-             .collect::<Html>()}</tr>
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Table
-////
-
-#[derive(Properties, PartialEq)]
-pub struct TableProps {
-    pub fields: Vec<FieldView>,
-    pub field_names: FieldSpec,
-}
-
-#[function_component]
-fn Table(props: &TableProps) -> Html {
-    html! {
-        <table>
-            <th>{ for props.field_names.iter().map(|header| html!{
-                <td>{&header}</td>
-            })}</th>{
-                for props.fields.iter().map(|child| html! {
-                    <TableRow data={child.clone()} />
-                })
-            }
-        </table>
-    }
-}
+use yew_velcro::{
+    Fields,
+    fields::{FieldNames, FieldSpec, FieldView},
+    table::Table
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // Scratch - Example
 ////
 
-#[derive(Clone, PartialEq, Properties)]
+#[derive(Clone, PartialEq, Properties, Fields)]
 struct SomeObject {
     pub foo: String,
     pub bar: String,
@@ -115,15 +30,7 @@ struct SomeObject {
 // TODO: This should be a derive macro
 impl FieldNames for SomeObject {
     fn field_names() -> FieldSpec {
-        FieldSpec(vec!["foo".to_string(), "bar".to_string()])
-    }
-}
-
-// TODO: This should be a derive macro
-// TODO: It would be super cool if this could also use Cow<'_>
-impl Fields for SomeObject {
-    fn fields(&self) -> FieldView {
-        FieldView(vec![self.foo.clone(), self.bar.clone()])
+        vec!["foo".to_string(), "bar".to_string()].into()
     }
 }
 

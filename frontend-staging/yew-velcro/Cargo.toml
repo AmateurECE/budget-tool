@@ -1,0 +1,9 @@
+[package]
+name = "yew-velcro"
+authors = ["Ethan D. Twardy <ethan.twardy@gmail.com>"]
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+yew = { git = "https://github.com/yewstack/yew/", features = ["csr"] }
+yew-velcro-macros = { path = "../yew-velcro-macros" }
