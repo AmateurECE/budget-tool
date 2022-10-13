@@ -11,7 +11,7 @@
 ////
 
 use yew::prelude::*;
-use yew_velcro::{Fields, FieldNames, table::Table};
+use yew_velcro::{table::Table, FieldNames, Fields};
 
 ///////////////////////////////////////////////////////////////////////////////
 // Scratch
@@ -27,11 +27,18 @@ struct SomeObject {
 #[function_component]
 fn App() -> Html {
     let objects = vec![
-        SomeObject { foo: "a".to_string(), bar: "b".to_string() },
-        SomeObject { foo: "c".to_string(), bar: "d".to_string() },
+        SomeObject {
+            foo: "a".to_string(),
+            bar: "b".to_string(),
+        },
+        SomeObject {
+            foo: "c".to_string(),
+            bar: "d".to_string(),
+        },
     ];
 
-    let classes = classes!("table", "table-striped", "table-hover");
+    let classes =
+        classes!("table", "table-striped", "table-hover", "table-sm");
     html! {
         <Table<SomeObject> class={classes} row_data={objects} />
     }
