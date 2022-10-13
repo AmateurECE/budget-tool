@@ -31,8 +31,9 @@ fn App() -> Html {
         SomeObject { foo: "c".to_string(), bar: "d".to_string() },
     ];
 
+    let classes = classes!("table", "table-striped", "table-hover");
     html! {
-        <Table<SomeObject> row_data={objects} />
+        <Table<SomeObject> class={classes} row_data={objects} />
     }
 }
 

@@ -57,6 +57,8 @@ where
     T: Fields + FieldNames + PartialEq,
 {
     pub row_data: Vec<T>,
+    #[prop_or_default]
+    pub class: Classes,
 }
 
 #[function_component]
@@ -70,7 +72,7 @@ where
         .map(|object| object.fields())
         .collect::<Vec<FieldView>>();
     html! {
-        <table class="table">
+        <table class={props.class.clone()}>
             <thead>
                 <HeaderRow spec={T::field_names()} />
             </thead>
