@@ -7,14 +7,31 @@
 //
 // CREATED:         10/07/2022
 //
-// LAST EDITED:     10/12/2022
+// LAST EDITED:     10/13/2022
 ////
 
 use yew::prelude::*;
 use yew_roots::{table::Table, FieldNames, Fields};
 
 ///////////////////////////////////////////////////////////////////////////////
-// Scratch
+// Navigation
+////
+
+#[function_component]
+fn Navigation() -> Html {
+    html! {
+        <header class={classes!("navbar", "navbar-dark", "sticky-top",
+                                "bg-dark", "flex-md-nowrap", "p-0", "shadow")}>
+            <a class={classes!("navbar-brand", "col-md-3", "col-lg-2", "me-0",
+                               "px-3")} href={"#"}>{
+                "Budgetizer"
+            }</a>
+        </header>
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// App
 ////
 
 #[derive(Clone, PartialEq, Properties, Fields, FieldNames)]
@@ -37,10 +54,15 @@ fn App() -> Html {
         },
     ];
 
-    let classes =
-        classes!("table", "table-striped", "table-hover", "table-sm");
     html! {
-        <Table<SomeObject> class={classes} row_data={objects} />
+        <>
+            <Navigation />
+            <main class={classes!("container-fluid")} role={"main"}>
+                <Table<SomeObject> class={classes!(
+                    "table", "table-striped", "table-hover", "table-sm")}
+                row_data={objects} />
+            </main>
+        </>
     }
 }
 
