@@ -102,8 +102,8 @@ version = "0.1.0"
 dependencies = [
  "models",
  "yew",
+ "yew-roots",
  "yew-router",
- "yew-velcro",
 ]
 
 [[package]]
@@ -853,6 +853,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "yew-roots"
+version = "0.1.0"
+dependencies = [
+ "yew",
+ "yew-roots-macros",
+]
+
+[[package]]
+name = "yew-roots-macros"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "yew-router"
 version = "0.16.0"
 source = "git+https://github.com/yewstack/yew/#32b3150cb3711c4e03105eec9659a72aa8ce7a8c"
@@ -873,23 +890,6 @@ dependencies = [
 name = "yew-router-macro"
 version = "0.16.0"
 source = "git+https://github.com/yewstack/yew/#32b3150cb3711c4e03105eec9659a72aa8ce7a8c"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "yew-velcro"
-version = "0.1.0"
-dependencies = [
- "yew",
- "yew-velcro-macros",
-]
-
-[[package]]
-name = "yew-velcro-macros"
-version = "0.1.0"
 dependencies = [
  "proc-macro2",
  "quote",

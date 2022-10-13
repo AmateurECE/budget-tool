@@ -4,7 +4,7 @@
 // AUTHOR:          Ethan D. Twardy <ethan.twardy@gmail.com>
 //
 // DESCRIPTION:     Entrypoints containing derive macros for use with the
-//                  yew-velcro crate
+//                  yew-roots crate
 //
 // CREATED:         10/12/2022
 //
@@ -37,10 +37,10 @@ pub fn derive_fields(
     let field_creation = create_fields(&input.data);
     let expanded = quote! {
         // The generated impl
-        impl #impl_generics ::yew_velcro::Fields for #name #ty_generics
+        impl #impl_generics ::yew_roots::Fields for #name #ty_generics
             #where_clause
         {
-            fn fields(&self) -> ::yew_velcro::fields::FieldView {
+            fn fields(&self) -> ::yew_roots::fields::FieldView {
                 #field_creation
             }
         }
@@ -106,10 +106,10 @@ pub fn derive_field_names(
     let field_creation = create_field_names(&input.data);
     let expanded = quote! {
         // The generated impl
-        impl #impl_generics ::yew_velcro::FieldNames for #name #ty_generics
+        impl #impl_generics ::yew_roots::FieldNames for #name #ty_generics
             #where_clause
         {
-            fn field_names() -> ::yew_velcro::fields::FieldSpec {
+            fn field_names() -> ::yew_roots::fields::FieldSpec {
                 #field_creation
             }
         }

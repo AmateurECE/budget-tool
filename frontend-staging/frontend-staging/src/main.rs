@@ -11,7 +11,7 @@
 ////
 
 use yew::prelude::*;
-use yew_velcro::{table::Table, FieldNames, Fields};
+use yew_roots::{table::Table, FieldNames, Fields};
 
 ///////////////////////////////////////////////////////////////////////////////
 // Scratch
