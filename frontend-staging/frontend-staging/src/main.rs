@@ -14,11 +14,11 @@ use yew::prelude::*;
 use yew_roots::{table::Table, FieldNames, Fields};
 
 ///////////////////////////////////////////////////////////////////////////////
-// Navigation
+// Header
 ////
 
 #[function_component]
-fn Navigation() -> Html {
+fn Header() -> Html {
     html! {
         <header class={classes!("navbar", "navbar-dark", "sticky-top",
                                 "bg-dark", "flex-md-nowrap", "p-0", "shadow")}>
@@ -31,37 +31,96 @@ fn Navigation() -> Html {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// App
+// Navigation
 ////
 
-#[derive(Clone, PartialEq, Properties, Fields, FieldNames)]
-struct SomeObject {
-    #[field_name(rename = "Foo")]
-    pub foo: String,
-    pub bar: String,
+#[function_component]
+fn Navigation() -> Html {
+    html! {
+        <nav class={classes!("col-md-3", "col-lg-2", "d-md-block", "bg-light",
+                             "sidebar", "collapse")}>
+            <div class={classes!("position-sticky", "pt-3")}>
+                <ul class={classes!("nav", "flex-column")}>
+                    <li class={classes!("nav-item")}>{
+                        "Budget Performance"
+                    }</li>
+                </ul>
+            </div>
+        </nav>
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Main
+////
+
+#[derive(Clone, Default, PartialEq)]
+struct Snapshot {
+    pub budgeted: i64,
+    pub spent: i64,
+}
+
+impl ToString for Snapshot {
+    fn to_string(&self) -> String {
+        self.spent.to_string() + " of " + &self.budgeted.to_string()
+    }
+}
+
+#[derive(Clone, Default, PartialEq, Fields, FieldNames)]
+struct LineItem {
+    #[field_name(rename = "Name")]
+    pub name: String,
+    #[field_name(rename = "Last Month")]
+    pub last_month: Snapshot,
+    #[field_name(rename = "Last Six Months (Average)")]
+    pub last_six_months: Snapshot,
 }
 
 #[function_component]
-fn App() -> Html {
+fn Main() -> Html {
     let objects = vec![
-        SomeObject {
-            foo: "a".to_string(),
-            bar: "b".to_string(),
-        },
-        SomeObject {
-            foo: "c".to_string(),
-            bar: "d".to_string(),
-        },
+        LineItem::default(),
+        LineItem::default(),
+        LineItem::default(),
+        LineItem::default(),
+        LineItem::default(),
+        LineItem::default(),
+        LineItem::default(),
     ];
 
     html! {
+        <main class={classes!("col-md-9", "ms-sm-auto", "col-lg-10",
+                              "px-md-4")} role={"main"}>
+            <div class={classes!(
+                "d-flex", "justify-content-between", "flex-wrap",
+                "flex-md-nowrap", "align-items-center", "pt-3", "pb-2", "mb-3",
+                "border-bottom")}>
+                <h1 class={classes!("h2")}>{ "Budget Performance" }</h1>
+            </div>
+            <h2>{ "By Line Item" }</h2>
+            <Table<LineItem> class={classes!(
+                "table", "table-striped", "table-hover", "table-responsive",
+                "table-sm")}
+             row_data={objects} />
+        </main>
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// App
+////
+
+#[function_component]
+fn App() -> Html {
+    html! {
         <>
-            <Navigation />
-            <main class={classes!("container-fluid")} role={"main"}>
-                <Table<SomeObject> class={classes!(
-                    "table", "table-striped", "table-hover", "table-sm")}
-                row_data={objects} />
-            </main>
+            <Header />
+            <div class={classes!("container-fluid")}>
+                <div class={classes!("row")}>
+                    <Navigation />
+                    <Main />
+                </div>
+            </div>
         </>
     }
 }
