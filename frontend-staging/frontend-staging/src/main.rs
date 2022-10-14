@@ -7,7 +7,7 @@
 //
 // CREATED:         10/07/2022
 //
-// LAST EDITED:     10/13/2022
+// LAST EDITED:     10/14/2022
 ////
 
 use yew::prelude::*;
@@ -54,26 +54,16 @@ fn Navigation() -> Html {
 // Main
 ////
 
-#[derive(Clone, Default, PartialEq)]
-struct Snapshot {
-    pub budgeted: i64,
-    pub spent: i64,
-}
-
-impl ToString for Snapshot {
-    fn to_string(&self) -> String {
-        self.spent.to_string() + " of " + &self.budgeted.to_string()
-    }
-}
-
 #[derive(Clone, Default, PartialEq, Fields, FieldNames)]
 struct LineItem {
     #[field_name(rename = "Name")]
     pub name: String,
-    #[field_name(rename = "Last Month")]
-    pub last_month: Snapshot,
-    #[field_name(rename = "Last Six Months (Average)")]
-    pub last_six_months: Snapshot,
+    #[field_name(rename = "Last Month (Budgeted)")]
+    pub last_month_budgeted: i64,
+    #[field_name(rename = "Last Month (Spent)")]
+    pub last_month_spent: i64,
+    #[field_name(rename = "Last Six Months (Average Spent)")]
+    pub last_six_months_spent: i64,
 }
 
 #[function_component]
@@ -97,7 +87,7 @@ fn Main() -> Html {
                 "border-bottom")}>
                 <h1 class={classes!("h2")}>{ "Budget Performance" }</h1>
             </div>
-            <h2>{ "By Line Item" }</h2>
+            <h2>{ "Spending History By Line Item" }</h2>
             <Table<LineItem> class={classes!(
                 "table", "table-striped", "table-hover", "table-responsive",
                 "table-sm")}
