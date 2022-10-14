@@ -11,7 +11,10 @@
 ////
 
 use yew::prelude::*;
-use yew_roots::{table::Table, FieldNames, Fields};
+
+mod performance;
+
+use crate::performance::SpendingHistory;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Header
@@ -54,29 +57,8 @@ fn Navigation() -> Html {
 // Main
 ////
 
-#[derive(Clone, Default, PartialEq, Fields, FieldNames)]
-struct LineItem {
-    #[field_name(rename = "Name")]
-    pub name: String,
-    #[field_name(rename = "Last Month (Budgeted)")]
-    pub last_month_budgeted: i64,
-    #[field_name(rename = "Last Month (Spent)")]
-    pub last_month_spent: i64,
-    #[field_name(rename = "Last Six Months (Average Spent)")]
-    pub last_six_months_spent: i64,
-}
-
 #[function_component]
 fn Main() -> Html {
-    let objects = vec![
-        LineItem::default(),
-        LineItem::default(),
-        LineItem::default(),
-        LineItem::default(),
-        LineItem::default(),
-        LineItem::default(),
-        LineItem::default(),
-    ];
 
     html! {
         <main class={classes!("col-md-9", "ms-sm-auto", "col-lg-10",
@@ -87,11 +69,7 @@ fn Main() -> Html {
                 "border-bottom")}>
                 <h1 class={classes!("h2")}>{ "Budget Performance" }</h1>
             </div>
-            <h2>{ "Spending History By Line Item" }</h2>
-            <Table<LineItem> class={classes!(
-                "table", "table-striped", "table-hover", "table-responsive",
-                "table-sm")}
-             row_data={objects} />
+            <SpendingHistory />
         </main>
     }
 }
