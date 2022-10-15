@@ -11,6 +11,7 @@
 ////
 
 use yew::prelude::*;
+use yew_router::prelude::*;
 
 mod performance;
 
@@ -32,6 +33,22 @@ fn Header() -> Html {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Routing
+////
+
+#[derive(Routable, PartialEq, Clone, Debug)]
+enum Route {
+    #[at("/spending_history")]
+    SpendingHistory,
+}
+
+fn app_switch(route: Route) -> Html {
+    match route {
+        Route::SpendingHistory => html! { <performance::SpendingHistory /> },
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Navigation
 ////
 
@@ -42,9 +59,11 @@ fn Navigation() -> Html {
                              "sidebar", "collapse")} id={"sidebarMenu"}>
             <div class={classes!("position-sticky", "pt-3", "ps-3")}>
                 <ul class={classes!("nav", "flex-column")}>
-                    <li class={classes!("nav-item")}>{
-                        "Budget Performance"
-                    }</li>
+                    <li class={classes!("nav-item")}>
+                        <Link<Route> to={Route::SpendingHistory}>{
+                            "Spending History"
+                        }</Link<Route>>
+                    </li>
                 </ul>
             </div>
         </nav>
@@ -57,19 +76,20 @@ fn Navigation() -> Html {
 
 #[function_component]
 fn Main() -> Html {
-
     html! {
-        <main class={classes!("col-md-9", "ms-sm-auto", "col-lg-10",
-                              "px-md-4")} role={"main"}>
-            <div class={classes!(
-                "d-flex", "justify-content-between", "flex-wrap",
-                "flex-md-nowrap", "align-items-center", "pt-3", "pb-2", "mb-3",
-                "border-bottom")}>
-                <h1 class={classes!("h2")}>{ "Budget Performance" }</h1>
-            </div>
-            <performance::AccountBalance />
-            <performance::SpendingHistory />
-        </main>
+        <BrowserRouter>
+            <Navigation />
+            <main class={classes!("col-md-9", "ms-sm-auto", "col-lg-10",
+                                  "px-md-4")} role={"main"}>
+                <div class={classes!(
+                    "d-flex", "justify-content-between", "flex-wrap",
+                    "flex-md-nowrap", "align-items-center", "pt-3", "pb-2",
+                    "mb-3", "border-bottom")}>
+                    <h1 class={classes!("h2")}>{ "Budget Performance" }</h1>
+                </div>
+                <Switch<Route> render={app_switch} />
+            </main>
+        </BrowserRouter>
     }
 }
 
@@ -84,7 +104,6 @@ fn App() -> Html {
             <Header />
             <div class={classes!("container-fluid")}>
                 <div class={classes!("row")}>
-                    <Navigation />
                     <Main />
                 </div>
             </div>
