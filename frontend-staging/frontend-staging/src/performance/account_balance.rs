@@ -1,20 +1,22 @@
 ///////////////////////////////////////////////////////////////////////////////
-// NAME:            performance.rs
+// NAME:            account_balance.rs
 //
 // AUTHOR:          Ethan D. Twardy <ethan.twardy@gmail.com>
 //
-// DESCRIPTION:     Module containing components for tracking budget
-//                  performance over time.
+// DESCRIPTION:     Component which displays balance over time for an account.
 //
 // CREATED:         10/14/2022
 //
 // LAST EDITED:     10/14/2022
 ////
 
-mod account_balance;
-mod spending;
+use yew::prelude::*;
 
-pub use account_balance::AccountBalance;
-pub use spending::SpendingHistory;
+#[function_component]
+pub fn AccountBalance() -> Html {
+    html! {
+        <></>
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////

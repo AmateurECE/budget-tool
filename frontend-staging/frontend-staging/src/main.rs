@@ -7,14 +7,12 @@
 //
 // CREATED:         10/07/2022
 //
-// LAST EDITED:     10/14/2022
+// LAST EDITED:     10/15/2022
 ////
 
 use yew::prelude::*;
 
 mod performance;
-
-use crate::performance::SpendingHistory;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Header
@@ -41,8 +39,8 @@ fn Header() -> Html {
 fn Navigation() -> Html {
     html! {
         <nav class={classes!("col-md-3", "col-lg-2", "d-md-block", "bg-light",
-                             "sidebar", "collapse")}>
-            <div class={classes!("position-sticky", "pt-3")}>
+                             "sidebar", "collapse")} id={"sidebarMenu"}>
+            <div class={classes!("position-sticky", "pt-3", "ps-3")}>
                 <ul class={classes!("nav", "flex-column")}>
                     <li class={classes!("nav-item")}>{
                         "Budget Performance"
@@ -69,7 +67,8 @@ fn Main() -> Html {
                 "border-bottom")}>
                 <h1 class={classes!("h2")}>{ "Budget Performance" }</h1>
             </div>
-            <SpendingHistory />
+            <performance::AccountBalance />
+            <performance::SpendingHistory />
         </main>
     }
 }
@@ -89,6 +88,7 @@ fn App() -> Html {
                     <Main />
                 </div>
             </div>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         </>
     }
 }
