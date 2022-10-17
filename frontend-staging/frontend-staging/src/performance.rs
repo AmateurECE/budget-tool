@@ -8,13 +8,13 @@
 //
 // CREATED:         10/14/2022
 //
-// LAST EDITED:     10/14/2022
+// LAST EDITED:     10/17/2022
 ////
 
 mod account_balance;
 mod spending;
 
-pub use account_balance::AccountBalance;
+pub use account_balance::BalanceHistory;
 pub use spending::SpendingHistory;
 
 ///////////////////////////////////////////////////////////////////////////////

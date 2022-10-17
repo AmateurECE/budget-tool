@@ -7,7 +7,7 @@
 //
 // CREATED:         10/07/2022
 //
-// LAST EDITED:     10/15/2022
+// LAST EDITED:     10/17/2022
 ////
 
 use yew::prelude::*;
@@ -40,11 +40,14 @@ fn Header() -> Html {
 enum Route {
     #[at("/spending_history")]
     SpendingHistory,
+    #[at("/balance_history")]
+    BalanceHistory,
 }
 
 fn app_switch(route: Route) -> Html {
     match route {
         Route::SpendingHistory => html! { <performance::SpendingHistory /> },
+        Route::BalanceHistory => html! { <performance::BalanceHistory /> },
     }
 }
 
@@ -62,6 +65,12 @@ fn Navigation() -> Html {
                     <li class={classes!("nav-item")}>
                         <Link<Route> to={Route::SpendingHistory}>{
                             "Spending History"
+                        }</Link<Route>>
+                    </li>
+
+                    <li class={classes!("nav-item")}>
+                        <Link<Route> to={Route::BalanceHistory}>{
+                            "Account Balance History"
                         }</Link<Route>>
                     </li>
                 </ul>
@@ -97,6 +106,12 @@ fn Main() -> Html {
 // App
 ////
 
+const BOOTSTRAP_BUNDLE: &'static str = "\
+https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js";
+
+const BOOTSTRAP_SHA: &'static str = "\
+sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM";
+
 #[function_component]
 fn App() -> Html {
     html! {
@@ -107,7 +122,9 @@ fn App() -> Html {
                     <Main />
                 </div>
             </div>
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+            <script src={BOOTSTRAP_BUNDLE} integrity={BOOTSTRAP_SHA}
+                crossorigin="anonymous">
+            </script>
         </>
     }
 }
