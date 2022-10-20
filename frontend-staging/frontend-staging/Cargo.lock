@@ -51,6 +51,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+name = "chart-js"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde-wasm-bindgen 0.4.5",
+ "wasm-bindgen",
+ "web-sys",
+]
+
+[[package]]
 name = "chrono"
 version = "0.4.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -100,8 +110,8 @@ dependencies = [
 name = "frontend-staging"
 version = "0.1.0"
 dependencies = [
+ "chart-js",
  "models",
- "serde",
  "serde-wasm-bindgen 0.4.5",
  "strum",
  "strum_macros",
