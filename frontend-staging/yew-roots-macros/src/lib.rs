@@ -8,7 +8,7 @@
 //
 // CREATED:         10/12/2022
 //
-// LAST EDITED:     10/12/2022
+// LAST EDITED:     10/20/2022
 ////
 
 use proc_macro2::TokenStream;
@@ -37,7 +37,7 @@ pub fn derive_fields(
     let field_creation = create_fields(&input.data);
     let expanded = quote! {
         // The generated impl
-        impl #impl_generics ::yew_roots::Fields for #name #ty_generics
+        impl #impl_generics ::yew_roots::fields::Fields for #name #ty_generics
             #where_clause
         {
             fn fields(&self) -> ::yew_roots::fields::FieldView {
@@ -106,8 +106,8 @@ pub fn derive_field_names(
     let field_creation = create_field_names(&input.data);
     let expanded = quote! {
         // The generated impl
-        impl #impl_generics ::yew_roots::FieldNames for #name #ty_generics
-            #where_clause
+        impl #impl_generics ::yew_roots::fields::FieldNames for #name
+            #ty_generics #where_clause
         {
             fn field_names() -> ::yew_roots::fields::FieldSpec {
                 #field_creation

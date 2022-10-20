@@ -112,11 +112,9 @@ version = "0.1.0"
 dependencies = [
  "chart-js",
  "models",
- "serde-wasm-bindgen 0.4.5",
  "strum",
  "strum_macros",
  "wasm-bindgen",
- "web-sys",
  "yew",
  "yew-roots",
  "yew-router",
@@ -914,6 +912,9 @@ dependencies = [
 name = "yew-roots"
 version = "0.1.0"
 dependencies = [
+ "chart-js",
+ "serde-wasm-bindgen 0.4.5",
+ "web-sys",
  "yew",
  "yew-roots-macros",
 ]
