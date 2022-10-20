@@ -21,6 +21,8 @@ use yew::prelude::*;
 pub struct BalanceHistory {
     chart: Option<Chart>,
     canvas: NodeRef,
+    labels: Vec<String>,
+    y_data: Vec<i32>,
 }
 
 impl Component for BalanceHistory {
@@ -28,9 +30,15 @@ impl Component for BalanceHistory {
     type Properties = ();
 
     fn create(_ctx: &Context<Self>) -> Self {
+        let labels = vec![
+            "January", "February", "March", "April", "May", "June",
+        ].into_iter().map(|month| month.to_string()).collect::<Vec<String>>();
+        let y_data = vec![0, 10, 5, 2, 20, 30, 45];
+
         Self {
             chart: None,
             canvas: NodeRef::default(),
+            labels, y_data,
         }
     }
 
@@ -46,24 +54,13 @@ impl Component for BalanceHistory {
     }
 
     fn rendered(&mut self, _ctx: &Context<Self>, _first_render: bool) {
-        let labels = vec![
-            "January".to_string(),
-            "February".to_string(),
-            "March".to_string(),
-            "April".to_string(),
-            "May".to_string(),
-            "June".to_string(),
-        ];
-
-        let y_data = vec![0, 10, 5, 2, 20, 30, 45];
-
         let data = ChartData {
-            labels,
+            labels: self.labels.clone(),
             datasets: vec![ ChartDataset {
                 label: "My First dataset".to_string(),
                 background_color: "rgb(255, 99, 132)".to_string(),
                 border_color: "rgb(255, 99, 132)".to_string(),
-                data: y_data,
+                data: self.y_data.clone(),
             }],
         };
 
@@ -73,12 +70,9 @@ impl Component for BalanceHistory {
             options: ChartOptions {},
         };
 
+        let canvas = self.canvas.cast::<HtmlCanvasElement>().unwrap();
         let config = serde_wasm_bindgen::to_value(&chart_config).unwrap();
-        web_sys::console::log_1(&config);
-        self.chart = Some(Chart::new(
-            self.canvas.cast::<HtmlCanvasElement>().unwrap(),
-            config
-        ));
+        self.chart = Some(Chart::new(canvas, config));
     }
 }
 
