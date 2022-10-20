@@ -7,7 +7,7 @@
 //
 // CREATED:         10/07/2022
 //
-// LAST EDITED:     10/17/2022
+// LAST EDITED:     10/19/2022
 ////
 
 use yew::prelude::*;
@@ -106,12 +106,6 @@ fn Main() -> Html {
 // App
 ////
 
-const BOOTSTRAP_BUNDLE: &'static str = "\
-https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js";
-
-const BOOTSTRAP_SHA: &'static str = "\
-sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM";
-
 #[function_component]
 fn App() -> Html {
     html! {
@@ -122,9 +116,6 @@ fn App() -> Html {
                     <Main />
                 </div>
             </div>
-            <script src={BOOTSTRAP_BUNDLE} integrity={BOOTSTRAP_SHA}
-                crossorigin="anonymous">
-            </script>
         </>
     }
 }
