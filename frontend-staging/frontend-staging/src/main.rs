@@ -36,7 +36,7 @@ fn Header() -> Html {
 // Routing
 ////
 
-#[derive(Routable, PartialEq, Clone, Debug)]
+#[derive(Copy, Routable, PartialEq, Clone, Debug)]
 enum Route {
     #[at("/spending_history")]
     SpendingHistory,
@@ -55,6 +55,21 @@ fn app_switch(route: Route) -> Html {
 // Navigation
 ////
 
+#[derive(Clone, Copy, Properties, PartialEq)]
+struct ViewLinkProps {
+    to: Route,
+    label: &'static str,
+}
+
+#[function_component]
+fn ViewLink(props: &ViewLinkProps) -> Html {
+    html! {
+        <li class={classes!("nav-item")}>
+            <Link<Route> to={props.to}>{ props.label }</Link<Route>>
+        </li>
+    }
+}
+
 #[function_component]
 fn Navigation() -> Html {
     html! {
@@ -62,17 +77,10 @@ fn Navigation() -> Html {
                              "sidebar", "collapse")} id={"sidebarMenu"}>
             <div class={classes!("position-sticky", "pt-3", "ps-3")}>
                 <ul class={classes!("nav", "flex-column")}>
-                    <li class={classes!("nav-item")}>
-                        <Link<Route> to={Route::SpendingHistory}>{
-                            "Spending History"
-                        }</Link<Route>>
-                    </li>
-
-                    <li class={classes!("nav-item")}>
-                        <Link<Route> to={Route::BalanceHistory}>{
-                            "Account Balance History"
-                        }</Link<Route>>
-                    </li>
+                    <ViewLink to={Route::SpendingHistory}
+                     label={"Spending History"} />
+                    <ViewLink to={Route::BalanceHistory}
+                     label={"Account Balance History"} />
                 </ul>
             </div>
         </nav>
