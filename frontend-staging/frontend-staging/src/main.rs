@@ -10,9 +10,11 @@
 // LAST EDITED:     10/19/2022
 ////
 
+use strum_macros::EnumIter;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
+mod navigation;
 mod performance;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -36,7 +38,7 @@ fn Header() -> Html {
 // Routing
 ////
 
-#[derive(Copy, Routable, PartialEq, Clone, Debug)]
+#[derive(Copy, Routable, PartialEq, Clone, Debug, EnumIter)]
 enum Route {
     #[at("/spending_history")]
     SpendingHistory,
@@ -44,46 +46,19 @@ enum Route {
     BalanceHistory,
 }
 
+impl ToString for Route {
+    fn to_string(&self) -> String {
+        match self {
+            Route::SpendingHistory => "Spending History".to_string(),
+            Route::BalanceHistory => "Account Balance History".to_string(),
+        }
+    }
+}
+
 fn app_switch(route: Route) -> Html {
     match route {
         Route::SpendingHistory => html! { <performance::SpendingHistory /> },
         Route::BalanceHistory => html! { <performance::BalanceHistory /> },
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Navigation
-////
-
-#[derive(Clone, Copy, Properties, PartialEq)]
-struct ViewLinkProps {
-    to: Route,
-    label: &'static str,
-}
-
-#[function_component]
-fn ViewLink(props: &ViewLinkProps) -> Html {
-    html! {
-        <li class={classes!("nav-item")}>
-            <Link<Route> to={props.to}>{ props.label }</Link<Route>>
-        </li>
-    }
-}
-
-#[function_component]
-fn Navigation() -> Html {
-    html! {
-        <nav class={classes!("col-md-3", "col-lg-2", "d-md-block", "bg-light",
-                             "sidebar", "collapse")} id={"sidebarMenu"}>
-            <div class={classes!("position-sticky", "pt-3", "ps-3")}>
-                <ul class={classes!("nav", "flex-column")}>
-                    <ViewLink to={Route::SpendingHistory}
-                     label={"Spending History"} />
-                    <ViewLink to={Route::BalanceHistory}
-                     label={"Account Balance History"} />
-                </ul>
-            </div>
-        </nav>
     }
 }
 
@@ -95,7 +70,7 @@ fn Navigation() -> Html {
 fn Main() -> Html {
     html! {
         <BrowserRouter>
-            <Navigation />
+            <navigation::Navigation<Route> />
             <main class={classes!("col-md-9", "ms-sm-auto", "col-lg-10",
                                   "px-md-4")} role={"main"}>
                 <div class={classes!(
