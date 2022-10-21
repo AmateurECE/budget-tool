@@ -14,6 +14,8 @@ use yew::prelude::*;
 use yew_roots::prelude::*;
 use yew_roots::table::Table;
 
+use crate::view::ViewHeader;
+
 ///////////////////////////////////////////////////////////////////////////////
 // SpendingHistory
 ////
@@ -46,7 +48,7 @@ pub fn SpendingHistory() -> Html {
 
     html! {
         <>
-        <h2>{ "Spending History By Line Item" }</h2>
+        <ViewHeader text={"Spending History By Line Item".to_string()} />
         <Table<LineItem> class={classes!(
             "table", "table-striped", "table-hover", "table-responsive",
             "table-sm")}

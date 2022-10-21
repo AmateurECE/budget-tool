@@ -12,6 +12,7 @@
 
 use yew::prelude::*;
 use yew_roots::chart::SingleSeriesLineChart;
+use crate::view::ViewHeader;
 
 ///////////////////////////////////////////////////////////////////////////////
 // BalanceHistory
@@ -42,7 +43,7 @@ impl Component for BalanceHistory {
     fn view(&self, _ctx: &Context<Self>) -> Html {
         html! {
             <>
-            <h2>{ "Account Balance History" }</h2>
+            <ViewHeader text={"Account Balance History".to_string()} />
             <SingleSeriesLineChart x_labels={self.labels.clone()}
              y_data={self.y_data.clone()} title={self.title.clone()} />
             </>

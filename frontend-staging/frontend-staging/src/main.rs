@@ -7,7 +7,7 @@
 //
 // CREATED:         10/07/2022
 //
-// LAST EDITED:     10/19/2022
+// LAST EDITED:     10/20/2022
 ////
 
 use strum_macros::EnumIter;
@@ -16,6 +16,7 @@ use yew_router::prelude::*;
 
 mod navigation;
 mod performance;
+mod view;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Header
@@ -73,12 +74,6 @@ fn Main() -> Html {
             <navigation::Navigation<Route> />
             <main class={classes!("col-md-9", "ms-sm-auto", "col-lg-10",
                                   "px-md-4")} role={"main"}>
-                <div class={classes!(
-                    "d-flex", "justify-content-between", "flex-wrap",
-                    "flex-md-nowrap", "align-items-center", "pt-3", "pb-2",
-                    "mb-3", "border-bottom")}>
-                    <h1 class={classes!("h2")}>{ "Budget Performance" }</h1>
-                </div>
                 <Switch<Route> render={app_switch} />
             </main>
         </BrowserRouter>

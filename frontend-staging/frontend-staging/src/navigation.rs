@@ -7,7 +7,7 @@
 //
 // CREATED:         10/19/2022
 //
-// LAST EDITED:     10/19/2022
+// LAST EDITED:     10/20/2022
 ////
 
 use strum::IntoEnumIterator;
@@ -31,8 +31,10 @@ fn ViewLink<R>(props: &ViewLinkProps<R>) -> Html
 where R: Routable + Copy + 'static,
 {
     html! {
-        <li class={classes!("nav-item")}>
-            <Link<R> to={props.to}>{ &props.label }</Link<R>>
+        <li class={classes!("nav-item", "py-1")}>
+            <Link<R> to={props.to}>
+                <span class={classes!("text-muted")}>{ &props.label }</span>
+            </Link<R>>
         </li>
     }
 }
