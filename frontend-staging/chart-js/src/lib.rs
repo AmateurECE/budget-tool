@@ -7,7 +7,7 @@
 //
 // CREATED:         10/19/2022
 //
-// LAST EDITED:     10/19/2022
+// LAST EDITED:     10/22/2022
 ////
 
 use serde::{Deserialize, Serialize};
@@ -19,7 +19,7 @@ use web_sys::HtmlCanvasElement;
 // ChartData
 ////
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct ChartDataset {
     pub label: String,
 
@@ -31,16 +31,16 @@ pub struct ChartDataset {
     pub data: Vec<i32>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct ChartData {
     pub labels: Vec<String>,
     pub datasets: Vec<ChartDataset>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct ChartOptions {}
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct ChartConfig {
     #[serde(rename = "type")]
     pub chart_type: String,

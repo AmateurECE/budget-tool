@@ -7,11 +7,11 @@
 //
 // CREATED:         10/14/2022
 //
-// LAST EDITED:     10/20/2022
+// LAST EDITED:     10/22/2022
 ////
 
 use yew::prelude::*;
-use yew_roots::chart::SingleSeriesLineChart;
+use yew_roots::chart::{ChartDataset, MultiSeriesLineChart};
 use crate::view::ViewHeader;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@ use crate::view::ViewHeader;
 
 pub struct BalanceHistory {
     labels: Vec<String>,
-    y_data: Vec<i32>,
+    datasets: Vec<ChartDataset>,
     title: String,
 }
 
@@ -32,10 +32,17 @@ impl Component for BalanceHistory {
         let labels = vec![
             "January", "February", "March", "April", "May", "June",
         ].into_iter().map(|month| month.to_string()).collect::<Vec<String>>();
-        let y_data = vec![0, 10, 5, 2, 20, 30, 45];
+        let datasets = vec![
+            ChartDataset {
+                label: "My First Dataset".to_string(),
+                background_color: "rgb(255, 99, 132)".to_string(),
+                border_color: "rgb(255, 99, 132)".to_string(),
+                data: vec![0, 10, 5, 2, 20, 30, 45],
+            },
+        ];
 
         Self {
-            labels, y_data,
+            labels, datasets,
             title: "My First Dataset".to_string(),
         }
     }
@@ -44,8 +51,8 @@ impl Component for BalanceHistory {
         html! {
             <>
             <ViewHeader text={"Account Balance History".to_string()} />
-            <SingleSeriesLineChart x_labels={self.labels.clone()}
-             y_data={self.y_data.clone()} title={self.title.clone()} />
+            <MultiSeriesLineChart x_labels={self.labels.clone()}
+             datasets={self.datasets.clone()} title={self.title.clone()} />
             </>
         }
     }

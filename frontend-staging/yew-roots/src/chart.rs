@@ -7,33 +7,35 @@
 //
 // CREATED:         10/20/2022
 //
-// LAST EDITED:     10/20/2022
+// LAST EDITED:     10/22/2022
 ////
 
-use chart_js::{Chart, ChartConfig, ChartData, ChartDataset, ChartOptions};
+use chart_js::{Chart, ChartConfig, ChartData, ChartOptions};
 use web_sys::HtmlCanvasElement;
 use yew::prelude::*;
 
+pub use chart_js::ChartDataset;
+
 ///////////////////////////////////////////////////////////////////////////////
-// SingleSeriesLineChart
+// MultiSeriesLineChart
 ////
 
 #[derive(Properties, PartialEq)]
-pub struct SingleSeriesLineChartProps {
+pub struct MultiSeriesLineChartProps {
     pub x_labels: Vec<String>,
     // TODO: Use Num from num-traits here
-    pub y_data: Vec<i32>,
+    pub datasets: Vec<ChartDataset>,
     pub title: String,
 }
 
-pub struct SingleSeriesLineChart {
+pub struct MultiSeriesLineChart {
     chart: Option<Chart>,
     canvas: NodeRef,
 }
 
-impl Component for SingleSeriesLineChart {
+impl Component for MultiSeriesLineChart {
     type Message = ();
-    type Properties = SingleSeriesLineChartProps;
+    type Properties = MultiSeriesLineChartProps;
 
     fn create(_ctx: &Context<Self>) -> Self {
         Self {
@@ -53,12 +55,7 @@ impl Component for SingleSeriesLineChart {
     fn rendered(&mut self, context: &Context<Self>, _first_render: bool) {
         let data = ChartData {
             labels: context.props().x_labels.clone(),
-            datasets: vec![ ChartDataset {
-                label: context.props().title.clone(),
-                background_color: "rgb(255, 99, 132)".to_string(),
-                border_color: "rgb(255, 99, 132)".to_string(),
-                data: context.props().y_data.clone(),
-            }],
+            datasets: context.props().datasets.clone(),
         };
 
         let chart_config = ChartConfig {
