@@ -10,21 +10,22 @@
 // LAST EDITED:     10/23/2022
 ////
 
+use std::rc::Rc;
 use yew::prelude::*;
 use yew_roots::chart::{ChartDataset, MultiSeriesLineChart};
 use crate::view::ViewHeader;
 
 ///////////////////////////////////////////////////////////////////////////////
-// BalanceHistory
+// BalanceHistoryChart
 ////
 
-pub struct BalanceHistory {
+pub struct BalanceHistoryChart {
     labels: Vec<String>,
     datasets: Vec<ChartDataset>,
     title: String,
 }
 
-impl Component for BalanceHistory {
+impl Component for BalanceHistoryChart {
     type Message = ();
     type Properties = ();
 
@@ -61,12 +62,61 @@ impl Component for BalanceHistory {
 
     fn view(&self, _ctx: &Context<Self>) -> Html {
         html! {
-            <>
-            <ViewHeader text={"Account Balance History".to_string()} />
             <MultiSeriesLineChart x_labels={self.labels.clone()}
              datasets={self.datasets.clone()} title={self.title.clone()} />
-            </>
         }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// AccountRouter
+////
+
+#[derive(Clone, Debug, PartialEq)]
+struct Account {
+    pub name: String,
+}
+
+#[derive(Properties, PartialEq)]
+pub struct AccountRouterProps {
+    pub options: Vec<String>,
+    pub children: Children,
+}
+
+#[function_component]
+pub fn AccountRouter(props: &AccountRouterProps) -> Html {
+    let account = use_memo(|_| Account {
+        name: "FECCCU".to_string(),
+    }, ());
+
+    html! {
+        <ContextProvider<Rc<Account>> context={account}>
+            <select name="account">{
+                props.options.iter().map(|value| html! {
+                    <option value={value.clone()}>{value}</option>
+                }).collect::<Html>()
+            }</select>
+            { for props.children.iter()}
+        </ContextProvider<Rc<Account>>>
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// BalanceHistory
+////
+
+#[function_component]
+pub fn BalanceHistory() -> Html {
+    let accounts = vec!["FECCCU", "Nicolet", "Discover"].into_iter()
+        .map(|account| account.to_string()).collect::<Vec<String>>();
+
+    html! {
+        <>
+        <ViewHeader text={"Account Balance History".to_string()} />
+        <AccountRouter options={accounts}>
+            <BalanceHistoryChart />
+        </AccountRouter>
+        </>
     }
 }
 
