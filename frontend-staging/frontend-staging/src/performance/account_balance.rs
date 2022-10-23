@@ -10,7 +10,9 @@
 // LAST EDITED:     10/23/2022
 ////
 
-use std::rc::Rc;
+use std::collections::HashMap;
+use wasm_bindgen::JsCast;
+use web_sys::{EventTarget, HtmlSelectElement};
 use yew::prelude::*;
 use yew_roots::chart::{ChartDataset, MultiSeriesLineChart};
 use crate::view::ViewHeader;
@@ -19,52 +21,59 @@ use crate::view::ViewHeader;
 // BalanceHistoryChart
 ////
 
-pub struct BalanceHistoryChart {
-    labels: Vec<String>,
-    datasets: Vec<ChartDataset>,
-    title: String,
+#[derive(Properties, PartialEq)]
+pub struct BalanceHistoryChartProps {
+    pub actual: Vec<Option<i32>>,
+    pub predicted: Vec<Option<i32>>,
 }
 
-impl Component for BalanceHistoryChart {
-    type Message = ();
-    type Properties = ();
+#[function_component]
+pub fn BalanceHistoryChart(props: &BalanceHistoryChartProps) -> Html {
+    let title = "Account Balance".to_string();
+    let labels = vec![
+        "January", "February", "March", "April", "May", "June", "July",
+        "August", "September", "October", "November", "December",
+    ].into_iter().map(|month| month.to_string()).collect::<Vec<String>>();
+    let datasets = vec![
+        ChartDataset {
+            label: "Account Balance".to_string(),
+            background_color: "rgb(255, 99, 132)".to_string(),
+            border_color: "rgb(255, 99, 132)".to_string(),
+            data: props.actual.clone(),
+        },
+        ChartDataset {
+            label: "Predicted Balance".to_string(),
+            background_color: "rgb(0, 99, 132)".to_string(),
+            border_color: "rgb(0, 99, 132)".to_string(),
+            data: props.predicted.clone(),
+        },
+    ];
 
-    fn create(_ctx: &Context<Self>) -> Self {
-        let labels = vec![
-            "January", "February", "March", "April", "May", "June", "July",
-            "August", "September", "October", "November", "December",
-        ].into_iter().map(|month| month.to_string()).collect::<Vec<String>>();
-        let datasets = vec![
-            ChartDataset {
-                label: "Account Balance".to_string(),
-                background_color: "rgb(255, 99, 132)".to_string(),
-                border_color: "rgb(255, 99, 132)".to_string(),
-                data: vec![
-                    Some(0), Some(10), Some(5), Some(2), Some(20), Some(30),
-                    Some(45), None],
-            },
-            ChartDataset {
-                label: "Predicted Balance".to_string(),
-                background_color: "rgb(0, 99, 132)".to_string(),
-                border_color: "rgb(0, 99, 132)".to_string(),
-                data: vec![
-                    None, None, None, None, None, None, Some(45), Some(60),
-                    Some(53), Some(50), Some(60), Some(57)
-                ],
-            },
-        ];
-
-        Self {
-            labels, datasets,
-            title: "My First Dataset".to_string(),
-        }
+    html! {
+        <MultiSeriesLineChart x_labels={labels} {datasets} {title} />
     }
+}
 
-    fn view(&self, _ctx: &Context<Self>) -> Html {
-        html! {
-            <MultiSeriesLineChart x_labels={self.labels.clone()}
-             datasets={self.datasets.clone()} title={self.title.clone()} />
-        }
+///////////////////////////////////////////////////////////////////////////////
+// SwitchedBalanceHistoryChart
+////
+
+#[derive(Properties, PartialEq)]
+pub struct SwitchedBalanceHistoryChartProps {
+    pub actual: HashMap<String, Vec<Option<i32>>>,
+    pub predicted: HashMap<String, Vec<Option<i32>>>,
+}
+
+#[function_component]
+pub fn SwitchedBalanceHistoryChart(props: &SwitchedBalanceHistoryChartProps) ->
+    Html
+{
+    let account = use_context::<Account>().expect("No context found!");
+
+    html! {
+        <BalanceHistoryChart
+         actual={props.actual.get(&account.name).unwrap().clone()}
+         predicted={props.predicted.get(&account.name).unwrap().clone()} />
     }
 }
 
@@ -85,19 +94,30 @@ pub struct AccountRouterProps {
 
 #[function_component]
 pub fn AccountRouter(props: &AccountRouterProps) -> Html {
-    let account = use_memo(|_| Account {
-        name: "FECCCU".to_string(),
-    }, ());
+    let name = props.options.first().map(|op| op.clone()).unwrap();
+    let state = use_state(|| Account { name });
+    let onchange = {
+        let state = state.clone();
+        Callback::from(move |event: Event| {
+            let target: Option<EventTarget> = event.target();
+            let select = target
+                .and_then(|t| t.dyn_into::<HtmlSelectElement>().ok())
+                .expect("Event must have occurred on select element");
+            state.set(Account { name: select.value().clone() });
+        })
+    };
 
     html! {
-        <ContextProvider<Rc<Account>> context={account}>
-            <select name="account">{
+        <>
+            <select name="account" {onchange}>{
                 props.options.iter().map(|value| html! {
                     <option value={value.clone()}>{value}</option>
                 }).collect::<Html>()
             }</select>
-            { for props.children.iter()}
-        </ContextProvider<Rc<Account>>>
+            <ContextProvider<Account> context={(*state).clone()}>{
+                for props.children.iter()
+            }</ContextProvider<Account>>
+        </>
     }
 }
 
@@ -105,16 +125,35 @@ pub fn AccountRouter(props: &AccountRouterProps) -> Html {
 // BalanceHistory
 ////
 
+const DISCOVER_ACTUAL: [Option<i32>; 8] = [
+    Some(0), Some(10), Some(5), Some(2), Some(20), Some(30), Some(45), None,
+];
+
+const DISCOVER_PREDICTED: [Option<i32>; 12] = [
+    None, None, None, None, None, None, Some(45), Some(60), Some(53), Some(50),
+    Some(60), Some(57),
+];
+
 #[function_component]
 pub fn BalanceHistory() -> Html {
     let accounts = vec!["FECCCU", "Nicolet", "Discover"].into_iter()
         .map(|account| account.to_string()).collect::<Vec<String>>();
+    let actual = HashMap::<String, Vec<Option<i32>>>::from([
+        ("Discover".to_string(), DISCOVER_ACTUAL.to_vec()),
+        ("FECCCU".to_string(), vec![]),
+        ("Nicolet".to_string(), vec![]),
+    ]);
+    let predicted = HashMap::from([
+        ("Discover".to_string(), DISCOVER_PREDICTED.to_vec()),
+        ("FECCCU".to_string(), vec![]),
+        ("Nicolet".to_string(), vec![]),
+    ]);
 
     html! {
         <>
         <ViewHeader text={"Account Balance History".to_string()} />
         <AccountRouter options={accounts}>
-            <BalanceHistoryChart />
+            <SwitchedBalanceHistoryChart {actual} {predicted} />
         </AccountRouter>
         </>
     }

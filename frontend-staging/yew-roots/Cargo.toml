@@ -7,6 +7,7 @@ edition = "2021"
 [dependencies]
 chart-js = { path = "../chart-js", optional = true }
 serde-wasm-bindgen = "0.4.5"
+wasm-bindgen = "0.2.83"
 web-sys = { version = "0.3.60", features = ["HtmlCanvasElement"] }
 yew = { git = "https://github.com/yewstack/yew/", features = ["csr"] }
 yew-roots-macros = { path = "../yew-roots-macros" }

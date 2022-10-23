@@ -115,6 +115,7 @@ dependencies = [
  "strum",
  "strum_macros",
  "wasm-bindgen",
+ "web-sys",
  "yew",
  "yew-roots",
  "yew-router",
@@ -914,6 +915,7 @@ version = "0.1.0"
 dependencies = [
  "chart-js",
  "serde-wasm-bindgen 0.4.5",
+ "wasm-bindgen",
  "web-sys",
  "yew",
  "yew-roots-macros",

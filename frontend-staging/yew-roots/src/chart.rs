@@ -7,10 +7,11 @@
 //
 // CREATED:         10/20/2022
 //
-// LAST EDITED:     10/22/2022
+// LAST EDITED:     10/23/2022
 ////
 
-use chart_js::{Chart, ChartConfig, ChartData, ChartOptions};
+use chart_js::{Chart, ChartConfiguration, ChartData, ChartOptions};
+use wasm_bindgen::JsValue;
 use web_sys::HtmlCanvasElement;
 use yew::prelude::*;
 
@@ -53,20 +54,28 @@ impl Component for MultiSeriesLineChart {
     }
 
     fn rendered(&mut self, context: &Context<Self>, _first_render: bool) {
-        let data = ChartData {
-            labels: context.props().x_labels.clone(),
-            datasets: context.props().datasets.clone(),
-        };
+        if let Some(chart) = &self.chart {
+            chart.data()
+                .set_datasets(context.props().datasets.iter().map(|dataset| {
+                    serde_wasm_bindgen::to_value(&dataset).unwrap()
+                }).collect::<Vec<JsValue>>().into_boxed_slice());
+            chart.update();
+        } else {
+            let data = ChartData {
+                labels: context.props().x_labels.clone(),
+                datasets: context.props().datasets.clone(),
+            };
 
-        let chart_config = ChartConfig {
-            chart_type: "line".to_string(),
-            data,
-            options: ChartOptions {},
-        };
+            let chart_config = ChartConfiguration {
+                chart_type: "line".to_string(),
+                data,
+                options: ChartOptions {},
+            };
 
-        let canvas = self.canvas.cast::<HtmlCanvasElement>().unwrap();
-        let config = serde_wasm_bindgen::to_value(&chart_config).unwrap();
-        self.chart = Some(Chart::new(canvas, config));
+            let canvas = self.canvas.cast::<HtmlCanvasElement>().unwrap();
+            let config = serde_wasm_bindgen::to_value(&chart_config).unwrap();
+            self.chart = Some(Chart::new(canvas, config.into()));
+        }
     }
 }
 

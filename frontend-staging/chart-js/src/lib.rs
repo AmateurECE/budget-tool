@@ -12,11 +12,43 @@
 
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsValue;
 use web_sys::HtmlCanvasElement;
 
 ///////////////////////////////////////////////////////////////////////////////
-// ChartData
+// ChartJS Bindings
+////
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(typescript_type = "ChartDataset")]
+    pub type IChartDataset;
+
+    #[wasm_bindgen(typescript_type = "ChartData")]
+    pub type IChartData;
+
+    #[wasm_bindgen(method, getter)]
+    pub fn datasets(data: &IChartData) -> Box<[JsValue]>;
+
+    #[wasm_bindgen(method, setter)]
+    pub fn set_datasets(data: &IChartData, datasets: Box<[JsValue]>);
+
+    #[wasm_bindgen(typescript_type = "ChartOptions")]
+    pub type IChartOptions;
+    #[wasm_bindgen(typescript_type = "ChartConfiguration")]
+    pub type IChartConfiguration;
+
+    pub type Chart;
+
+    #[wasm_bindgen(constructor)]
+    pub fn new(item: HtmlCanvasElement, config: IChartConfiguration) -> Chart;
+    #[wasm_bindgen(method)]
+    pub fn update(chart: &Chart);
+    #[wasm_bindgen(method, getter)]
+    pub fn data(chart: &Chart) -> IChartData;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// ChartDataset
 ////
 
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
@@ -31,33 +63,59 @@ pub struct ChartDataset {
     pub data: Vec<Option<i32>>,
 }
 
+impl Into<IChartDataset> for ChartDataset {
+    fn into(self) -> IChartDataset {
+        todo!()
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// ChartData
+////
+
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct ChartData {
     pub labels: Vec<String>,
     pub datasets: Vec<ChartDataset>,
 }
 
+impl Into<IChartData> for ChartData {
+    fn into(self) -> IChartData {
+        todo!()
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// ChartOptions
+////
+
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct ChartOptions {}
 
+impl Into<IChartOptions> for ChartOptions {
+    fn into(self) -> IChartOptions {
+        todo!()
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// ChartConfiguration
+////
+
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
-pub struct ChartConfig {
+pub struct ChartConfiguration {
     #[serde(rename = "type")]
     pub chart_type: String,
     pub data: ChartData,
     pub options: ChartOptions,
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// ChartJS Bindings
-////
-
-#[wasm_bindgen]
-extern "C" {
-    pub type Chart;
-
-    #[wasm_bindgen(constructor)]
-    pub fn new(item: HtmlCanvasElement, config: JsValue) -> Chart;
+impl Into<IChartConfiguration> for ChartConfiguration {
+    fn into(self) -> IChartConfiguration {
+        serde_wasm_bindgen::to_value(&self).expect(
+            "Failed to convert ChartConfiguration to IChartConfiguration")
+            .into()
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
