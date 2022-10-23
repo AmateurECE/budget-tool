@@ -7,7 +7,7 @@
 //
 // CREATED:         10/19/2022
 //
-// LAST EDITED:     10/22/2022
+// LAST EDITED:     10/23/2022
 ////
 
 use serde::{Deserialize, Serialize};
@@ -28,7 +28,7 @@ pub struct ChartDataset {
 
     #[serde(rename = "borderColor")]
     pub border_color: String,
-    pub data: Vec<i32>,
+    pub data: Vec<Option<i32>>,
 }
 
 #[derive(Clone, PartialEq, Serialize, Deserialize)]

@@ -7,7 +7,7 @@
 //
 // CREATED:         10/14/2022
 //
-// LAST EDITED:     10/22/2022
+// LAST EDITED:     10/23/2022
 ////
 
 use yew::prelude::*;
@@ -30,14 +30,26 @@ impl Component for BalanceHistory {
 
     fn create(_ctx: &Context<Self>) -> Self {
         let labels = vec![
-            "January", "February", "March", "April", "May", "June",
+            "January", "February", "March", "April", "May", "June", "July",
+            "August", "September", "October", "November", "December",
         ].into_iter().map(|month| month.to_string()).collect::<Vec<String>>();
         let datasets = vec![
             ChartDataset {
-                label: "My First Dataset".to_string(),
+                label: "Account Balance".to_string(),
                 background_color: "rgb(255, 99, 132)".to_string(),
                 border_color: "rgb(255, 99, 132)".to_string(),
-                data: vec![0, 10, 5, 2, 20, 30, 45],
+                data: vec![
+                    Some(0), Some(10), Some(5), Some(2), Some(20), Some(30),
+                    Some(45), None],
+            },
+            ChartDataset {
+                label: "Predicted Balance".to_string(),
+                background_color: "rgb(0, 99, 132)".to_string(),
+                border_color: "rgb(0, 99, 132)".to_string(),
+                data: vec![
+                    None, None, None, None, None, None, Some(45), Some(60),
+                    Some(53), Some(50), Some(60), Some(57)
+                ],
             },
         ];
 
