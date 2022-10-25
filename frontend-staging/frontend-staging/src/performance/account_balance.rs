@@ -41,6 +41,7 @@ pub fn BalanceHistoryChart(props: &BalanceHistoryChartProps) -> Html {
             .data(props.actual.clone())
             .background_color("rgb(255, 99, 132)".to_string())
             .border_color("rgb(255, 99, 132)".to_string())
+            .stepped(true)
             .build()
             .unwrap(),
         ChartDatasetBuilder::default()
@@ -48,6 +49,7 @@ pub fn BalanceHistoryChart(props: &BalanceHistoryChartProps) -> Html {
             .data(props.predicted.clone())
             .background_color("rgb(75, 192, 192)".to_string())
             .border_color("rgb(75, 192, 192)".to_string())
+            .stepped(true)
             .build()
             .unwrap(),
     ];
