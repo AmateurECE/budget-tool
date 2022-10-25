@@ -7,9 +7,10 @@
 //
 // CREATED:         10/19/2022
 //
-// LAST EDITED:     10/23/2022
+// LAST EDITED:     10/24/2022
 ////
 
+use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 use web_sys::HtmlCanvasElement;
@@ -22,21 +23,25 @@ use web_sys::HtmlCanvasElement;
 extern "C" {
     #[wasm_bindgen(typescript_type = "ChartDataset")]
     pub type IChartDataset;
+    #[wasm_bindgen(typescript_type = "ChartOptions")]
+    pub type IChartOptions;
+    #[wasm_bindgen(typescript_type = "ChartConfiguration")]
+    pub type IChartConfiguration;
+}
 
+#[wasm_bindgen]
+extern "C" {
     #[wasm_bindgen(typescript_type = "ChartData")]
     pub type IChartData;
 
     #[wasm_bindgen(method, getter)]
     pub fn datasets(data: &IChartData) -> Box<[JsValue]>;
-
     #[wasm_bindgen(method, setter)]
     pub fn set_datasets(data: &IChartData, datasets: Box<[JsValue]>);
+}
 
-    #[wasm_bindgen(typescript_type = "ChartOptions")]
-    pub type IChartOptions;
-    #[wasm_bindgen(typescript_type = "ChartConfiguration")]
-    pub type IChartConfiguration;
-
+#[wasm_bindgen]
+extern "C" {
     pub type Chart;
 
     #[wasm_bindgen(constructor)]
@@ -51,16 +56,22 @@ extern "C" {
 // ChartDataset
 ////
 
-#[derive(Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Builder, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct ChartDataset {
     pub label: String,
+    pub data: Vec<Option<i32>>,
 
     #[serde(rename = "backgroundColor")]
-    pub background_color: String,
-
+    #[builder(default, setter(strip_option))]
+    pub background_color: Option<String>,
     #[serde(rename = "borderColor")]
-    pub border_color: String,
-    pub data: Vec<Option<i32>>,
+    #[builder(default, setter(strip_option))]
+    pub border_color: Option<String>,
+
+    #[builder(default, setter(strip_option))]
+    pub fill: Option<bool>,
+    #[builder(default, setter(strip_option))]
+    pub stepped: Option<bool>,
 }
 
 impl Into<IChartDataset> for ChartDataset {
@@ -112,8 +123,10 @@ pub struct ChartConfiguration {
 
 impl Into<IChartConfiguration> for ChartConfiguration {
     fn into(self) -> IChartConfiguration {
-        serde_wasm_bindgen::to_value(&self).expect(
-            "Failed to convert ChartConfiguration to IChartConfiguration")
+        serde_wasm_bindgen::to_value(&self)
+            .expect(
+                "Failed to convert ChartConfiguration to IChartConfiguration",
+            )
             .into()
     }
 }

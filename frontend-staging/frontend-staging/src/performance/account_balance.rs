@@ -7,14 +7,15 @@
 //
 // CREATED:         10/14/2022
 //
-// LAST EDITED:     10/23/2022
+// LAST EDITED:     10/24/2022
 ////
 
+use chart_js::ChartDatasetBuilder;
 use std::collections::HashMap;
 use wasm_bindgen::JsCast;
 use web_sys::{EventTarget, HtmlSelectElement};
 use yew::prelude::*;
-use yew_roots::chart::{ChartDataset, MultiSeriesLineChart};
+use yew_roots::chart::MultiSeriesLineChart;
 use crate::view::ViewHeader;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -35,18 +36,20 @@ pub fn BalanceHistoryChart(props: &BalanceHistoryChartProps) -> Html {
         "August", "September", "October", "November", "December",
     ].into_iter().map(|month| month.to_string()).collect::<Vec<String>>();
     let datasets = vec![
-        ChartDataset {
-            label: "Account Balance".to_string(),
-            background_color: "rgb(255, 99, 132)".to_string(),
-            border_color: "rgb(255, 99, 132)".to_string(),
-            data: props.actual.clone(),
-        },
-        ChartDataset {
-            label: "Predicted Balance".to_string(),
-            background_color: "rgb(0, 99, 132)".to_string(),
-            border_color: "rgb(0, 99, 132)".to_string(),
-            data: props.predicted.clone(),
-        },
+        ChartDatasetBuilder::default()
+            .label("Account Balance".to_string())
+            .data(props.actual.clone())
+            .background_color("rgb(255, 99, 132)".to_string())
+            .border_color("rgb(255, 99, 132)".to_string())
+            .build()
+            .unwrap(),
+        ChartDatasetBuilder::default()
+            .label("Predicted Balance".to_string())
+            .data(props.predicted.clone())
+            .background_color("rgb(75, 192, 192)".to_string())
+            .border_color("rgb(75, 192, 192)".to_string())
+            .build()
+            .unwrap(),
     ];
 
     html! {

@@ -7,15 +7,15 @@
 //
 // CREATED:         10/20/2022
 //
-// LAST EDITED:     10/23/2022
+// LAST EDITED:     10/24/2022
 ////
 
-use chart_js::{Chart, ChartConfiguration, ChartData, ChartOptions};
+use chart_js::{
+    Chart, ChartConfiguration, ChartData, ChartDataset, ChartOptions,
+};
 use wasm_bindgen::JsValue;
 use web_sys::HtmlCanvasElement;
 use yew::prelude::*;
-
-pub use chart_js::ChartDataset;
 
 ///////////////////////////////////////////////////////////////////////////////
 // MultiSeriesLineChart
@@ -55,10 +55,17 @@ impl Component for MultiSeriesLineChart {
 
     fn rendered(&mut self, context: &Context<Self>, _first_render: bool) {
         if let Some(chart) = &self.chart {
-            chart.data()
-                .set_datasets(context.props().datasets.iter().map(|dataset| {
-                    serde_wasm_bindgen::to_value(&dataset).unwrap()
-                }).collect::<Vec<JsValue>>().into_boxed_slice());
+            chart.data().set_datasets(
+                context
+                    .props()
+                    .datasets
+                    .iter()
+                    .map(|dataset| {
+                        serde_wasm_bindgen::to_value(&dataset).unwrap()
+                    })
+                    .collect::<Vec<JsValue>>()
+                    .into_boxed_slice(),
+            );
             chart.update();
         } else {
             let data = ChartData {

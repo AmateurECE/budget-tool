@@ -11,8 +11,8 @@
 ////
 
 pub mod fields;
-pub mod table;
 pub mod prelude;
+pub mod table;
 
 #[cfg(feature = "chart")]
 pub mod chart;
