@@ -3,182 +3,63 @@
 //
 // AUTHOR:          Ethan D. Twardy <ethan.twardy@gmail.com>
 //
-// DESCRIPTION:     Frontend entrypoint.
+// DESCRIPTION:     Entrypoint for the wasm application
 //
-// CREATED:         04/14/2022
+// CREATED:         10/07/2022
 //
-// LAST EDITED:     07/16/2022
+// LAST EDITED:     10/20/2022
 ////
 
-use std::str::FromStr;
-
-use budget_models::models::{PeriodicBudget};
-use wasm_bindgen_futures::spawn_local;
-use web_sys::HtmlSelectElement;
+use strum_macros::EnumIter;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
-mod network;
-mod pages;
-mod render;
+mod navigation;
+mod performance;
+mod view;
 
-use network::fetch;
-use pages::{CreateView, PeriodicBudgetView, TransactionView, NotFoundView};
+///////////////////////////////////////////////////////////////////////////////
+// Header
+////
 
-pub(crate) const PERIODIC_BUDGETS_PATH: &'static str = "/api/periodic_budgets";
-pub(crate) const TRANSACTIONS_PATH: &'static str = "/api/transactions";
-
-// The Different routes we support
-#[derive(Routable, PartialEq, Clone, Debug)]
-pub enum Route {
-    #[at("/")]
-    Home,
-    #[at("/periodic_budgets/:id")]
-    PeriodicBudget{ id: i32 },
-    #[at("/transactions/:id")]
-    Transactions{ id: i32 },
-    #[at("/create")]
-    Create,
-    #[not_found]
-    #[at("/404")]
-    NotFound,
+#[function_component]
+fn Header() -> Html {
+    html! {
+        <header class={classes!("navbar", "navbar-dark", "sticky-top",
+                                "bg-dark", "flex-md-nowrap", "p-0", "shadow")}>
+            <a class={classes!("navbar-brand", "col-md-3", "col-lg-2", "me-0",
+                               "px-3")} href={"#"}>{
+                "Budgetizer"
+            }</a>
+        </header>
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// BudgetApp
+// Routing
 ////
 
-pub enum AppMessage {
-    Received(Vec<PeriodicBudget>),
-    Selected(i32),
+#[derive(Copy, Routable, PartialEq, Clone, Debug, EnumIter)]
+enum Route {
+    #[at("/spending_history")]
+    SpendingHistory,
+    #[at("/balance_history")]
+    BalanceHistory,
 }
 
-#[derive(Default)]
-pub struct BudgetApp {
-    selected_budget: i32,
-    budgets: Option<Vec<PeriodicBudget>>,
-}
-
-impl Component for BudgetApp {
-    type Message = AppMessage;
-    type Properties = ();
-
-    fn create(context: &Context<Self>) -> Self {
-        let link = context.link().callback(
-            |budgets: Vec<PeriodicBudget>| AppMessage::Received(budgets)
-        );
-        spawn_local(async move {
-            let request = web_sys::Request::new_with_str(PERIODIC_BUDGETS_PATH)
-                .unwrap();
-            let response: Vec<PeriodicBudget> = fetch(request).await.unwrap();
-            link.emit(response);
-        });
-
-        Self::default()
-    }
-
-    fn update(&mut self, _context: &Context<Self>, message: Self::Message) ->
-        bool
-    {
-        use AppMessage::*;
-        match message {
-            Received(budgets) => {
-                if budgets.len() > 0 {
-                    self.selected_budget = budgets[0].id;
-                }
-                self.budgets = Some(budgets);
-                true
-            },
-
-            Selected(id) => {
-                self.selected_budget = id;
-                true
-            },
-        }
-    }
-
-    fn view(&self, context: &Context<Self>) -> Html {
-        match &self.budgets {
-            Some(_) => self.render(context),
-            None => html!{ "Loading..." },
+impl ToString for Route {
+    fn to_string(&self) -> String {
+        match self {
+            Route::SpendingHistory => "Spending History".to_string(),
+            Route::BalanceHistory => "Account Balance History".to_string(),
         }
     }
 }
 
-impl BudgetApp {
-    fn render(&self, context: &Context<Self>) -> Html {
-        html! {
-            <BrowserRouter>
-                { self.view_nav(context) }
-                <main>
-                    <Switch<Route> render={BudgetApp::switch} />
-                </main>
-            </BrowserRouter>
-        }
-    }
-
-    fn view_nav(&self, context: &Context<Self>) -> Html {
-        html! {
-            <div>
-                <ul><li>
-                    <Link<Route>
-                        to={Route::PeriodicBudget{id: self.selected_budget}}>
-                        { "Budget" }
-                    </Link<Route>>
-                </li><li>
-                    <Link<Route>
-                        to={Route::Transactions{id: self.selected_budget}}>
-                        { "Transactions" }
-                    </Link<Route>>
-                </li><li>
-                    <Link<Route> to={Route::Create}>{ "Create" }</Link<Route>>
-                </li></ul>
-
-                <label for="budget-select">{"Budget"}</label>
-                <select name="budgets" id="budget-select"
-                    onchange={context.link().batch_callback(|e: Event| {
-                        if let Some(select) = e.target_dyn_into::<
-                                HtmlSelectElement>() {
-                            Some(AppMessage::Selected(
-                                i32::from_str(&select.value()).unwrap()))
-                        } else {
-                            None
-                        }
-                    })}>{
-                    self.budgets.as_ref().unwrap().iter()
-                        .map(|b| {html!{
-                            <option value={b.id.to_string()}>
-                                {b.start_date.to_string()}
-                            </option>
-                        }})
-                        .collect::<Html>()
-                }</select>
-            </div>
-        }
-    }
-
-    fn switch(routes: Route) -> Html {
-        match routes.clone() {
-            Route::Home => {
-                html! { "" }
-            },
-
-            Route::PeriodicBudget{id} => {
-                html! { <PeriodicBudgetView {id} /> }
-            },
-
-            Route::Transactions{id} => {
-                html! { <TransactionView {id} /> }
-            }
-
-            Route::Create => {
-                html! { <CreateView /> }
-            }
-
-            _ => {
-                html! { <NotFoundView /> }
-            },
-        }
+fn app_switch(route: Route) -> Html {
+    match route {
+        Route::SpendingHistory => html! { <performance::SpendingHistory /> },
+        Route::BalanceHistory => html! { <performance::BalanceHistory /> },
     }
 }
 
@@ -186,10 +67,39 @@ impl BudgetApp {
 // Main
 ////
 
+#[function_component]
+fn Main() -> Html {
+    html! {
+        <BrowserRouter>
+            <navigation::Navigation<Route> />
+            <main class={classes!("col-md-9", "ms-sm-auto", "col-lg-10",
+                                  "px-md-4")} role={"main"}>
+                <Switch<Route> render={app_switch} />
+            </main>
+        </BrowserRouter>
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// App
+////
+
+#[function_component]
+fn App() -> Html {
+    html! {
+        <>
+            <Header />
+            <div class={classes!("container-fluid")}>
+                <div class={classes!("row")}>
+                    <Main />
+                </div>
+            </div>
+        </>
+    }
+}
+
 fn main() {
-    console_error_panic_hook::set_once();
-    wasm_logger::init(wasm_logger::Config::new(log::Level::Trace));
-    yew::Renderer::<BudgetApp>::new().render();
+    yew::Renderer::<App>::new().render();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

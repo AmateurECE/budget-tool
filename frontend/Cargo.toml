@@ -1,23 +1,14 @@
 [package]
-name = "budget-frontend"
+name = "frontend"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-budget-models = { path = "../budget-models", features = ["business-logic"] }
-chrono = { version = "0.4.19", features = ["serde"] }
-console_error_panic_hook = "0.1"
-js-sys = "0.3"
-log = "0.4"
-serde = { version = "1.0" }
-serde_json = { version = "1.0" }
-strum = "0.24"
-wasm-bindgen = { version = "0.2" }
-wasm-bindgen-futures = { version = "0.4" }
-wasm-logger = "0.2"
-web-sys = { version = "0.3", features = ["Request", "Window", "HtmlSelectElement"] }
-yew = { git = "https://github.com/yewstack/yew", rev = "5570710c", features = ["csr"] }
-yew-router = { git = "https://github.com/yewstack/yew", rev = "5570710c" }
-
-[patch.crates-io]
-chrono = { git = "https://github.com/chronotope/chrono", rev = "b1d74aef" }
+chart-js = { path = "../chart-js" }
+strum = "0.24.1"
+strum_macros = "0.24.3"
+wasm-bindgen = "0.2.83"
+web-sys = { version = "0.3.60", features = ["HtmlSelectElement"] }
+yew = { git = "https://github.com/yewstack/yew/", features = ["csr"] }
+yew-roots = { path = "../yew-roots", features = ["chart"] }
+yew-router = { git = "https://github.com/yewstack/yew/" }
