@@ -52,7 +52,7 @@ class Transaction {
 class RealTransaction {
         +id: i32
         +transaction: i32
-        +line_item: i32
+        +line_item: Option<i32>
         +periodic_budget: Option<i32>
 }
 
@@ -71,7 +71,12 @@ note as N2
 end note
 
 note as N3
-        Planned Transactions must be associated with a periodic budget
+        Planned Transactions must be
+        associated with a periodic
+        budget, but the workflow for
+        RealTransactions allows both the
+        line_item and periodic_budget
+        association to be None.
 end note
 
 RealTransaction .. N2
