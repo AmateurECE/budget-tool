@@ -1,0 +1,99 @@
+@startuml
+left to right direction
+
+enum AccountType {
+        +Checking
+        +Saving
+        +Loan
+        +Credit
+}
+
+class Account {
+        +name: String
+        +account_type: AccountType
+        +date_opened: DateTime
+        +date_closed: Option<DateTime>
+}
+
+class PeriodicBudget {
+        +id: i32
+        +start_date: DateTime
+        +end_date: DateTime
+}
+
+class LineItem {
+        +summary: String
+}
+
+class LineItemInstance {
+        +id: i32
+        +summary: String
+        +from_account: Option<String>
+        +to_account: Option<String>
+        +amount: i64
+}
+
+note as N1
+        Foreign key constraints:
+        FOREIGN KEY(summary) REFERENCES LineItem(summary)
+        FOREIGN KEY(from_account) REFERENCES Account(name)
+        FOREIGN KEY(to_account) REFERENCES Account(name)
+end note
+
+class Transaction {
+        +id: i32
+        +summary: String
+        +date: DateTime
+        +from_account: Option<String>
+        +to_account: Option<String>
+        +amount: i64
+}
+
+class RealTransaction {
+        +id: i32
+        +transaction: i32
+        +line_item: i32
+        +periodic_budget: Option<i32>
+}
+
+class PlannedTransaction {
+        +id: i32
+        +transaction: i32
+        +line_item: i32
+        +periodic_budget: i32
+}
+
+note as N2
+        Foreign key constraints:
+        FOREIGN KEY(transaction) REFERENCES Transaction(id)
+        FOREIGN KEY(line_item) REFERENCES LineItem(id)
+        FOREIGN KEY(periodic_budget) REFERENCES PeriodicBudget(id)
+end note
+
+note as N3
+        Planned Transactions must be associated with a periodic budget
+end note
+
+RealTransaction .. N2
+PlannedTransaction .. N2
+PlannedTransaction .. N3
+
+RealTransaction o- Transaction
+RealTransaction "0..*" -o PeriodicBudget
+RealTransaction "0..*" -o LineItemInstance
+PlannedTransaction o- Transaction
+PlannedTransaction "0..*" -o PeriodicBudget
+PlannedTransaction "0..*" -o LineItemInstance
+
+LineItemInstance .. N1
+LineItemInstance o- Account
+LineItemInstance *-- LineItem
+LineItemInstance "0..*" --* PeriodicBudget
+
+Transaction o- Account
+Account *-- AccountType
+
+/' These hidden links are just for layout '/
+PlannedTransaction -[hidden]- Account
+PlannedTransaction -[hidden]- RealTransaction
+@enduml
