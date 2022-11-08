@@ -12,79 +12,46 @@ CREATE TABLE periodic_budgets (
        end_date timestamp with TIME ZONE NOT NULL
 );
 
-CREATE TABLE one_time_budgets (
+CREATE TABLE line_items (
+       summary TEXT NOT NULL UNIQUE PRIMARY KEY
+);
+
+CREATE TABLE line_item_instances (
        id SERIAL PRIMARY KEY,
-       description TEXT NOT NULL
-);
-
-CREATE TABLE categories (
-       name TEXT UNIQUE PRIMARY KEY,
-       parent TEXT
-);
-
-CREATE TYPE TransactionType AS ENUM (
-       'expense',
-       'income',
-       'transfer',
-       'payment'
-);
-
-CREATE TABLE budget_items (
-       id SERIAL PRIMARY KEY,
-       description TEXT NOT NULL,
-       category TEXT NOT NULL,
-       budgeted BIGINT NOT NULL,
-       transaction_type TransactionType NOT NULL,
+       summary TEXT NOT NULL,
        from_account TEXT,
        to_account TEXT,
-       periodic_budget INTEGER NOT NULL,
-       one_time_budget INTEGER
-);
-
-CREATE TABLE tags (
-       id SERIAL PRIMARY KEY,
-       tag TEXT NOT NULL
+       amount BIGINT NOT NULL,
+       FOREIGN KEY(summary) REFERENCES line_items(summary),
+       FOREIGN KEY(from_account) REFERENCES accounts(name),
+       FOREIGN KEY(to_account) REFERENCES accounts(name)
 );
 
 CREATE TABLE transactions (
        id SERIAL PRIMARY KEY,
-       description TEXT NOT NULL,
-       line_item INTEGER NOT NULL,
-       transaction_type TransactionType NOT NULL,
-       sending_account TEXT,
-       receiving_account TEXT,
-       transfer_fees BIGINT,
-       receiving_entity TEXT,
-       amount BIGINT NOT NULL,
-       send_date timestamp with TIME ZONE NOT NULL,
-       receive_date timestamp with TIME ZONE,
-       -- TODO: sea-orm currently doesn't support postgres arrays. See:
-       -- https://github.com/SeaQL/sea-orm/issues/576
-       corrects TEXT,
-       tags TEXT,
-       periodic_budget INTEGER NOT NULL
+       summary TEXT NOT NULL,
+       date timestamp with TIME ZONE NOT NULL,
+       from_account TEXT,
+       to_account TEXT,
+       amount BIGINT NOT NULL
 );
 
--- Table to hold a snapshot of initial balances for a single budget for a
--- single account. The last_updated timestamp allows application logic to
--- ensure integrity of the calculation.
-CREATE TABLE initial_balances (
+CREATE TABLE real_transactions (
        id SERIAL PRIMARY KEY,
-       account TEXT NOT NULL,
-       budget INTEGER NOT NULL,
-       balance BIGINT NOT NULL,
-       last_updated timestamp with TIME ZONE NOT NULL
+       transaction INTEGER NOT NULL,
+       line_item TEXT,
+       periodic_budget INTEGER,
+       FOREIGN KEY(transaction) REFERENCES transactions(id),
+       FOREIGN KEY(line_item) REFERENCES line_items(summary),
+       FOREIGN KEY(periodic_budget) REFERENCES periodic_budgets(id)
 );
 
--- A trigger to automatically update the last_updated timestamp column in the
--- initial balances table.
-CREATE OR REPLACE FUNCTION update_modified_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.last_updated = now();
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
-CREATE TRIGGER update_initial_balance_modtime BEFORE UPDATE ON initial_balances
-FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
+CREATE TABLE planned_transactions (
+       id SERIAL PRIMARY KEY,
+       transaction INTEGER NOT NULL,
+       line_item TEXT NOT NULL,
+       periodic_budget INTEGER NOT NULL,
+       FOREIGN KEY(transaction) REFERENCES transactions(id),
+       FOREIGN KEY(line_item) REFERENCES line_items(summary),
+       FOREIGN KEY(periodic_budget) REFERENCES periodic_budgets(id)
+);
