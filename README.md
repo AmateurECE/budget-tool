@@ -22,3 +22,12 @@ sqlx database drop && sqlx database create
 # Run all of our migrations
 sqlx migrate --source migrations/ run
 ```
+
+# Generating Database Entities for SeaORM
+
+Use the `sea-orm-cli` to generate entities for easy integration with the
+database.
+
+```bash-session
+$ sea-orm-cli generate entity -u postgres://postgres:example@localhost:5432/budgets -o src/entities --with-serde both
+```
