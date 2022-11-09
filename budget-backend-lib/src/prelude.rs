@@ -1,17 +1,16 @@
 ///////////////////////////////////////////////////////////////////////////////
-// NAME:            lib.rs
+// NAME:            prelude.rs
 //
 // AUTHOR:          Ethan D. Twardy <ethan.twardy@gmail.com>
 //
-// DESCRIPTION:     Entrypoint for the library.
+// DESCRIPTION:     Easy import for all symbols provided by this crate.
 //
-// CREATED:         09/18/2022
+// CREATED:         11/09/2022
 //
 // LAST EDITED:     11/09/2022
 ////
 
-mod conversions;
-mod entities;
-mod secret;
+pub use entities::*;
+pub use secret::*;
 
 ///////////////////////////////////////////////////////////////////////////////
