@@ -10,7 +10,8 @@
 // LAST EDITED:     11/09/2022
 ////
 
-pub use entities::*;
-pub use secret::*;
+pub use crate::entities::*;
+pub use crate::entities::prelude::*;
+pub use crate::secret::*;
 
 ///////////////////////////////////////////////////////////////////////////////

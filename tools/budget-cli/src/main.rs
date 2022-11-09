@@ -10,7 +10,10 @@
 // LAST EDITED:     11/09/2022
 ////
 
+use budget_backend_lib::prelude::*;
 use clap::Parser;
+use sea_orm::prelude::*;
+use sea_orm::Database;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Main
@@ -19,19 +22,18 @@ use clap::Parser;
 #[derive(Parser)]
 #[clap(author, version)]
 struct Args {
-    /// JSON file of data to import
-    #[clap(value_parser)]
-    pub file: String,
-
-    /// URL of the API server
-    #[clap(value_parser)]
-    pub host: String,
+    /// Database URL
+    #[clap(short, long, value_parser)]
+    pub url: String,
 }
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
-
+    let db = Database::connect(args.url).await?;
+    let budgets: Vec<periodic_budgets::Model> =
+        PeriodicBudgets::find().all(&db).await?;
+    println!("{:?}", &budgets);
     Ok(())
 }
 
