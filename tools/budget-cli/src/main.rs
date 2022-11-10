@@ -10,11 +10,10 @@
 // LAST EDITED:     11/10/2022
 ////
 
-use budget_backend_lib::prelude::*;
 use clap::{Parser, Subcommand};
-use sea_orm::prelude::*;
-use sea_orm::{Database, DatabaseConnection};
+use sea_orm::Database;
 
+mod periodic_budget;
 mod table;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -43,50 +42,8 @@ enum Object {
 }
 
 #[derive(Subcommand)]
-enum Verb {
+pub(crate) enum Verb {
     List,
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// PeriodicBudget Operations
-////
-
-async fn periodic_budget(
-    verb: &Verb,
-    db: &DatabaseConnection,
-) -> anyhow::Result<()> {
-    match &verb {
-        Verb::List => {
-            let budgets = PeriodicBudgets::find()
-                .all(db)
-                .await?
-                .iter()
-                .map(|budget| {
-                    vec![
-                        budget.id.to_string(),
-                        budget.start_date.to_string(),
-                        budget.end_date.to_string(),
-                    ]
-                })
-                .collect::<Vec<Vec<String>>>();
-
-            table::print(
-                budgets
-                    .iter()
-                    .map(|row| row.as_slice())
-                    .collect::<Vec<&[String]>>()
-                    .as_slice(),
-                vec![
-                    "Id".to_string(),
-                    "Start Date".to_string(),
-                    "End Date".to_string(),
-                ]
-                .as_slice(),
-            );
-        }
-    }
-
-    Ok(())
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -98,7 +55,7 @@ async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
     let db = Database::connect(args.url).await?;
     match &args.object {
-        Object::Periodic { verb } => periodic_budget(verb, &db).await,
+        Object::Periodic { verb } => periodic_budget::op(verb, &db).await,
     }
 }
 
