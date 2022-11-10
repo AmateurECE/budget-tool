@@ -89,7 +89,7 @@ pub fn print_with_padding<T>(
         output =
             output + &join_with_padding(row, column_lengths.as_slice()) + "\n";
     }
-    println!("{}", output);
+    print!("{}", output);
 }
 
 pub fn print<T>(data: &[&[T]], headers: &[T])
