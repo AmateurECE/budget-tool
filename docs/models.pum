@@ -28,6 +28,7 @@ class LineItem {
 class LineItemInstance {
         +id: i32
         +summary: String
+        +periodic_budget: i32
         +from_account: Option<String>
         +to_account: Option<String>
         +amount: i64
@@ -36,6 +37,7 @@ class LineItemInstance {
 note as N1
         Foreign key constraints:
         FOREIGN KEY(summary) REFERENCES LineItem(summary)
+        FOREIGN KEY(periodic_budget) REFERENCES PeriodicBudget(id)
         FOREIGN KEY(from_account) REFERENCES Account(name)
         FOREIGN KEY(to_account) REFERENCES Account(name)
 end note
@@ -52,22 +54,19 @@ class Transaction {
 class RealTransaction {
         +id: i32
         +transaction: i32
-        +line_item: Option<i32>
-        +periodic_budget: Option<i32>
+        +line_item_instance: Option<i32>
 }
 
 class PlannedTransaction {
         +id: i32
         +transaction: i32
-        +line_item: i32
-        +periodic_budget: i32
+        +line_item_instance: i32
 }
 
 note as N2
         Foreign key constraints:
         FOREIGN KEY(transaction) REFERENCES Transaction(id)
-        FOREIGN KEY(line_item) REFERENCES LineItem(id)
-        FOREIGN KEY(periodic_budget) REFERENCES PeriodicBudget(id)
+        FOREIGN KEY(line_item_instance) REFERENCES LineItemInstance(id)
 end note
 
 note as N3
@@ -84,10 +83,8 @@ PlannedTransaction .. N2
 PlannedTransaction .. N3
 
 RealTransaction o- Transaction
-RealTransaction "0..*" -o PeriodicBudget
 RealTransaction "0..*" -o LineItemInstance
 PlannedTransaction o- Transaction
-PlannedTransaction "0..*" -o PeriodicBudget
 PlannedTransaction "0..*" -o LineItemInstance
 
 LineItemInstance .. N1
