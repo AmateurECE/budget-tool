@@ -57,29 +57,31 @@ async fn periodic_budget(
 ) -> anyhow::Result<()> {
     match &verb {
         Verb::List => {
-            let budgets: Vec<periodic_budgets::Model> =
-                PeriodicBudgets::find().all(db).await?;
-            let output = vec![
+            let budgets = PeriodicBudgets::find()
+                .all(db)
+                .await?
+                .iter()
+                .map(|budget| {
+                    vec![
+                        budget.id.to_string(),
+                        budget.start_date.to_string(),
+                        budget.end_date.to_string(),
+                    ]
+                })
+                .collect::<Vec<Vec<String>>>();
+
+            table::print(
                 budgets
                     .iter()
-                    .map(|budget| budget.id.to_string())
-                    .collect::<Vec<String>>(),
-                budgets
-                    .iter()
-                    .map(|budget| budget.start_date.to_string())
-                    .collect::<Vec<String>>(),
-                budgets
-                    .iter()
-                    .map(|budget| budget.end_date.to_string())
-                    .collect::<Vec<String>>(),
-            ];
-            table::print_table(
-                output,
+                    .map(|row| row.as_slice())
+                    .collect::<Vec<&[String]>>()
+                    .as_slice(),
                 vec![
                     "Id".to_string(),
                     "Start Date".to_string(),
                     "End Date".to_string(),
-                ],
+                ]
+                .as_slice(),
             );
         }
     }

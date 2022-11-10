@@ -10,57 +10,93 @@
 // LAST EDITED:     11/10/2022
 ////
 
-use std::cmp;
+const DEFAULT_PADDING_LENGTH: usize = 4;
 
-const PADDING_LENGTH: usize = 4;
-
-pub fn print_table(data: Vec<Vec<String>>, headers: Vec<String>) {
-    // Calculate the lengths of all the columns
-    let column_length = data
-        .iter()
-        .map(|column| {
-            let max = cmp::max(
-                column
-                    .iter()
-                    .map(|element| element.len())
-                    .max()
-                    .unwrap_or(0),
-                headers.first().map(|h| h.len()).unwrap_or(0),
-            );
-            if 0 == max % PADDING_LENGTH {
-                max
+// Calculate the length of the column (the length of the longest string in the
+// column, plus some padding) for the dataset.
+fn column_lengths<'a, T, I>(data: I, padding: Option<usize>) -> Vec<usize>
+where
+    T: AsRef<str> + 'a,
+    I: Iterator<Item = &'a &'a [T]>,
+{
+    let mut lengths: Vec<usize> = Vec::new();
+    let padding = padding.unwrap_or(DEFAULT_PADDING_LENGTH);
+    for row in data {
+        for (i, column) in row.iter().enumerate() {
+            let length = column.as_ref().len()
+                + (padding - (column.as_ref().len() % padding));
+            if let Some(element) = lengths.get_mut(i) {
+                if length > *element {
+                    *element = length;
+                }
             } else {
-                max + (PADDING_LENGTH - (max % PADDING_LENGTH))
+                lengths.insert(i, length);
             }
-        })
-        .collect::<Vec<usize>>();
-    let sum: usize = column_length.iter().sum();
-
-    // Start with the headers
-    let mut output = headers
-        .iter()
-        .enumerate()
-        .map(|(i, header)| {
-            header.to_owned()
-                + &(0..(column_length[i] - header.len()))
-                    .map(|_| " ")
-                    .collect::<String>()
-        })
-        .collect::<String>()
-        + "\n";
-    output += &(0..sum).map(|_| "-").collect::<String>();
-    output += "\n";
-
-    // Copy all the table data
-    for i in 0..data[0].len() {
-        for j in 0..data.len() {
-            output += &data[j][i];
-            output += &(0..(column_length[j] - data[j][i].len()))
-                .map(|_| " ")
-                .collect::<String>();
         }
     }
+
+    lengths
+}
+
+// Calculate the length of the padding string for a column, given the element
+// that's being printed, its column index, and the lengths of all the columns
+fn get_column_padding<T>(text: T, column_length: Option<usize>) -> String
+where
+    T: AsRef<str>,
+{
+    (0..(column_length
+        .map(|length| length - text.as_ref().len())
+        .unwrap_or(text.as_ref().len())))
+        .map(|_| " ")
+        .collect::<String>()
+}
+
+// Join a row of data with padding, concatenate into a string.
+fn join_with_padding<T>(data: &[T], column_lengths: &[usize]) -> String
+where
+    T: AsRef<str>,
+{
+    data.iter()
+        .enumerate()
+        .map(|(i, text)| {
+            text.as_ref().to_owned()
+                + &get_column_padding(text, column_lengths.get(i).copied())
+        })
+        .collect::<String>()
+}
+
+// Print a table of data, with a row of headers
+pub fn print_with_padding<T>(
+    data: &[&[T]],
+    headers: &[T],
+    padding: Option<usize>,
+) where
+    T: AsRef<str>,
+{
+    // Calculate the lengths of all the columns
+    let column_lengths =
+        column_lengths(data.iter().chain(&vec![headers]), padding);
+
+    // Start with the headers
+    let sum: usize = column_lengths.iter().sum();
+    let mut output = join_with_padding(headers, column_lengths.as_slice())
+        + "\n"
+        + &(0..sum).map(|_| "-").collect::<String>()
+        + "\n";
+
+    // Copy all the table data
+    for row in data {
+        output =
+            output + &join_with_padding(row, column_lengths.as_slice()) + "\n";
+    }
     println!("{}", output);
+}
+
+pub fn print<T>(data: &[&[T]], headers: &[T])
+where
+    T: AsRef<str>,
+{
+    print_with_padding(data, headers, None);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
