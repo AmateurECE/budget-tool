@@ -7,12 +7,13 @@
 //
 // CREATED:         09/22/2022
 //
-// LAST EDITED:     11/10/2022
+// LAST EDITED:     11/11/2022
 ////
 
 use clap::{Parser, Subcommand};
 use sea_orm::Database;
 
+mod line_item_instance;
 mod periodic_budget;
 mod table;
 
@@ -35,15 +36,15 @@ struct Args {
 enum Object {
     /// Actions available on the set of periodic budgets
     Periodic {
-        /// List periodic budgets in the database
         #[command(subcommand)]
-        verb: Verb,
+        verb: periodic_budget::Verb,
     },
-}
 
-#[derive(Subcommand)]
-pub(crate) enum Verb {
-    List,
+    /// Actions available on the set of line_item_instances
+    LineItemInstance {
+        #[command(subcommand)]
+        verb: line_item_instance::Verb,
+    },
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -56,6 +57,9 @@ async fn main() -> anyhow::Result<()> {
     let db = Database::connect(args.url).await?;
     match &args.object {
         Object::Periodic { verb } => periodic_budget::op(verb, &db).await,
+        Object::LineItemInstance { verb } => {
+            line_item_instance::op(verb, &db).await
+        }
     }
 }
 

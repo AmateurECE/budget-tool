@@ -6,8 +6,10 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.66"
 budget-backend-lib = { path = "../../budget-backend-lib" }
-budget-models = { path = "../../budget-models" }
+budget-models = { path = "../../budget-models", features = ["business-logic"] }
 clap = { version = "4.0.22", features = ["derive"] }
+csv = "1.1.6"
 futures = "0.3.25"
 sea-orm = { version = "0.10.2", features = ["sqlx-postgres", "runtime-tokio-native-tls", "chrono"] }
+serde = { version = "1.0.147", features = ["derive"] }
 tokio = { version = "1.21.2", features = ["full"] }

@@ -7,16 +7,16 @@
 //
 // CREATED:         11/10/2022
 //
-// LAST EDITED:     11/10/2022
+// LAST EDITED:     11/11/2022
 ////
 
 use budget_backend_lib::prelude::*;
+use clap::Subcommand;
 use futures::future;
 use sea_orm::prelude::*;
 use sea_orm::DatabaseConnection;
 
 use crate::table;
-use crate::Verb;
 
 async fn list(db: &DatabaseConnection) -> anyhow::Result<()> {
     let budgets = future::join_all(
@@ -71,6 +71,16 @@ async fn list(db: &DatabaseConnection) -> anyhow::Result<()> {
         .as_slice(),
     );
     Ok(())
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Public Interface
+////
+
+#[derive(Subcommand)]
+pub(crate) enum Verb {
+    /// List periodic budgets in the database
+    List,
 }
 
 pub(crate) async fn op(

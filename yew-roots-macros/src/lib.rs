@@ -126,8 +126,8 @@ fn create_field_names(data: &Data) -> TokenStream {
                 // Expands to an expression like
                 //      vec!["x".to_string(), "y".to_string()].into()
                 let field_names = fields.named.iter().map(|f| {
-                    let name = get_field_name(f)
-                        .unwrap_or_else(|| "".to_string());
+                    let name =
+                        get_field_name(f).unwrap_or_else(|| "".to_string());
                     quote_spanned! {
                         f.span() =>
                             ::std::string::ToString::to_string(#name)

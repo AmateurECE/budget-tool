@@ -41,8 +41,10 @@ impl SecretManager {
                         .unwrap_or("".to_string())
             })
             .expect("uri should contain an authority");
-        let secret_authority =
-            format!("{}:{}@{}", &secret.username, &secret.password, &authority);
+        let secret_authority = format!(
+            "{}:{}@{}",
+            &secret.username, &secret.password, &authority
+        );
         Ok(Uri::builder()
             .scheme(uri.scheme().map(|a| a.as_str()).unwrap_or(""))
             .authority(secret_authority.as_str())

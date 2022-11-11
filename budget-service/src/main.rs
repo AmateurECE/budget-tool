@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     09/18/2022
+// LAST EDITED:     11/11/2022
 ////
 
 use axum::{
@@ -15,17 +15,15 @@ use axum::{
     routing::{get, post},
     Router,
 };
+use budget_backend_lib::SecretManager;
 use clap::Parser;
 use sea_orm::Database;
-use budget_backend_lib::SecretManager;
 use std::env;
 use std::fmt;
 use tower_http::trace::TraceLayer;
 use tracing::{event, Level};
 
-mod conversions;
 mod endpoints;
-mod entities;
 
 ///////////////////////////////////////////////////////////////////////////////
 // internal_server_error Helper

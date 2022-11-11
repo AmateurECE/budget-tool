@@ -7,7 +7,7 @@
 //
 // CREATED:         07/08/2022
 //
-// LAST EDITED:     07/17/2022
+// LAST EDITED:     11/11/2022
 ////
 
 use std::fmt;
@@ -27,6 +27,12 @@ impl Money {
 
     pub fn subtract(&mut self, value: Money) {
         self.0 -= value.0;
+    }
+}
+
+impl From<f64> for Money {
+    fn from(value: f64) -> Self {
+        Self((value * 100.0) as i64)
     }
 }
 
