@@ -7,11 +7,11 @@
 //
 // CREATED:         10/14/2022
 //
-// LAST EDITED:     10/20/2022
+// LAST EDITED:     11/12/2022
 ////
 
 use yew::prelude::*;
-use yew_roots::prelude::*;
+use table_iter::prelude::*;
 use yew_roots::table::Table;
 
 use crate::view::ViewHeader;

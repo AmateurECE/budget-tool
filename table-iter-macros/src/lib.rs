@@ -4,11 +4,11 @@
 // AUTHOR:          Ethan D. Twardy <ethan.twardy@gmail.com>
 //
 // DESCRIPTION:     Entrypoints containing derive macros for use with the
-//                  yew-roots crate
+//                  table-iter crate
 //
 // CREATED:         10/12/2022
 //
-// LAST EDITED:     10/20/2022
+// LAST EDITED:     11/12/2022
 ////
 
 use proc_macro2::TokenStream;
@@ -37,10 +37,10 @@ pub fn derive_fields(
     let field_creation = create_fields(&input.data);
     let expanded = quote! {
         // The generated impl
-        impl #impl_generics ::yew_roots::fields::Fields for #name #ty_generics
+        impl #impl_generics ::table_iter::fields::Fields for #name #ty_generics
             #where_clause
         {
-            fn fields(&self) -> ::yew_roots::fields::FieldView {
+            fn fields(&self) -> ::table_iter::fields::FieldView {
                 #field_creation
             }
         }
@@ -106,10 +106,10 @@ pub fn derive_field_names(
     let field_creation = create_field_names(&input.data);
     let expanded = quote! {
         // The generated impl
-        impl #impl_generics ::yew_roots::fields::FieldNames for #name
+        impl #impl_generics ::table_iter::fields::FieldNames for #name
             #ty_generics #where_clause
         {
-            fn field_names() -> ::yew_roots::fields::FieldSpec {
+            fn field_names() -> ::table_iter::fields::FieldSpec {
                 #field_creation
             }
         }

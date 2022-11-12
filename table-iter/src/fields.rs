@@ -3,12 +3,12 @@
 //
 // AUTHOR:          Ethan D. Twardy <ethan.twardy@gmail.com>
 //
-// DESCRIPTION:     Traits and structs related to the use of fields for
-//                  populating/rendering an HTML table
+// DESCRIPTION:     Traits and structs related to the iteration over the fields
+//                  of a struct.
 //
 // CREATED:         10/12/2022
 //
-// LAST EDITED:     10/12/2022
+// LAST EDITED:     11/12/2022
 ////
 
 ///////////////////////////////////////////////////////////////////////////////

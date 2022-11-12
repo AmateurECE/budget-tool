@@ -7,10 +7,10 @@
 //
 // CREATED:         10/12/2022
 //
-// LAST EDITED:     10/12/2022
+// LAST EDITED:     11/12/2022
 ////
 
-use crate::fields::{FieldNames, FieldSpec, FieldView, Fields};
+use table_iter::prelude::*;
 use yew::prelude::*;
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
 [package]
-name = "yew-roots-macros"
+name = "table-iter-macros"
 authors = ["Ethan D. Twardy <ethan.twardy@gmail.com>"]
 version = "0.1.0"
 edition = "2021"

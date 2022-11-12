@@ -1,0 +1,7 @@
+[package]
+name = "table-iter"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+table-iter-macros = { path = "../table-iter-macros" }
