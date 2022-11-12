@@ -73,9 +73,13 @@ fn create_fields(data: &Data) -> TokenStream {
                 // the compiler's error message underlines which field it is.
                 let field_views = fields.named.iter().map(|f| {
                     let name = &f.ident;
+                    let display_function = get_display_function(f)
+                        .unwrap_or_else(|| {
+                            quote!(::std::string::ToString::to_string)
+                        });
                     quote_spanned! {
                         f.span() =>
-                            ::std::string::ToString::to_string(&self.#name)
+                            #display_function(&self.#name)
                     }
                 });
                 quote! {
@@ -90,11 +94,15 @@ fn create_fields(data: &Data) -> TokenStream {
     }
 }
 
+fn get_display_function(field: &Field) -> Option<TokenStream> {
+    None
+}
+
 ///////////////////////////////////////////////////////////////////////////////
-// Fields
+// Field Names
 ////
 
-#[proc_macro_derive(FieldNames, attributes(field_name))]
+#[proc_macro_derive(FieldNames, attributes(fields))]
 pub fn derive_field_names(
     input: proc_macro::TokenStream,
 ) -> proc_macro::TokenStream {
@@ -150,7 +158,7 @@ fn get_field_name(field: &Field) -> Option<String> {
     field
         .attrs
         .iter()
-        .find(|a| a.path.is_ident("field_name"))
+        .find(|a| a.path.is_ident("fields"))
         .and_then(|a| {
             let meta = a
                 .parse_meta()

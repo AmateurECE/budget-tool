@@ -22,15 +22,15 @@ use crate::view::ViewHeader;
 
 #[derive(Clone, Default, PartialEq, Fields, FieldNames)]
 struct LineItem {
-    #[field_name(rename = "Name")]
+    #[fields(rename = "Name")]
     pub name: String,
-    #[field_name(rename = "Last Month (Budgeted)")]
+    #[fields(rename = "Last Month (Budgeted)")]
     pub last_month_budgeted: i64,
-    #[field_name(rename = "Last Month (Spent)")]
+    #[fields(rename = "Last Month (Spent)")]
     pub last_month_spent: i64,
-    #[field_name(rename = "This Month Last Year (Spent)")]
+    #[fields(rename = "This Month Last Year (Spent)")]
     pub this_month_last_year_spent: i64,
-    #[field_name(rename = "Last Six Months (Average Spent)")]
+    #[fields(rename = "Last Six Months (Average Spent)")]
     pub last_six_months_spent: i64,
 }
 
