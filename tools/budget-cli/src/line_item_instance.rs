@@ -34,8 +34,8 @@ struct LineItemInstanceRecord {
 }
 
 async fn import(
-    filename: &String,
-    budget: &i32,
+    filename: &str,
+    budget: i32,
     db: &DatabaseConnection,
 ) -> anyhow::Result<()> {
     let mut reader = csv::Reader::from_reader(File::open(&filename)?);
@@ -119,7 +119,7 @@ pub(crate) async fn op(
 ) -> anyhow::Result<()> {
     match verb {
         Verb::Import { filename, budget } => {
-            import(filename, budget, db).await
+            import(filename, *budget, db).await
         }
     }
 }

@@ -16,6 +16,7 @@ use sea_orm::Database;
 mod line_item_instance;
 mod periodic_budget;
 mod table;
+mod transaction;
 
 ///////////////////////////////////////////////////////////////////////////////
 // CLI
@@ -45,6 +46,17 @@ enum Object {
         #[command(subcommand)]
         verb: line_item_instance::Verb,
     },
+
+    /// Actions available on the set of transactions, real and planned
+    Transaction {
+        /// The type of transaction to act on
+        #[arg(value_enum)]
+        #[clap(short, long, value_parser)]
+        transaction_type: transaction::TransactionType,
+
+        #[command(subcommand)]
+        verb: transaction::Verb,
+    },
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -60,6 +72,10 @@ async fn main() -> anyhow::Result<()> {
         Object::LineItemInstance { verb } => {
             line_item_instance::op(verb, &db).await
         }
+        Object::Transaction {
+            transaction_type,
+            verb,
+        } => transaction::op(verb, *transaction_type, &db).await,
     }
 }
 
