@@ -149,9 +149,7 @@ async fn associate(
                     .filter(periodic_budgets::Column::EndDate.gte(date))
                     .one(db)
                     .await?
-                    .ok_or(MissingBudgetError(
-                        date.to_string(),
-                    ))?;
+                    .ok_or(MissingBudgetError(date.to_string()))?;
                 budgets.push(budget);
                 budgets.last().unwrap()
             }
