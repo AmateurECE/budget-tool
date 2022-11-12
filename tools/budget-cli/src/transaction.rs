@@ -185,9 +185,6 @@ async fn import(
         .collect::<Result<Vec<TransactionRecord>, _>>()?;
     let records = associate(&records, db).await?;
 
-    // TODO: Add periodic_budget id field to TransactionRecord, or allow
-    // conversion of TransactionRecord into another struct that has one.
-
     for record in records.iter() {
         // Create the Transaction instances
         let transaction_model = transactions::ActiveModel {
