@@ -8,11 +8,15 @@
 //
 // CREATED:         11/11/2022
 //
-// LAST EDITED:     11/11/2022
+// LAST EDITED:     11/12/2022
 ////
 
 use budget_backend_lib::prelude::*;
 use budget_models::Money;
+use chrono::{
+    naive::{NaiveDate, NaiveTime},
+    offset::Local,
+};
 use clap::{Subcommand, ValueEnum};
 use csv;
 use sea_orm::prelude::*;
@@ -76,6 +80,19 @@ impl fmt::Display for MissingBudgetError {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// PoorlyFormedTimeError
+////
+
+#[derive(Debug)]
+struct PoorlyFormedTimeError(String);
+impl Error for PoorlyFormedTimeError {}
+impl fmt::Display for PoorlyFormedTimeError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Date '{}' is poorly formed!", &self.0)
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // TransactionRecord
 ////
 
@@ -86,7 +103,7 @@ struct TransactionRecord {
     #[serde(rename = "Line Item")]
     line_item: String,
     #[serde(rename = "Date")]
-    date: DateTimeWithTimeZone,
+    date: String,
     #[serde(rename = "From Account")]
     from_account: Option<String>,
     #[serde(rename = "To Account")]
@@ -112,20 +129,28 @@ async fn associate(
 ) -> anyhow::Result<Vec<AssociatedTransaction>> {
     let mut budgets: Vec<periodic_budgets::Model> = Vec::new();
     let mut associated: Vec<AssociatedTransaction> = Vec::new();
-    for t in transactions {
+    for transaction in transactions {
+        let date: DateTimeWithTimeZone =
+            NaiveDate::parse_from_str(&transaction.date, "%m/%d/%y")?
+                .and_time(NaiveTime::default())
+                .and_local_timezone(Local)
+                .single()
+                .ok_or(PoorlyFormedTimeError(transaction.date.clone()))?
+                .into();
+
         let budget = budgets
             .iter()
-            .find(|&b| b.start_date <= t.date && b.end_date >= t.date);
+            .find(|&b| b.start_date <= date && b.end_date >= date);
         let budget = match budget {
             Some(budget) => budget,
             None => {
                 let budget = PeriodicBudgets::find()
-                    .filter(periodic_budgets::Column::StartDate.lte(t.date))
-                    .filter(periodic_budgets::Column::EndDate.gte(t.date))
+                    .filter(periodic_budgets::Column::StartDate.lte(date))
+                    .filter(periodic_budgets::Column::EndDate.gte(date))
                     .one(db)
                     .await?
                     .ok_or(MissingBudgetError(
-                        t.date.format("%d %b %Y").to_string(),
+                        date.to_string(),
                     ))?;
                 budgets.push(budget);
                 budgets.last().unwrap()
@@ -134,12 +159,12 @@ async fn associate(
 
         let new_transaction = AssociatedTransaction {
             budget: budget.id,
-            summary: t.summary.clone(),
-            line_item: t.line_item.clone(),
-            date: t.date,
-            from_account: t.from_account.clone(),
-            to_account: t.to_account.clone(),
-            amount: t.amount,
+            summary: transaction.summary.clone(),
+            line_item: transaction.line_item.clone(),
+            date,
+            from_account: transaction.from_account.clone(),
+            to_account: transaction.to_account.clone(),
+            amount: transaction.amount,
         };
         associated.push(new_transaction);
     }

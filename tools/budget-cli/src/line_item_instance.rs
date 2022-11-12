@@ -48,6 +48,7 @@ async fn import(
             from_account: Set(record.from_account),
             to_account: Set(record.to_account),
             amount: Set(Money::from(record.amount).into()),
+            periodic_budget: Set(budget),
             ..Default::default()
         };
         LineItemInstances::insert(model).exec(db).await?;
@@ -75,7 +76,7 @@ async fn import(
         })
         .collect::<Vec<Vec<String>>>();
     println!(
-        "Imported {} transactions for budged {}",
+        "Imported {} line items for budged {}",
         imported.len(),
         budget
     );
