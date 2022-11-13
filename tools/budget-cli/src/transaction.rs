@@ -8,7 +8,7 @@
 //
 // CREATED:         11/11/2022
 //
-// LAST EDITED:     11/12/2022
+// LAST EDITED:     11/13/2022
 ////
 
 use budget_backend_lib::prelude::*;
@@ -252,6 +252,25 @@ async fn import(
     Ok(())
 }
 
+async fn delete_all_planned(
+    budget: i32,
+    db: &DatabaseConnection,
+) -> anyhow::Result<()> {
+    let items = LineItemInstances::find()
+        .filter(line_item_instances::Column::PeriodicBudget.eq(budget))
+        .all(db)
+        .await?
+        .iter()
+        .map(|instance| instance.id)
+        .collect::<Vec<i32>>();
+
+    planned_transactions::Entity::delete_many()
+        .filter(planned_transactions::Column::LineItemInstance.is_in(items))
+        .exec(db)
+        .await?;
+    Ok(())
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Public Interface
 ////
@@ -264,6 +283,13 @@ pub(crate) enum Verb {
         #[clap(value_parser)]
         filename: String,
     },
+
+    /// Delete all transactions which reference a budget.
+    DeleteAll {
+        /// The budget ID
+        #[clap(value_parser)]
+        budget: i32,
+    },
 }
 
 pub(crate) async fn op(
@@ -275,6 +301,10 @@ pub(crate) async fn op(
         Verb::Import { filename } => {
             import(&filename, transaction_type, db).await
         }
+        Verb::DeleteAll { budget } => match transaction_type {
+            TransactionType::Planned => delete_all_planned(*budget, db).await,
+            TransactionType::Real => todo!(),
+        },
     }
 }
 
