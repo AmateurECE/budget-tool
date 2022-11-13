@@ -12,6 +12,7 @@
 
 use clap::{Parser, Subcommand};
 use sea_orm::Database;
+use std::env;
 
 mod display;
 mod line_item;
@@ -26,10 +27,6 @@ mod transaction;
 #[derive(Parser)]
 #[clap(author, version)]
 struct Args {
-    /// Database URL
-    #[clap(short, long, value_parser)]
-    pub url: String,
-
     #[command(subcommand)]
     pub object: Object,
 }
@@ -67,7 +64,8 @@ enum Object {
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
-    let db = Database::connect(args.url).await?;
+    let url = env::var("DATABASE_URL")?;
+    let db = Database::connect(&url).await?;
     match &args.object {
         Object::PeriodicBudget { verb } => {
             periodic_budget::op(verb, &db).await
