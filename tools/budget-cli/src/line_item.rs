@@ -38,7 +38,7 @@ struct LineItemInstanceRecord {
     amount: f64,
 }
 
-async fn import(
+async fn import_instance(
     filename: &str,
     budget: i32,
     db: &DatabaseConnection,
@@ -110,7 +110,7 @@ pub(crate) async fn op(
 ) -> anyhow::Result<()> {
     match verb {
         Verb::ImportInstance { filename, budget } => {
-            import(filename, *budget, db).await
+            import_instance(filename, *budget, db).await
         }
         Verb::DeleteAll { budget } => delete_all(*budget, db).await,
     }

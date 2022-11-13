@@ -37,7 +37,7 @@ struct Args {
 #[derive(Subcommand)]
 enum Object {
     /// Actions available on the set of periodic budgets
-    Periodic {
+    PeriodicBudget {
         #[command(subcommand)]
         verb: periodic_budget::Verb,
     },
@@ -69,7 +69,9 @@ async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
     let db = Database::connect(args.url).await?;
     match &args.object {
-        Object::Periodic { verb } => periodic_budget::op(verb, &db).await,
+        Object::PeriodicBudget { verb } => {
+            periodic_budget::op(verb, &db).await
+        }
         Object::LineItem { verb } => line_item::op(verb, &db).await,
         Object::Transaction {
             transaction_type,
