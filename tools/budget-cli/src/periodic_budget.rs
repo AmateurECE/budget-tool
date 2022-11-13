@@ -7,7 +7,7 @@
 //
 // CREATED:         11/10/2022
 //
-// LAST EDITED:     11/11/2022
+// LAST EDITED:     11/12/2022
 ////
 
 use budget_backend_lib::prelude::*;
@@ -15,8 +15,23 @@ use clap::Subcommand;
 use futures::future;
 use sea_orm::prelude::*;
 use sea_orm::DatabaseConnection;
+use table_iter::prelude::*;
 
 use crate::table;
+
+#[derive(Fields, FieldNames)]
+struct PeriodicBudgetRecord {
+    #[fields(rename = "Id")]
+    id: i32,
+    #[fields(rename = "Start Date", with = "crate::display::date")]
+    start_date: DateTimeWithTimeZone,
+    #[fields(rename = "End Date", with = "crate::display::date")]
+    end_date: DateTimeWithTimeZone,
+    #[fields(rename = "Line Items")]
+    line_items: usize,
+    #[fields(rename = "Planned Transactions")]
+    planned_transactions: usize,
+}
 
 async fn list(db: &DatabaseConnection) -> anyhow::Result<()> {
     let budgets = future::join_all(
@@ -43,33 +58,19 @@ async fn list(db: &DatabaseConnection) -> anyhow::Result<()> {
                 .await
                 .iter()
                 .sum();
-                vec![
-                    budget.id.to_string(),
-                    budget.start_date.format("%d %b %Y").to_string(),
-                    budget.end_date.format("%d %b %Y").to_string(),
-                    line_items.len().to_string(),
-                    number_of_planned_transactions.to_string(),
-                ]
+                PeriodicBudgetRecord {
+                    id: budget.id,
+                    start_date: budget.start_date,
+                    end_date: budget.end_date,
+                    line_items: line_items.len(),
+                    planned_transactions: number_of_planned_transactions,
+                }
             })
             .collect::<Vec<_>>(),
     )
     .await;
 
-    table::print(
-        budgets
-            .iter()
-            .map(|row| row.as_slice())
-            .collect::<Vec<&[String]>>()
-            .as_slice(),
-        vec![
-            "Id".to_string(),
-            "Start Date".to_string(),
-            "End Date".to_string(),
-            "Line Items".to_string(),
-            "Planned Transactions".to_string(),
-        ]
-        .as_slice(),
-    );
+    table::print(&budgets);
     Ok(())
 }
 

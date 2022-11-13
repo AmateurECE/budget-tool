@@ -25,6 +25,7 @@ use serde::Deserialize;
 use std::error::Error;
 use std::fmt;
 use std::fs::File;
+use table_iter::prelude::*;
 
 use crate::table;
 
@@ -112,14 +113,21 @@ struct TransactionRecord {
     amount: f64,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Fields, FieldNames)]
 struct AssociatedTransaction {
+    #[fields(rename = "Summary")]
     summary: String,
+    #[fields(rename = "Line Item")]
     line_item: String,
+    #[fields(rename = "Date", with = "crate::display::date")]
     date: DateTimeWithTimeZone,
+    #[fields(rename = "From Account", with = "table_iter::display::option")]
     from_account: Option<String>,
+    #[fields(rename = "To Account", with = "table_iter::display::option")]
     to_account: Option<String>,
+    #[fields(rename = "Amount")]
     amount: f64,
+    #[fields(rename = "Budget")]
     budget: i32,
 }
 
@@ -240,37 +248,7 @@ async fn import(
         }
     }
 
-    let formatted_records = records
-        .iter()
-        .map(|record| {
-            vec![
-                record.summary.to_string(),
-                record.line_item.to_string(),
-                record.date.format("%d %b %Y").to_string(),
-                record
-                    .from_account
-                    .as_ref()
-                    .map(|s| s.as_str())
-                    .unwrap_or("")
-                    .to_owned(),
-                record
-                    .to_account
-                    .as_ref()
-                    .map(|s| s.as_str())
-                    .unwrap_or("")
-                    .to_owned(),
-                Money::from(record.amount).to_string(),
-            ]
-        })
-        .collect::<Vec<Vec<String>>>();
-    let headers = vec![];
-    table::print(
-        &formatted_records
-            .iter()
-            .map(|record| record.as_slice())
-            .collect::<Vec<&[String]>>(),
-        &headers,
-    );
+    table::print(&records);
     Ok(())
 }
 

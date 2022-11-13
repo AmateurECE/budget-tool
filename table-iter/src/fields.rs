@@ -35,6 +35,12 @@ impl From<Vec<String>> for FieldSpec {
     }
 }
 
+impl AsRef<[String]> for FieldSpec {
+    fn as_ref(&self) -> &[String] {
+        self.0.as_slice()
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // FieldView
 ////
@@ -56,6 +62,12 @@ impl FromIterator<String> for FieldView {
 impl From<Vec<String>> for FieldView {
     fn from(value: Vec<String>) -> Self {
         Self(value)
+    }
+}
+
+impl AsRef<[String]> for FieldView {
+    fn as_ref(&self) -> &[String] {
+        self.0.as_slice()
     }
 }
 

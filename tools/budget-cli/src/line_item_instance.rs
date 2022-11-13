@@ -7,7 +7,7 @@
 //
 // CREATED:         11/11/2022
 //
-// LAST EDITED:     11/11/2022
+// LAST EDITED:     11/12/2022
 ////
 
 use budget_backend_lib::prelude::*;
@@ -18,17 +18,22 @@ use sea_orm::prelude::*;
 use sea_orm::{DatabaseConnection, Set};
 use serde::Deserialize;
 use std::fs::File;
+use table_iter::prelude::*;
 
 use crate::table;
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Fields, FieldNames)]
 struct LineItemInstanceRecord {
+    #[fields(rename = "Summary")]
     #[serde(rename = "Summary")]
     summary: String,
+    #[fields(rename = "From Account", with = "table_iter::display::option")]
     #[serde(rename = "From Account")]
     from_account: Option<String>,
+    #[fields(rename = "To Account", with = "table_iter::display::option")]
     #[serde(rename = "To Account")]
     to_account: Option<String>,
+    #[fields(rename = "Amount")]
     #[serde(rename = "Amount")]
     amount: f64,
 }
@@ -54,45 +59,12 @@ async fn import(
         LineItemInstances::insert(model).exec(db).await?;
     }
 
-    let table_items = imported
-        .iter()
-        .map(|model| {
-            vec![
-                model.summary.to_owned(),
-                model
-                    .from_account
-                    .as_ref()
-                    .map(|s| s.as_str())
-                    .unwrap_or("")
-                    .to_owned(),
-                model
-                    .to_account
-                    .as_ref()
-                    .map(|s| s.as_str())
-                    .unwrap_or("")
-                    .to_owned(),
-                model.amount.to_string(),
-            ]
-        })
-        .collect::<Vec<Vec<String>>>();
     println!(
         "Imported {} line items for budged {}",
         imported.len(),
         budget
     );
-    let headers = vec![
-        "Summary".to_string(),
-        "From Account".to_string(),
-        "To Account".to_string(),
-        "Amount".to_string(),
-    ];
-    table::print(
-        &table_items
-            .iter()
-            .map(|item| item.as_slice())
-            .collect::<Vec<&[String]>>(),
-        &headers,
-    );
+    table::print(&imported);
     Ok(())
 }
 

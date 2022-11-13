@@ -10,6 +10,7 @@
 // LAST EDITED:     11/12/2022
 ////
 
+pub mod display;
 pub mod fields;
 pub mod prelude;
 

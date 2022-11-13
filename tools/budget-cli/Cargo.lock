@@ -222,6 +222,7 @@ dependencies = [
  "futures",
  "sea-orm",
  "serde",
+ "table-iter",
  "tokio",
 ]
 
@@ -1770,6 +1771,22 @@ name = "sync_wrapper"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "20518fe4a4c9acf048008599e464deb21beeae3d3578418951a189c235a7a9a8"
+
+[[package]]
+name = "table-iter"
+version = "0.1.0"
+dependencies = [
+ "table-iter-macros",
+]
+
+[[package]]
+name = "table-iter-macros"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "tempfile"

@@ -15,9 +15,41 @@ use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 use syn::spanned::Spanned;
 use syn::{
-    parse_macro_input, parse_quote, Data, DeriveInput, Field, Fields,
-    GenericParam, Generics, Lit, Meta, NestedMeta,
+    parse_macro_input, Data, DeriveInput, Field, Fields, Lit, Meta, NestedMeta,
 };
+
+///////////////////////////////////////////////////////////////////////////////
+// Attribute Helper
+////
+
+const NOT_LIST_ERROR: &'static str = "\
+\"field_name\" attribute requires a list of key/value pairs";
+
+// For field, search for an attribute of the #[fields] helper macro which
+// matches the identifier `attribute'.
+fn get_fields_attribute(field: &Field, attribute: &str) -> Option<Meta> {
+    field
+        .attrs
+        .iter()
+        .find(|a| a.path.is_ident("fields"))
+        .and_then(|a| {
+            let meta = a.parse_meta().expect(NOT_LIST_ERROR);
+            if let Meta::List(ref list) = meta {
+                list.nested.iter().find_map(|nested| match nested {
+                    NestedMeta::Meta(ref meta) => {
+                        if meta.path().is_ident(attribute) {
+                            Some(meta.clone())
+                        } else {
+                            None
+                        }
+                    }
+                    _ => None,
+                })
+            } else {
+                panic!("{}", NOT_LIST_ERROR)
+            }
+        })
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Fields
@@ -30,9 +62,8 @@ pub fn derive_fields(
     let input = parse_macro_input!(input as DeriveInput);
     let name = input.ident;
 
-    // This allows us to add a bound "T: ToString" for every type parameter "T"
-    let generics = add_trait_bounds(input.generics);
-    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
+    let (impl_generics, ty_generics, where_clause) =
+        input.generics.split_for_impl();
 
     let field_creation = create_fields(&input.data);
     let expanded = quote! {
@@ -47,18 +78,6 @@ pub fn derive_fields(
     };
 
     proc_macro::TokenStream::from(expanded)
-}
-
-// Add a bound `T: ToString` to every type parameter T.
-fn add_trait_bounds(mut generics: Generics) -> Generics {
-    for param in &mut generics.params {
-        if let GenericParam::Type(ref mut type_param) = *param {
-            type_param
-                .bounds
-                .push(parse_quote!(::std::string::ToString));
-        }
-    }
-    generics
 }
 
 fn create_fields(data: &Data) -> TokenStream {
@@ -90,12 +109,23 @@ fn create_fields(data: &Data) -> TokenStream {
             Fields::Unnamed(_) | Fields::Unit => unimplemented!(),
         },
 
-        Data::Enum(_) | Data::Union(_) => todo!(),
+        Data::Enum(_) | Data::Union(_) => unimplemented!(),
     }
 }
 
 fn get_display_function(field: &Field) -> Option<TokenStream> {
-    None
+    get_fields_attribute(field, "with")
+        .and_then(|meta| {
+            if let Meta::NameValue(ref value) = meta {
+                if let Lit::Str(literal) = &value.lit {
+                    Some(literal.parse().unwrap())
+                } else {
+                    None
+                }
+            } else {
+                panic!("rename attribute expects key/value pair")
+            }
+        })
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -155,45 +185,16 @@ fn create_field_names(data: &Data) -> TokenStream {
 
 // Obtain the field name, potentially parsing any present attributes
 fn get_field_name(field: &Field) -> Option<String> {
-    field
-        .attrs
-        .iter()
-        .find(|a| a.path.is_ident("fields"))
-        .and_then(|a| {
-            let meta = a
-                .parse_meta()
-                .expect("Expected an attribute of the form 'name = value'");
-            if let Meta::List(ref list) = meta {
-                list.nested
-                    .iter()
-                    .filter_map(|nested| {
-                        if let NestedMeta::Meta(ref meta) = nested {
-                            if let Meta::NameValue(ref value) = meta {
-                                assert!(meta.path().is_ident("rename"));
-                                if let Lit::Str(string) = &value.lit {
-                                    Some(string.value())
-                                } else {
-                                    None
-                                }
-                            } else {
-                                panic!(
-                                    "\"field_name\" attribute requires a list \
-                                    of key/value pairs"
-                                )
-                            }
-                        } else {
-                            panic!(
-                                "\"field_name\" attribute requires a list of \
-                                key/value pairs"
-                            )
-                        }
-                    })
-                    .last()
+    get_fields_attribute(field, "rename")
+        .and_then(|meta| {
+            if let Meta::NameValue(ref value) = meta {
+                if let Lit::Str(string) = &value.lit {
+                    Some(string.value())
+                } else {
+                    None
+                }
             } else {
-                panic!(
-                    "\"field_name\" attribute requires a list of key/value \
-                        pairs"
-                )
+                panic!("rename attribute expects key/value pair")
             }
         })
         .or_else(|| field.ident.as_ref().map(|i| i.to_string()))

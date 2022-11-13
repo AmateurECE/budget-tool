@@ -13,4 +13,5 @@ csv = "1.1.6"
 futures = "0.3.25"
 sea-orm = { version = "0.10.2", features = ["sqlx-postgres", "runtime-tokio-native-tls", "chrono"] }
 serde = { version = "1.0.147", features = ["derive"] }
+table-iter = { path = "../../table-iter" }
 tokio = { version = "1.21.2", features = ["full"] }

@@ -7,8 +7,10 @@
 //
 // CREATED:         11/10/2022
 //
-// LAST EDITED:     11/10/2022
+// LAST EDITED:     11/13/2022
 ////
+
+use table_iter::prelude::*;
 
 const DEFAULT_PADDING_LENGTH: usize = 4;
 
@@ -52,11 +54,13 @@ where
 }
 
 // Join a row of data with padding, concatenate into a string.
-fn join_with_padding<T>(data: &[T], column_lengths: &[usize]) -> String
+fn join_with_padding<T, S>(data: S, column_lengths: &[usize]) -> String
 where
     T: AsRef<str>,
+    S: AsRef<[T]>,
 {
-    data.iter()
+    data.as_ref()
+        .iter()
         .enumerate()
         .map(|(i, text)| {
             text.as_ref().to_owned()
@@ -66,18 +70,29 @@ where
 }
 
 // Print a table of data, with a row of headers
-pub fn print_with_padding<T>(
-    data: &[&[T]],
-    headers: &[T],
-    padding: Option<usize>,
-) where
-    T: AsRef<str>,
+pub fn print_with_padding<T>(data: &[T], padding: Option<usize>)
+where
+    T: Fields + FieldNames,
 {
-    // Calculate the lengths of all the columns
-    let column_lengths =
-        column_lengths(data.iter().chain(&vec![headers]), padding);
+    let headers = T::field_names();
+    let fields = data
+        .iter()
+        .map(|row| row.fields())
+        .collect::<Vec<FieldView>>();
 
-    // Start with the headers
+    // Have Vec<FieldView>, but we need impl Iterator<Item = &&[T]>
+    let aggregate = fields
+        .iter()
+        .map(|view| view.as_ref())
+        .collect::<Vec<&[String]>>();
+
+    // Calculate the lengths of all the columns (including headers)
+    let column_lengths = column_lengths(
+        aggregate.iter().chain(&vec![headers.clone().as_ref()]),
+        padding,
+    );
+
+    // Start by rendering the headers
     let sum: usize = column_lengths.iter().sum();
     let mut output = join_with_padding(headers, column_lengths.as_slice())
         + "\n"
@@ -85,18 +100,18 @@ pub fn print_with_padding<T>(
         + "\n";
 
     // Copy all the table data
-    for row in data {
+    for row in fields {
         output =
             output + &join_with_padding(row, column_lengths.as_slice()) + "\n";
     }
     print!("{}", output);
 }
 
-pub fn print<T>(data: &[&[T]], headers: &[T])
+pub fn print<T>(data: &[T])
 where
-    T: AsRef<str>,
+    T: Fields + FieldNames,
 {
-    print_with_padding(data, headers, None);
+    print_with_padding(data, None);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
