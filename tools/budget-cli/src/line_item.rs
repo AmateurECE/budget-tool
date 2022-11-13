@@ -68,6 +68,17 @@ async fn import(
     Ok(())
 }
 
+async fn delete_all(
+    budget: i32,
+    db: &DatabaseConnection,
+) -> anyhow::Result<()> {
+    line_item_instances::Entity::delete_many()
+        .filter(line_item_instances::Column::PeriodicBudget.eq(budget))
+        .exec(db)
+        .await?;
+    Ok(())
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Public Interface
 ////
@@ -84,6 +95,13 @@ pub(crate) enum Verb {
         #[clap(value_parser)]
         budget: i32,
     },
+
+    /// Delete all transactions belonging to a budget
+    DeleteAll {
+        /// The budget ID
+        #[clap(value_parser)]
+        budget: i32,
+    },
 }
 
 pub(crate) async fn op(
@@ -94,6 +112,7 @@ pub(crate) async fn op(
         Verb::ImportInstance { filename, budget } => {
             import(filename, *budget, db).await
         }
+        Verb::DeleteAll { budget } => delete_all(*budget, db).await,
     }
 }
 

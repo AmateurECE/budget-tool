@@ -70,9 +70,7 @@ async fn main() -> anyhow::Result<()> {
     let db = Database::connect(args.url).await?;
     match &args.object {
         Object::Periodic { verb } => periodic_budget::op(verb, &db).await,
-        Object::LineItem { verb } => {
-            line_item::op(verb, &db).await
-        }
+        Object::LineItem { verb } => line_item::op(verb, &db).await,
         Object::Transaction {
             transaction_type,
             verb,
