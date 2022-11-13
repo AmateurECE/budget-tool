@@ -1,13 +1,13 @@
 ///////////////////////////////////////////////////////////////////////////////
-// NAME:            line_item_instance.rs
+// NAME:            line_item.rs
 //
 // AUTHOR:          Ethan D. Twardy <ethan.twardy@gmail.com>
 //
-// DESCRIPTION:     Operations on line_item_instances in the database.
+// DESCRIPTION:     Operations on line items in the database.
 //
 // CREATED:         11/11/2022
 //
-// LAST EDITED:     11/12/2022
+// LAST EDITED:     11/13/2022
 ////
 
 use budget_backend_lib::prelude::*;
@@ -75,7 +75,7 @@ async fn import(
 #[derive(Subcommand)]
 pub(crate) enum Verb {
     /// Import line item instances from a CSV file
-    Import {
+    ImportInstance {
         /// The file to import from
         #[clap(value_parser)]
         filename: String,
@@ -91,7 +91,7 @@ pub(crate) async fn op(
     db: &DatabaseConnection,
 ) -> anyhow::Result<()> {
     match verb {
-        Verb::Import { filename, budget } => {
+        Verb::ImportInstance { filename, budget } => {
             import(filename, *budget, db).await
         }
     }
