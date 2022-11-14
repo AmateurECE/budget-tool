@@ -8,7 +8,7 @@
 //
 // CREATED:         10/12/2022
 //
-// LAST EDITED:     11/12/2022
+// LAST EDITED:     11/13/2022
 ////
 
 use proc_macro2::TokenStream;
@@ -51,6 +51,10 @@ fn get_fields_attribute(field: &Field, attribute: &str) -> Option<Meta> {
         })
 }
 
+fn is_skipped_field(field: &Field) -> bool {
+    get_fields_attribute(field, "skip").is_some()
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Fields
 ////
@@ -90,17 +94,20 @@ fn create_fields(data: &Data) -> TokenStream {
                 // the span of the corresponding `to_string()` call. This way
                 // if one of the field types does not implement `ToString` then
                 // the compiler's error message underlines which field it is.
-                let field_views = fields.named.iter().map(|f| {
-                    let name = &f.ident;
-                    let display_function = get_display_function(f)
-                        .unwrap_or_else(|| {
-                            quote!(::std::string::ToString::to_string)
-                        });
-                    quote_spanned! {
-                        f.span() =>
-                            #display_function(&self.#name)
-                    }
-                });
+                let field_views =
+                    fields.named.iter().filter(|f| !is_skipped_field(f)).map(
+                        |f| {
+                            let name = &f.ident;
+                            let display_function = get_display_function(f)
+                                .unwrap_or_else(|| {
+                                    quote!(::std::string::ToString::to_string)
+                                });
+                            quote_spanned! {
+                                f.span() =>
+                                    #display_function(&self.#name)
+                            }
+                        },
+                    );
                 quote! {
                     vec![ #(#field_views ,)* ].into()
                 }
@@ -114,18 +121,17 @@ fn create_fields(data: &Data) -> TokenStream {
 }
 
 fn get_display_function(field: &Field) -> Option<TokenStream> {
-    get_fields_attribute(field, "with")
-        .and_then(|meta| {
-            if let Meta::NameValue(ref value) = meta {
-                if let Lit::Str(literal) = &value.lit {
-                    Some(literal.parse().unwrap())
-                } else {
-                    None
-                }
+    get_fields_attribute(field, "with").and_then(|meta| {
+        if let Meta::NameValue(ref value) = meta {
+            if let Lit::Str(literal) = &value.lit {
+                Some(literal.parse().unwrap())
             } else {
-                panic!("rename attribute expects key/value pair")
+                None
             }
-        })
+        } else {
+            panic!("rename attribute expects key/value pair")
+        }
+    })
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -163,14 +169,17 @@ fn create_field_names(data: &Data) -> TokenStream {
             Fields::Named(ref fields) => {
                 // Expands to an expression like
                 //      vec!["x".to_string(), "y".to_string()].into()
-                let field_names = fields.named.iter().map(|f| {
-                    let name =
-                        get_field_name(f).unwrap_or_else(|| "".to_string());
-                    quote_spanned! {
-                        f.span() =>
-                            ::std::string::ToString::to_string(#name)
-                    }
-                });
+                let field_names =
+                    fields.named.iter().filter(|f| !is_skipped_field(f)).map(
+                        |f| {
+                            let name = get_field_name(f)
+                                .unwrap_or_else(|| "".to_string());
+                            quote_spanned! {
+                                f.span() =>
+                                    ::std::string::ToString::to_string(#name)
+                            }
+                        },
+                    );
                 quote! {
                     vec![ #(#field_names ,)* ].into()
                 }

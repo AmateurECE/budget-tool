@@ -127,7 +127,7 @@ struct AssociatedTransaction {
     to_account: Option<String>,
     #[fields(rename = "Amount")]
     amount: f64,
-    #[fields(rename = "Budget")]
+    #[fields(rename = "Budget", skip)]
     budget: i32,
 }
 
