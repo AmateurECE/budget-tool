@@ -7,10 +7,11 @@
 //
 // CREATED:         09/18/2022
 //
-// LAST EDITED:     11/09/2022
+// LAST EDITED:     11/14/2022
 ////
 
 mod conversions;
+pub mod error;
 pub mod entities;
 pub mod secret;
 
