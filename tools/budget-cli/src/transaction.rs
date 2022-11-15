@@ -145,9 +145,9 @@ async fn associate(
         let budget = budgets
             .iter()
             .find(|&b| b.start_date <= date && b.end_date >= date)
-            .ok_or_else(|| MissingBudgetError::new(
-                date.format("%d %b %Y").to_string(),
-            ))?;
+            .ok_or_else(|| {
+                MissingBudgetError::new(date.format("%d %b %Y").to_string())
+            })?;
 
         let line_item = line_items
             .iter()
@@ -155,10 +155,12 @@ async fn associate(
                 item.summary == transaction.line_item
                     && item.periodic_budget == budget.id
             })
-            .ok_or_else(|| MissingInstanceError::new(
-                budget.id,
-                transaction.line_item.clone(),
-            ))?;
+            .ok_or_else(|| {
+                MissingInstanceError::new(
+                    budget.id,
+                    transaction.line_item.clone(),
+                )
+            })?;
 
         associated.push(AssociatedTransaction {
             summary: transaction.summary.clone(),

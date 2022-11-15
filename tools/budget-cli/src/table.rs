@@ -19,7 +19,7 @@ const DEFAULT_PADDING_LENGTH: usize = 4;
 fn column_lengths<'a, T, I>(data: I, padding: Option<usize>) -> Vec<usize>
 where
     T: AsRef<str> + 'a,
-    I: Iterator<Item = &'a &'a [T]>,
+    I: Iterator<Item = &'a [T]>,
 {
     let mut lengths: Vec<usize> = Vec::new();
     let padding = padding.unwrap_or(DEFAULT_PADDING_LENGTH);
@@ -80,15 +80,12 @@ where
         .map(|row| row.fields())
         .collect::<Vec<FieldView>>();
 
-    // Have Vec<FieldView>, but we need impl Iterator<Item = &&[T]>
-    let aggregate = fields
-        .iter()
-        .map(|view| view.as_ref())
-        .collect::<Vec<&[String]>>();
-
     // Calculate the lengths of all the columns (including headers)
     let column_lengths = column_lengths(
-        aggregate.iter().chain(&vec![headers.as_ref()]),
+        fields
+            .iter()
+            .map(|view| view.as_ref())
+            .chain(vec![headers.as_ref()]),
         padding,
     );
 
