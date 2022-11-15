@@ -7,10 +7,10 @@
 //
 // CREATED:         09/18/2022
 //
-// LAST EDITED:     11/06/2022
+// LAST EDITED:     11/14/2022
 ////
 
-use budget_backend_lib::SecretManager;
+use budget_backend_lib::secret::SecretManager;
 use clap::Parser;
 use std::env;
 use sqlx::PgPool;
