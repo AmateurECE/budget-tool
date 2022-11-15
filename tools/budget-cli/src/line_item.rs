@@ -7,13 +7,12 @@
 //
 // CREATED:         11/11/2022
 //
-// LAST EDITED:     11/13/2022
+// LAST EDITED:     11/15/2022
 ////
 
 use budget_backend_lib::prelude::*;
 use budget_models::Money;
 use clap::Subcommand;
-use csv;
 use sea_orm::prelude::*;
 use sea_orm::{DatabaseConnection, Set};
 use serde::Deserialize;
@@ -43,7 +42,7 @@ async fn import_instance(
     budget: i32,
     db: &DatabaseConnection,
 ) -> anyhow::Result<()> {
-    let mut reader = csv::Reader::from_reader(File::open(&filename)?);
+    let mut reader = csv::Reader::from_reader(File::open(filename)?);
     let mut imported: Vec<LineItemInstanceRecord> = Vec::new();
     for result in reader.deserialize() {
         let record: LineItemInstanceRecord = result?;

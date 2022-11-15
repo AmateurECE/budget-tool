@@ -7,7 +7,7 @@
 //
 // CREATED:         11/10/2022
 //
-// LAST EDITED:     11/13/2022
+// LAST EDITED:     11/15/2022
 ////
 
 use table_iter::prelude::*;
@@ -48,7 +48,7 @@ where
 {
     (0..(column_length
         .map(|length| length - text.as_ref().len())
-        .unwrap_or(text.as_ref().len())))
+        .unwrap_or_else(|| text.as_ref().len())))
         .map(|_| " ")
         .collect::<String>()
 }
@@ -88,7 +88,7 @@ where
 
     // Calculate the lengths of all the columns (including headers)
     let column_lengths = column_lengths(
-        aggregate.iter().chain(&vec![headers.clone().as_ref()]),
+        aggregate.iter().chain(&vec![headers.as_ref()]),
         padding,
     );
 

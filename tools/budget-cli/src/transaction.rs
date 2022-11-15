@@ -8,7 +8,7 @@
 //
 // CREATED:         11/11/2022
 //
-// LAST EDITED:     11/14/2022
+// LAST EDITED:     11/15/2022
 ////
 
 use budget_backend_lib::error::{MissingBudgetError, MissingInstanceError};
@@ -19,7 +19,6 @@ use chrono::{
     offset::Local,
 };
 use clap::{Subcommand, ValueEnum};
-use csv;
 use sea_orm::prelude::*;
 use sea_orm::{DatabaseConnection, Set};
 use serde::Deserialize;
@@ -146,7 +145,7 @@ async fn associate(
         let budget = budgets
             .iter()
             .find(|&b| b.start_date <= date && b.end_date >= date)
-            .ok_or(MissingBudgetError::new(
+            .ok_or_else(|| MissingBudgetError::new(
                 date.format("%d %b %Y").to_string(),
             ))?;
 
@@ -156,7 +155,7 @@ async fn associate(
                 item.summary == transaction.line_item
                     && item.periodic_budget == budget.id
             })
-            .ok_or(MissingInstanceError::new(
+            .ok_or_else(|| MissingInstanceError::new(
                 budget.id,
                 transaction.line_item.clone(),
             ))?;
@@ -284,7 +283,7 @@ pub(crate) async fn op(
 ) -> anyhow::Result<()> {
     match verb {
         Verb::Import { filename } => {
-            import(&filename, transaction_type, db).await
+            import(filename, transaction_type, db).await
         }
         Verb::DeleteAll { budget } => match transaction_type {
             TransactionType::Planned => delete_all_planned(*budget, db).await,
