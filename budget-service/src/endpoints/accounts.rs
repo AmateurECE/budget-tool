@@ -7,15 +7,14 @@
 //
 // CREATED:         07/04/2022
 //
-// LAST EDITED:     07/05/2022
+// LAST EDITED:     11/15/2022
 ////
 
 use axum::{http::StatusCode, Json};
 use budget_models::models;
 use sea_orm::{DatabaseConnection, EntityTrait};
+use budget_backend_lib::prelude::*;
 
-use crate::entities::prelude::*;
-use crate::entities::*;
 use crate::internal_server_error;
 
 pub async fn list(

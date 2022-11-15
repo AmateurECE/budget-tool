@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     11/11/2022
+// LAST EDITED:     11/15/2022
 ////
 
 use axum::{
@@ -15,7 +15,7 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use budget_backend_lib::SecretManager;
+use budget_backend_lib::secret::SecretManager;
 use clap::Parser;
 use sea_orm::Database;
 use std::env;
@@ -67,27 +67,6 @@ async fn main() -> anyhow::Result<()> {
     let connection = Database::connect(&url).await?;
 
     let app = Router::new()
-        .route(
-            "/api/periodic_budgets",
-            get({
-                let db = connection.clone();
-                move || endpoints::periodic_budgets::list(db)
-            }),
-        )
-        .route(
-            "/api/periodic_budgets/:id",
-            get({
-                let db = connection.clone();
-                move |id| endpoints::periodic_budgets::detailed(id, db)
-            }),
-        )
-        .route(
-            "/api/initial_balances",
-            get({
-                let db = connection.clone();
-                move || endpoints::initial_balances::list(db)
-            }),
-        )
         .route(
             "/api/accounts",
             get({
