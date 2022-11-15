@@ -7,7 +7,7 @@
 //
 // CREATED:         09/18/2022
 //
-// LAST EDITED:     11/14/2022
+// LAST EDITED:     11/15/2022
 ////
 
 use budget_backend_lib::secret::SecretManager;
@@ -33,7 +33,7 @@ async fn main() -> anyhow::Result<()> {
 
     // Run database migrations
     let pool = PgPool::connect(&url).await?;
-    sqlx::migrate!("../../migrations")
+    sqlx::migrate!("../migrations")
         .run(&pool)
         .await?;
 
