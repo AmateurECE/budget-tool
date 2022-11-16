@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     11/15/2022
+// LAST EDITED:     11/16/2022
 //
 // Copyright 2022, Ethan D. Twardy
 //
@@ -32,8 +32,10 @@ use axum::{
 use budget_backend_lib::secret::SecretManager;
 use clap::Parser;
 use sea_orm::Database;
+use serde::Deserialize;
 use std::env;
 use std::fmt;
+use std::fs::File;
 use tower_http::trace::TraceLayer;
 use tracing::{event, Level};
 
@@ -49,6 +51,24 @@ pub(crate) fn internal_server_error<E: fmt::Debug>(e: E) -> StatusCode {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Configuration
+////
+
+#[derive(Deserialize)]
+struct Configuration {
+    // The root URL which the service resides at, '/' by default.
+    pub root: Option<String>,
+}
+
+impl Default for Configuration {
+    fn default() -> Self {
+        Self {
+            root: Some("/".to_string()),
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Command Line Interface
 ////
 
@@ -58,6 +78,10 @@ struct Args {
     /// Path to a JSON file containing database credentials
     #[clap(short, long, value_parser)]
     secret_file: String,
+
+    /// Path to a YAML file containing application configuration
+    #[clap(short, long, value_parser)]
+    config_file: Option<String>,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -76,6 +100,11 @@ async fn main() -> anyhow::Result<()> {
         env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let secret_manager = SecretManager::new(args.secret_file);
     let url = secret_manager.with_url(url_template.parse()?)?;
+
+    let configuration: Configuration = match args.config_file {
+        Some(file) => serde_yaml::from_reader(File::open(file)?)?,
+        None => Configuration::default(),
+    };
 
     // Open a connection to the database for SeaOrm.
     let connection = Database::connect(&url).await?;
@@ -99,8 +128,12 @@ async fn main() -> anyhow::Result<()> {
         )
         .layer(TraceLayer::new_for_http());
 
+    let root = configuration
+        .root
+        .as_ref()
+        .unwrap();
     axum::Server::bind(&"127.0.0.1:3000".parse().unwrap())
-        .serve(app.into_make_service())
+        .serve(Router::new().nest(&root, app).into_make_service())
         .await?;
     Ok(())
 }
