@@ -11,19 +11,29 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
     pub transaction: i32,
-    pub line_item_instance: Option<i32>,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub line_item: Option<String>,
+    pub periodic_budget: Option<i32>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
-        belongs_to = "super::line_item_instances::Entity",
-        from = "Column::LineItemInstance",
-        to = "super::line_item_instances::Column::Id",
+        belongs_to = "super::line_items::Entity",
+        from = "Column::LineItem",
+        to = "super::line_items::Column::Summary",
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
-    LineItemInstances,
+    LineItems,
+    #[sea_orm(
+        belongs_to = "super::periodic_budgets::Entity",
+        from = "Column::PeriodicBudget",
+        to = "super::periodic_budgets::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    PeriodicBudgets,
     #[sea_orm(
         belongs_to = "super::transactions::Entity",
         from = "Column::Transaction",
@@ -34,9 +44,15 @@ pub enum Relation {
     Transactions,
 }
 
-impl Related<super::line_item_instances::Entity> for Entity {
+impl Related<super::line_items::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::LineItemInstances.def()
+        Relation::LineItems.def()
+    }
+}
+
+impl Related<super::periodic_budgets::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PeriodicBudgets.def()
     }
 }
 

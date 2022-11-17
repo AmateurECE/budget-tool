@@ -16,40 +16,33 @@ CREATE TABLE line_items (
        summary TEXT NOT NULL UNIQUE PRIMARY KEY
 );
 
-CREATE TABLE line_item_instances (
-       id SERIAL PRIMARY KEY,
-       summary TEXT NOT NULL,
-       periodic_budget INTEGER NOT NULL,
-       from_account TEXT,
-       to_account TEXT,
-       amount BIGINT NOT NULL,
-       FOREIGN KEY(summary) REFERENCES line_items(summary),
-       FOREIGN KEY(periodic_budget) REFERENCES periodic_budgets(id),
-       FOREIGN KEY(from_account) REFERENCES accounts(name),
-       FOREIGN KEY(to_account) REFERENCES accounts(name)
-);
-
 CREATE TABLE transactions (
        id SERIAL PRIMARY KEY,
        summary TEXT NOT NULL,
        date timestamp with TIME ZONE NOT NULL,
-       from_account TEXT,
-       to_account TEXT,
-       amount BIGINT NOT NULL
+       account TEXT NOT NULL,
+       amount BIGINT NOT NULL,
+       paired_with INTEGER,
+       FOREIGN KEY(account) REFERENCES accounts(name),
+       FOREIGN KEY(paired_with) REFERENCES transactions(id)
 );
 
 CREATE TABLE real_transactions (
        id SERIAL PRIMARY KEY,
        transaction INTEGER NOT NULL,
-       line_item_instance INTEGER,
+       line_item TEXT,
+       periodic_budget INTEGER,
        FOREIGN KEY(transaction) REFERENCES transactions(id),
-       FOREIGN KEY(line_item_instance) REFERENCES line_item_instances(id)
+       FOREIGN KEY(line_item) REFERENCES line_items(summary),
+       FOREIGN KEY(periodic_budget) REFERENCES periodic_budgets(id)
 );
 
 CREATE TABLE planned_transactions (
        id SERIAL PRIMARY KEY,
        transaction INTEGER NOT NULL,
-       line_item_instance INTEGER NOT NULL,
+       line_item TEXT NOT NULL,
+       periodic_budget INTEGER NOT NULL,
        FOREIGN KEY(transaction) REFERENCES transactions(id),
-       FOREIGN KEY(line_item_instance) REFERENCES line_item_instances(id)
+       FOREIGN KEY(line_item) REFERENCES line_items(summary),
+       FOREIGN KEY(periodic_budget) REFERENCES periodic_budgets(id)
 );

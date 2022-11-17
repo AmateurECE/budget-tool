@@ -13,19 +13,40 @@ pub struct Model {
     #[sea_orm(column_type = "Text")]
     pub summary: String,
     pub date: DateTimeWithTimeZone,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub from_account: Option<String>,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub to_account: Option<String>,
+    #[sea_orm(column_type = "Text")]
+    pub account: String,
     pub amount: i64,
+    pub paired_with: Option<i32>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::accounts::Entity",
+        from = "Column::Account",
+        to = "super::accounts::Column::Name",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Accounts,
+    #[sea_orm(
+        belongs_to = "Entity",
+        from = "Column::PairedWith",
+        to = "Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    SelfRef,
     #[sea_orm(has_many = "super::real_transactions::Entity")]
     RealTransactions,
     #[sea_orm(has_many = "super::planned_transactions::Entity")]
     PlannedTransactions,
+}
+
+impl Related<super::accounts::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Accounts.def()
+    }
 }
 
 impl Related<super::real_transactions::Entity> for Entity {
