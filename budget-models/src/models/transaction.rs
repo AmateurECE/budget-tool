@@ -7,7 +7,7 @@
 //
 // CREATED:         07/05/2022
 //
-// LAST EDITED:     11/19/2022
+// LAST EDITED:     11/20/2022
 //
 // Copyright 2022, Ethan D. Twardy
 //
@@ -24,7 +24,7 @@
 // limitations under the License.
 ////
 
-use crate::Money;
+use crate::money::Money;
 use chrono::{offset::FixedOffset, offset::Utc, DateTime};
 use serde::{Deserialize, Serialize};
 use std::convert::TryInto;

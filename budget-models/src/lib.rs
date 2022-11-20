@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     11/17/2022
+// LAST EDITED:     11/20/2022
 //
 // Copyright 2022, Ethan D. Twardy
 //
@@ -26,8 +26,10 @@
 
 pub mod display;
 pub mod models;
+pub mod money;
 
 pub use models::*;
+pub use money::*;
 
 #[macro_use]
 extern crate cfg_if;
@@ -35,8 +37,6 @@ extern crate cfg_if;
 cfg_if! {
     if #[cfg(feature = "business-logic")] {
         pub mod calculation;
-        mod money;
-        pub use money::*;
         pub mod total;
     }
 }
