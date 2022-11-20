@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     11/16/2022
+// LAST EDITED:     11/20/2022
 //
 // Copyright 2022, Ethan D. Twardy
 //
@@ -26,7 +26,7 @@
 
 use axum::{
     http::StatusCode,
-    routing::{get, post},
+    routing::get,
     Router,
 };
 use budget_backend_lib::secret::SecretManager;
@@ -115,15 +115,6 @@ async fn main() -> anyhow::Result<()> {
             get({
                 let db = connection.clone();
                 move || endpoints::accounts::list(db)
-            }),
-        )
-        .route(
-            "/api/transactions",
-            post({
-                let db = connection.clone();
-                move |transaction| {
-                    endpoints::transactions::create(transaction, db)
-                }
             }),
         )
         .layer(TraceLayer::new_for_http());

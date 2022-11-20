@@ -7,7 +7,7 @@
 //
 // CREATED:         07/04/2022
 //
-// LAST EDITED:     11/15/2022
+// LAST EDITED:     11/20/2022
 //
 // Copyright 2022, Ethan D. Twardy
 //
@@ -25,6 +25,5 @@
 ////
 
 pub mod accounts;
-pub mod transactions;
 
 ///////////////////////////////////////////////////////////////////////////////
