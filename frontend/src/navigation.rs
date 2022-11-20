@@ -34,7 +34,8 @@ use yew_router::prelude::*;
 
 #[derive(Clone, Properties, PartialEq)]
 struct ViewLinkProps<R>
-where R: Routable + Copy + 'static,
+where
+    R: Routable + Copy + 'static,
 {
     to: R,
     label: String,
@@ -42,7 +43,8 @@ where R: Routable + Copy + 'static,
 
 #[function_component]
 fn ViewLink<R>(props: &ViewLinkProps<R>) -> Html
-where R: Routable + Copy + 'static,
+where
+    R: Routable + Copy + 'static,
 {
     html! {
         <li class={classes!("nav-item", "py-1")}>
@@ -59,7 +61,8 @@ where R: Routable + Copy + 'static,
 
 #[function_component]
 pub fn Navigation<R>() -> Html
-where R: Routable + IntoEnumIterator + ToString + Copy + 'static,
+where
+    R: Routable + IntoEnumIterator + ToString + Copy + 'static,
 {
     html! {
         <nav class={classes!("col-md-3", "col-lg-2", "d-md-block", "bg-light",

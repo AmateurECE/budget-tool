@@ -24,8 +24,8 @@
 // limitations under the License.
 ////
 
-use yew::prelude::*;
 use table_iter::prelude::*;
+use yew::prelude::*;
 use yew_roots::table::Table;
 
 use crate::view::ViewHeader;

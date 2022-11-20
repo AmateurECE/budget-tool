@@ -128,10 +128,7 @@ async fn main() -> anyhow::Result<()> {
         )
         .layer(TraceLayer::new_for_http());
 
-    let root = configuration
-        .root
-        .as_ref()
-        .unwrap();
+    let root = configuration.root.as_ref().unwrap();
     axum::Server::bind(&"127.0.0.1:3000".parse().unwrap())
         .serve(Router::new().nest(&root, app).into_make_service())
         .await?;

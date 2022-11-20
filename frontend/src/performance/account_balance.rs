@@ -24,13 +24,13 @@
 // limitations under the License.
 ////
 
+use crate::view::ViewHeader;
 use chart_js::ChartDatasetBuilder;
 use std::collections::HashMap;
 use wasm_bindgen::JsCast;
 use web_sys::{EventTarget, HtmlSelectElement};
 use yew::prelude::*;
 use yew_roots::chart::MultiSeriesLineChart;
-use crate::view::ViewHeader;
 
 ///////////////////////////////////////////////////////////////////////////////
 // BalanceHistoryChart
@@ -46,9 +46,22 @@ pub struct BalanceHistoryChartProps {
 pub fn BalanceHistoryChart(props: &BalanceHistoryChartProps) -> Html {
     let title = "Account Balance".to_string();
     let labels = vec![
-        "January", "February", "March", "April", "May", "June", "July",
-        "August", "September", "October", "November", "December",
-    ].into_iter().map(|month| month.to_string()).collect::<Vec<String>>();
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+    ]
+    .into_iter()
+    .map(|month| month.to_string())
+    .collect::<Vec<String>>();
     let datasets = vec![
         ChartDatasetBuilder::default()
             .label("Account Balance".to_string())
@@ -84,9 +97,9 @@ pub struct SwitchedBalanceHistoryChartProps {
 }
 
 #[function_component]
-pub fn SwitchedBalanceHistoryChart(props: &SwitchedBalanceHistoryChartProps) ->
-    Html
-{
+pub fn SwitchedBalanceHistoryChart(
+    props: &SwitchedBalanceHistoryChartProps,
+) -> Html {
     let account = use_context::<Account>().expect("No context found!");
 
     html! {
@@ -122,7 +135,9 @@ pub fn AccountRouter(props: &AccountRouterProps) -> Html {
             let select = target
                 .and_then(|t| t.dyn_into::<HtmlSelectElement>().ok())
                 .expect("Event must have occurred on select element");
-            state.set(Account { name: select.value().clone() });
+            state.set(Account {
+                name: select.value().clone(),
+            });
         })
     };
 
@@ -145,18 +160,37 @@ pub fn AccountRouter(props: &AccountRouterProps) -> Html {
 ////
 
 const DISCOVER_ACTUAL: [Option<i32>; 8] = [
-    Some(0), Some(10), Some(5), Some(2), Some(20), Some(30), Some(45), None,
+    Some(0),
+    Some(10),
+    Some(5),
+    Some(2),
+    Some(20),
+    Some(30),
+    Some(45),
+    None,
 ];
 
 const DISCOVER_PREDICTED: [Option<i32>; 12] = [
-    None, None, None, None, None, None, Some(45), Some(60), Some(53), Some(50),
-    Some(60), Some(57),
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    Some(45),
+    Some(60),
+    Some(53),
+    Some(50),
+    Some(60),
+    Some(57),
 ];
 
 #[function_component]
 pub fn BalanceHistory() -> Html {
-    let accounts = vec!["FECCCU", "Nicolet", "Discover"].into_iter()
-        .map(|account| account.to_string()).collect::<Vec<String>>();
+    let accounts = vec!["FECCCU", "Nicolet", "Discover"]
+        .into_iter()
+        .map(|account| account.to_string())
+        .collect::<Vec<String>>();
     let actual = HashMap::<String, Vec<Option<i32>>>::from([
         ("Discover".to_string(), DISCOVER_ACTUAL.to_vec()),
         ("FECCCU".to_string(), vec![]),
