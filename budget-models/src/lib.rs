@@ -7,7 +7,7 @@
 //
 // CREATED:         04/10/2022
 //
-// LAST EDITED:     11/15/2022
+// LAST EDITED:     11/17/2022
 //
 // Copyright 2022, Ethan D. Twardy
 //
@@ -24,7 +24,10 @@
 // limitations under the License.
 ////
 
+pub mod display;
 pub mod models;
+
+pub use models::*;
 
 #[macro_use]
 extern crate cfg_if;

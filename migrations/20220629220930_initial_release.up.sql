@@ -22,9 +22,10 @@ CREATE TABLE transactions (
        date timestamp with TIME ZONE NOT NULL,
        account TEXT NOT NULL,
        amount BIGINT NOT NULL,
-       paired_with INTEGER,
+       completed_by INTEGER,
        FOREIGN KEY(account) REFERENCES accounts(name),
-       FOREIGN KEY(paired_with) REFERENCES transactions(id)
+       FOREIGN KEY(completed_by) REFERENCES transactions(id)
+            ON DELETE CASCADE
 );
 
 CREATE TABLE real_transactions (
@@ -32,7 +33,8 @@ CREATE TABLE real_transactions (
        transaction INTEGER NOT NULL,
        line_item TEXT,
        periodic_budget INTEGER,
-       FOREIGN KEY(transaction) REFERENCES transactions(id),
+       FOREIGN KEY(transaction) REFERENCES transactions(id)
+            ON DELETE CASCADE,
        FOREIGN KEY(line_item) REFERENCES line_items(summary),
        FOREIGN KEY(periodic_budget) REFERENCES periodic_budgets(id)
 );
@@ -42,7 +44,8 @@ CREATE TABLE planned_transactions (
        transaction INTEGER NOT NULL,
        line_item TEXT NOT NULL,
        periodic_budget INTEGER NOT NULL,
-       FOREIGN KEY(transaction) REFERENCES transactions(id),
+       FOREIGN KEY(transaction) REFERENCES transactions(id)
+            ON DELETE CASCADE,
        FOREIGN KEY(line_item) REFERENCES line_items(summary),
        FOREIGN KEY(periodic_budget) REFERENCES periodic_budgets(id)
 );

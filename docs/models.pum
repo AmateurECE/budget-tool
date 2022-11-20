@@ -31,7 +31,7 @@ class Transaction {
         +date: DateTime
         +account: String
         +amount: i64
-        +paired_with: Option<i32>
+        +completed_by: Option<i32>
 }
 
 note as N1
@@ -74,10 +74,10 @@ RealTransaction .. N2
 PlannedTransaction .. N2
 PlannedTransaction .. N3
 
-RealTransaction o- Transaction
+RealTransaction -|> Transaction
 RealTransaction "0..*" -o PeriodicBudget
 RealTransaction "0..*" -o LineItem
-PlannedTransaction o- Transaction
+PlannedTransaction -|> Transaction
 PlannedTransaction "0..*" -o PeriodicBudget
 PlannedTransaction "0..*" -o LineItem
 

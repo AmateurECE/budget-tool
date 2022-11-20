@@ -8,7 +8,7 @@
 //
 // CREATED:         07/04/2022
 //
-// LAST EDITED:     11/15/2022
+// LAST EDITED:     11/19/2022
 //
 // Copyright 2022, Ethan D. Twardy
 //
@@ -25,9 +25,11 @@
 // limitations under the License.
 ////
 
-use crate::entities::*;
 use budget_models::models;
+use chrono::FixedOffset;
 use sea_orm::Set;
+
+use crate::entities::*;
 
 impl Into<models::AccountType> for sea_orm_active_enums::Accounttype {
     fn into(self) -> models::AccountType {
@@ -61,27 +63,28 @@ impl Into<models::PeriodicBudget> for periodic_budgets::Model {
     }
 }
 
-impl Into<models::Transaction> for transactions::Model {
-    fn into(self) -> models::Transaction {
-        models::Transaction {
+impl Into<models::TransactionData> for transactions::Model {
+    fn into(self) -> models::TransactionData {
+        models::TransactionData {
             id: self.id,
             summary: self.summary,
             date: self.date.into(),
-            from_account: self.from_account,
-            to_account: self.to_account,
+            account: self.account,
             amount: self.amount,
+            completed_by: self.completed_by,
         }
     }
 }
 
-impl From<models::NewTransaction> for transactions::ActiveModel {
-    fn from(value: models::NewTransaction) -> Self {
-        Self {
+impl From<models::NewTransactionData> for transactions::ActiveModel {
+    fn from(value: models::NewTransactionData) -> Self {
+        transactions::ActiveModel {
             summary: Set(value.summary),
-            date: Set(value.date.into()),
-            from_account: Set(value.from_account),
-            to_account: Set(value.to_account),
-            amount: Set(value.amount),
+            amount: Set(value.amount.into()),
+            account: Set(value.account),
+            date: Set(value
+                .date
+                .with_timezone(&FixedOffset::east_opt(0).unwrap())),
             ..Default::default()
         }
     }

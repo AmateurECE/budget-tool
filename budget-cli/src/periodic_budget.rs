@@ -7,7 +7,7 @@
 //
 // CREATED:         11/10/2022
 //
-// LAST EDITED:     11/15/2022
+// LAST EDITED:     11/17/2022
 //
 // Copyright 2022, Ethan D. Twardy
 //
@@ -26,7 +26,6 @@
 
 use budget_backend_lib::prelude::*;
 use clap::Subcommand;
-use futures::future;
 use sea_orm::prelude::*;
 use sea_orm::DatabaseConnection;
 use table_iter::prelude::*;
@@ -37,52 +36,37 @@ use crate::table;
 struct PeriodicBudgetRecord {
     #[fields(rename = "Id")]
     id: i32,
-    #[fields(rename = "Start Date", with = "crate::display::date")]
+    #[fields(rename = "Start Date", with = "budget_models::display::date")]
     start_date: DateTimeWithTimeZone,
-    #[fields(rename = "End Date", with = "crate::display::date")]
+    #[fields(rename = "End Date", with = "budget_models::display::date")]
     end_date: DateTimeWithTimeZone,
-    #[fields(rename = "Line Items")]
-    line_items: usize,
     #[fields(rename = "Planned Transactions")]
     planned_transactions: usize,
 }
 
 async fn list(db: &DatabaseConnection) -> anyhow::Result<()> {
-    let budgets = future::join_all(
-        PeriodicBudgets::find()
-            .all(db)
-            .await?
-            .iter()
-            .map(|budget| async {
-                let line_items = budget
-                    .find_related(LineItemInstances)
-                    .all(db)
-                    .await
-                    .unwrap();
-                let number_of_planned_transactions: usize = future::join_all(
-                    line_items.iter().map(|line_item| async {
-                        line_item
-                            .find_related(PlannedTransactions)
-                            .all(db)
-                            .await
-                            .unwrap()
-                            .len()
-                    }),
-                )
-                .await
+    let budgets = PeriodicBudgets::find().all(db).await?;
+    let budget_ids = budgets.iter().map(|b| b.id).collect::<Vec<i32>>();
+    let planned_transactions = PlannedTransactions::find()
+        .filter(planned_transactions::Column::PeriodicBudget.is_in(budget_ids))
+        .all(db)
+        .await?;
+    let budgets = budgets
+        .iter()
+        .map(|budget| {
+            let number_of_planned_transactions = planned_transactions
                 .iter()
-                .sum();
-                PeriodicBudgetRecord {
-                    id: budget.id,
-                    start_date: budget.start_date,
-                    end_date: budget.end_date,
-                    line_items: line_items.len(),
-                    planned_transactions: number_of_planned_transactions,
-                }
-            })
-            .collect::<Vec<_>>(),
-    )
-    .await;
+                .filter(|plan| plan.periodic_budget == budget.id)
+                .collect::<Vec<&planned_transactions::Model>>()
+                .len();
+            PeriodicBudgetRecord {
+                id: budget.id,
+                start_date: budget.start_date,
+                end_date: budget.end_date,
+                planned_transactions: number_of_planned_transactions,
+            }
+        })
+        .collect::<Vec<PeriodicBudgetRecord>>();
 
     table::print(&budgets);
     Ok(())

@@ -7,7 +7,7 @@
 //
 // CREATED:         11/14/2022
 //
-// LAST EDITED:     11/15/2022
+// LAST EDITED:     11/19/2022
 //
 // Copyright 2022, Ethan D. Twardy
 //
@@ -28,30 +28,21 @@ use std::error::Error;
 use std::fmt;
 
 ///////////////////////////////////////////////////////////////////////////////
-// MissingInstanceError
+// MissingLineItemError
 ////
 
 #[derive(Debug)]
-pub struct MissingInstanceError {
-    budget: i32,
-    line_item: String,
-}
-
-impl MissingInstanceError {
-    pub fn new(budget: i32, line_item: String) -> Self {
-        Self { budget, line_item }
+pub struct MissingLineItemError(String);
+impl MissingLineItemError {
+    pub fn new<S: AsRef<str>>(line_item: S) -> Self {
+        Self(line_item.as_ref().to_string())
     }
 }
 
-impl Error for MissingInstanceError {}
-
-impl fmt::Display for MissingInstanceError {
+impl Error for MissingLineItemError {}
+impl fmt::Display for MissingLineItemError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "periodic budget {} has no instance of line item {}",
-            self.budget, &self.line_item
-        )
+        write!(f, "line item {} does not exist", &self.0)
     }
 }
 
@@ -63,8 +54,8 @@ impl fmt::Display for MissingInstanceError {
 pub struct MissingBudgetError(String);
 
 impl MissingBudgetError {
-    pub fn new(date: String) -> Self {
-        Self(date)
+    pub fn new<S: AsRef<str>>(date: S) -> Self {
+        Self(date.as_ref().to_string())
     }
 }
 

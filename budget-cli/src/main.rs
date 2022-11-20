@@ -7,7 +7,7 @@
 //
 // CREATED:         09/22/2022
 //
-// LAST EDITED:     11/15/2022
+// LAST EDITED:     11/17/2022
 //
 // Copyright 2022, Ethan D. Twardy
 //
@@ -28,8 +28,6 @@ use clap::{Parser, Subcommand};
 use sea_orm::Database;
 use std::env;
 
-mod display;
-mod line_item;
 mod periodic_budget;
 mod table;
 mod transaction;
@@ -51,12 +49,6 @@ enum Object {
     PeriodicBudget {
         #[command(subcommand)]
         verb: periodic_budget::Verb,
-    },
-
-    /// Actions available on the set of line items
-    LineItem {
-        #[command(subcommand)]
-        verb: line_item::Verb,
     },
 
     /// Actions available on the set of transactions, real and planned
@@ -84,7 +76,6 @@ async fn main() -> anyhow::Result<()> {
         Object::PeriodicBudget { verb } => {
             periodic_budget::op(verb, &db).await
         }
-        Object::LineItem { verb } => line_item::op(verb, &db).await,
         Object::Transaction {
             transaction_type,
             verb,

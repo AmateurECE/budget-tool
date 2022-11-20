@@ -16,7 +16,7 @@ pub struct Model {
     #[sea_orm(column_type = "Text")]
     pub account: String,
     pub amount: i64,
-    pub paired_with: Option<i32>,
+    pub completed_by: Option<i32>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -31,10 +31,10 @@ pub enum Relation {
     Accounts,
     #[sea_orm(
         belongs_to = "Entity",
-        from = "Column::PairedWith",
+        from = "Column::CompletedBy",
         to = "Column::Id",
         on_update = "NoAction",
-        on_delete = "NoAction"
+        on_delete = "Cascade"
     )]
     SelfRef,
     #[sea_orm(has_many = "super::real_transactions::Entity")]

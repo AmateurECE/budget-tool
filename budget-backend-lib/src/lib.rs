@@ -7,7 +7,7 @@
 //
 // CREATED:         09/18/2022
 //
-// LAST EDITED:     11/15/2022
+// LAST EDITED:     11/17/2022
 //
 // Copyright 2022, Ethan D. Twardy
 //
@@ -25,9 +25,10 @@
 ////
 
 mod conversions;
-pub mod error;
 pub mod entities;
+pub mod error;
 pub mod secret;
+pub mod transaction;
 
 pub mod prelude;
 

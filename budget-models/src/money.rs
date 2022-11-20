@@ -7,7 +7,7 @@
 //
 // CREATED:         07/08/2022
 //
-// LAST EDITED:     11/15/2022
+// LAST EDITED:     11/19/2022
 //
 // Copyright 2022, Ethan D. Twardy
 //
@@ -24,6 +24,7 @@
 // limitations under the License.
 ////
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -31,7 +32,9 @@ use std::fmt;
 //  This type represents a value of money.
 ////
 
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(
+    Clone, Copy, Debug, Default, PartialEq, Eq, Deserialize, Serialize,
+)]
 pub struct Money(i64);
 
 impl Money {
