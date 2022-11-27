@@ -9,7 +9,7 @@ axum = "0.5.17"
 budget-models = { path = "../budget-models" }
 budget-backend-lib = { path = "../budget-backend-lib" }
 clap = { version = "4.0.25", features = ["derive"] }
-sea-orm = { version = "0.10.3", features = ["sqlx-postgres", "runtime-tokio-native-tls", "chrono"] }
+sea-orm = { version = "0.10.4", features = ["sqlx-postgres", "runtime-tokio-native-tls", "chrono"] }
 serde = { version = "1.0.147", features = ["derive"] }
 serde_yaml = "0.9.14"
 tokio = { version = "1.21.2", features = ["full"] }
