@@ -49,3 +49,11 @@ CREATE TABLE planned_transactions (
        FOREIGN KEY(line_item) REFERENCES line_items(summary),
        FOREIGN KEY(periodic_budget) REFERENCES periodic_budgets(id)
 );
+
+CREATE TABLE initial_balances (
+        id SERIAL PRIMARY KEY,
+        account TEXT NOT NULL,
+        date timestamp WITH TIME ZONE NOT NULL,
+        amount BIGINT NOT NULL,
+        FOREIGN KEY(account) REFERENCES accounts(name)
+);

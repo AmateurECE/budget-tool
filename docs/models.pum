@@ -70,6 +70,13 @@ note as N3
         association to be None.
 end note
 
+class InitialBalance {
+        +id: i32
+        +account: String
+        +date: DateTime
+        +amount: i64
+}
+
 RealTransaction .. N2
 PlannedTransaction .. N2
 PlannedTransaction .. N3
@@ -84,6 +91,8 @@ PlannedTransaction "0..*" -o LineItem
 Transaction .. N1
 Account o- Transaction
 Account *-- AccountType
+
+Account o- "0..*" InitialBalance
 
 /' These hidden links are just for layout '/
 LineItem -[hidden]- Account
