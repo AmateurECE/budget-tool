@@ -28,20 +28,45 @@
 use budget_backend_lib::prelude::*;
 use clap::Subcommand;
 use sea_orm::prelude::*;
-use sea_orm::QueryOrder;
 use sea_orm::DatabaseConnection;
+use sea_orm::QueryOrder;
 
-async fn verify_account_snapshots<'a, I, J>(
+async fn verify_account_snapshots<'a, I>(
     account: accounts::Model,
-    account_snapshots: I,
-    transactions: J,
-    db: &DatabaseConnection,
+    mut account_snapshots: I,
+    transactions: Vec<&transactions::Model>,
 ) -> anyhow::Result<()>
 where
     I: Iterator<Item = &'a balance_snapshots::Model>,
-    J: Iterator<Item = &'a transactions::Model>,
 {
-    todo!()
+    let previous = account_snapshots.next();
+    if None == previous {
+        return Ok(());
+    }
+    let mut previous = previous.unwrap();
+
+    for snapshot in account_snapshots {
+        let calculated = previous.amount
+            + transactions
+                .iter()
+                .filter_map(|t| {
+                    if t.date >= previous.date && t.date < snapshot.date {
+                        Some(t.amount)
+                    } else {
+                        None
+                    }
+                })
+                .sum::<i64>();
+        if calculated != snapshot.amount {
+            println!(
+                "{}, {}: Calculated amount: {}, Snapshot amount: {}",
+                account.name, snapshot.date, calculated, snapshot.amount
+            );
+        }
+        previous = snapshot;
+    }
+
+    Ok(())
 }
 
 async fn verify(db: &DatabaseConnection) -> anyhow::Result<()> {
@@ -49,10 +74,12 @@ async fn verify(db: &DatabaseConnection) -> anyhow::Result<()> {
     let accounts = Accounts::find().all(db).await?;
     let balance_snapshots = BalanceSnapshots::find()
         .order_by_asc(<BalanceSnapshots as EntityTrait>::Column::Date)
-        .all(db).await?;
+        .all(db)
+        .await?;
     let transactions = Transactions::find()
         .order_by_asc(<BalanceSnapshots as EntityTrait>::Column::Date)
-        .all(db).await?;
+        .all(db)
+        .await?;
     for account in accounts {
         print!("{}...", &account.name);
         let name = account.name.clone();
@@ -62,14 +89,14 @@ async fn verify(db: &DatabaseConnection) -> anyhow::Result<()> {
         let name = account.name.clone();
         let account_transactions = transactions
             .iter()
-            .filter(|transaction| transaction.account == name);
+            .filter(|transaction| transaction.account == name)
+            .collect::<Vec<&transactions::Model>>();
         verify_account_snapshots(
             account,
             account_snapshots,
             account_transactions,
-            db,
         )
-            .await?;
+        .await?;
         println!("OK");
     }
 
