@@ -7,7 +7,7 @@
 //
 // CREATED:         09/22/2022
 //
-// LAST EDITED:     11/17/2022
+// LAST EDITED:     11/28/2022
 //
 // Copyright 2022, Ethan D. Twardy
 //
@@ -28,6 +28,7 @@ use clap::{Parser, Subcommand};
 use sea_orm::Database;
 use std::env;
 
+mod balance_snapshot;
 mod periodic_budget;
 mod table;
 mod transaction;
@@ -61,6 +62,12 @@ enum Object {
         #[command(subcommand)]
         verb: transaction::Verb,
     },
+
+    /// Actions available on the set of balance snapshots
+    BalanceSnapshot {
+        #[command(subcommand)]
+        verb: balance_snapshot::Verb,
+    },
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -80,6 +87,9 @@ async fn main() -> anyhow::Result<()> {
             transaction_type,
             verb,
         } => transaction::op(verb, *transaction_type, &db).await,
+        Object::BalanceSnapshot { verb } => {
+            balance_snapshot::op(verb, &db).await
+        }
     }
 }
 

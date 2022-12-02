@@ -3,7 +3,7 @@
 pub mod prelude;
 
 pub mod accounts;
-pub mod initial_balances;
+pub mod balance_snapshots;
 pub mod line_items;
 pub mod periodic_budgets;
 pub mod planned_transactions;

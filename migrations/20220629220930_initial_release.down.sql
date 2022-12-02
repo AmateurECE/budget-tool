@@ -1,4 +1,4 @@
-DROP TABLE initial_balances;
+DROP TABLE balance_snapshots;
 DROP TABLE planned_transactions;
 DROP TABLE real_transactions;
 DROP TABLE transactions;

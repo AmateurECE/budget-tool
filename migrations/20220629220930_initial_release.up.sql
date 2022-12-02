@@ -50,7 +50,7 @@ CREATE TABLE planned_transactions (
        FOREIGN KEY(periodic_budget) REFERENCES periodic_budgets(id)
 );
 
-CREATE TABLE initial_balances (
+CREATE TABLE balance_snapshots (
         id SERIAL PRIMARY KEY,
         account TEXT NOT NULL,
         date timestamp WITH TIME ZONE NOT NULL,
