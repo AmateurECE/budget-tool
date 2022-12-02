@@ -199,7 +199,7 @@ dependencies = [
 
 [[package]]
 name = "budget-backend-lib"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "axum",
@@ -212,7 +212,7 @@ dependencies = [
 
 [[package]]
 name = "budget-cli"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "budget-backend-lib",
